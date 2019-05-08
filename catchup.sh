@@ -148,6 +148,21 @@ cmake_installer/3.3.2@conan/stable' > myprofile
     conan create . user/testing -pr=myprofile
 }
 
+python_requires(){
+	cd python_requires/mytools
+	conan export . user/testing
+	cd ../consumer
+	conan create . user/testing
+}
+
+hooks(){
+	conan config install hooks
+	cd hooks
+	conan new Hello/0.1
+	conan create . user/testing
+	rm conanfile.py
+}
+
 read_options(){
     local choice
     cd ${curdir}
@@ -161,11 +176,13 @@ read_options(){
             7) upload_artifactory ;;
             8) cross_build_hello ;;
             9) profile_arm_compiler ;;
-            11) gtest ;;
-            12) gtest_build_require ;;
-            13) cmake_build_require ;;
-            14) package_header_only ;;
-            -1) exit 0 ;;
+            10) gtest ;;
+            11) gtest_build_require ;;
+            12) cmake_build_require ;;
+            13) package_header_only ;;
+	    14) python_requires ;;
+	    15) hooks ;;
+	    -1) exit 0 ;;
             *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
     esac
 }
@@ -184,10 +201,12 @@ show_menus() {
         echo "7. Exercise 7 (Upload packages to artifactory)"
         echo "8. Exercise 8 (Cross build to ARM - RPI)"
         echo "9. Exercise 9 (Cross build zlib dependency to ARM)"
-        echo "11. Exercise 11 (Use Gtest as a require)"
-        echo "12. Exercise 12 (Use Gtest as a build_require)"
-        echo "13. Exercise 13 (CMake as build require)"
-        echo "14. Exercise 14 (Create a package for a header only library)"
+        echo "10. Exercise 10 (Use Gtest as a require)"
+        echo "11. Exercise 11 (Use Gtest as a build_require)"
+        echo "12. Exercise 12 (CMake as build require)"
+        echo "13. Exercise 13 (Create a package for a header only library)"
+	echo "14. Exercise 14 (Python requires)"
+	echo "15. Exercise 15 (Hooks)"
         echo "-1. Exit"
 }
 
