@@ -81,7 +81,6 @@ upload_artifactory() {
 
 cross_build_hello(){
    cd create_sources
-   less ../profile_arm/arm_gcc_debug.profile
    conan create . user/testing -pr=../profile_arm/arm_gcc_debug.profile
    conan search
    conan search Hello/0.1@user/testing
