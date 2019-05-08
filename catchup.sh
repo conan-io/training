@@ -3,7 +3,6 @@
 curdir=$(pwd)
 RED='\033[0;51;30m'
 STD='\033[0;0;39m'
-APIKEY='AKCp2WWshJKjZjguhB3vD2u3RMwHA7gmxWUohWVhs1FqacHBAzKaiL2pp24NNUEhWHm5Dd4JY'
 
 consumer() {
    echo "performing Exercise 2 (consumer, with CMake)"
