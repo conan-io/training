@@ -1,0 +1,21 @@
+def artifactory_name = "artifactory-ha"
+def artifactory_repo = "myconanrepo"
+                                                                              
+node {                                                                        
+    def server = Artifactory.server artifactory_name                          
+    def client = Artifactory.newConanClient()                                 
+    def serverName = client.remote.add server: server, repo: artifactory_repo 
+    stage("Get recipe"){                                                      
+        checkout scm                                                          
+    }                                                                         
+                                                                              
+    stage("Build package"){                                                   
+        client.run(command: "create . team/stable")                           
+    }                                                                         
+                                                                              
+    stage("Upload packages"){                                                 
+        String command = "upload * --all -r ${serverName} --confirm"          
+        def b = client.run(command: command)                                  
+        server.publishBuildInfo b                                             
+    }                                                                         
+}                                                                             

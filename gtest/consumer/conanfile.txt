@@ -1,0 +1,6 @@
+[requires]
+Hello/0.1@user/testing
+
+[generators]
+cmake
+

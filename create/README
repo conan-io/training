@@ -1,0 +1,3 @@
+This folder is empty on purpose.
+Files will be created with "conan new" commmand
+Still the folder is necessary so "catchup" script works well.
