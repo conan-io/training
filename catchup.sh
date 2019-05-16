@@ -168,11 +168,11 @@ version_ranges(){
     conan remove Hello* -f
     conan new hello/0.1 -s
     conan create . user/testing
-    conan install hello/[>0.0 <1.0]@user/testing
+    conan install "hello/[>0.0 <1.0]@user/testing"
     conan new hello/0.2 -s
     conan create . user/testing
     conan search
-    conan install hello/[>0.0 <1.0]@user/testing
+    conan install "hello/[>0.0 <1.0]@user/testing"
 }
 
 revisions(){                                          
