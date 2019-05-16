@@ -163,9 +163,21 @@ hooks(){
 	rm conanfile.py
 }
 
+version_ranges(){
+    mkdir version_ranges && cd version_ranges
+    conan remove Hello* -f
+    conan new hello/0.1 -s
+    conan create . user/testing
+    conan install hello/[>0.0 <1.0]@user/testing
+    conan new hello/0.2 -s
+    conan create . user/testing
+    conan search
+    conan install hello/[>0.0 <1.0]@user/testing
+}
+
 revisions(){                                          
        mkdir revisions && cd revisions
-       conan remove Hello* -f
+       conan remove hello* -f
        conan new hello/0.1 -s                         
        conan config set general.revisions_enabled=True
        conan create . user/testing                    
@@ -197,7 +209,8 @@ read_options(){
             13) package_header_only ;;
             14) python_requires ;;
             15) hooks ;;
-            16) revisions ;;
+            16) version_ranges ;;
+            17) revisions ;;
             -1) exit 0 ;;
             *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
     esac
@@ -223,7 +236,8 @@ show_menus() {
         echo "13. Create a package for a header only library"
 	    echo "14. Python requires"
 	    echo "15. Hooks"
-        echo "16. Revisions"
+        echo "16. Version ranges"
+        echo "17. Revisions"
         echo "-1. Exit"
 }
 
