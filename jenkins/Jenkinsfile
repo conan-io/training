@@ -1,5 +1,5 @@
 def artifactory_name = "artifactory-ha"
-def artifactory_repo = "myconanrepo"
+def artifactory_repo = "conan-local"
                                                                               
 node {                                                                        
     def server = Artifactory.server artifactory_name                          
