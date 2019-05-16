@@ -164,14 +164,17 @@ hooks(){
 }
 
 revisions(){                                          
-       mkdir revisions && cd revisions                
+       mkdir revisions && cd revisions
+       conan remove Hello* -f
        conan new hello/0.1 -s                         
        conan config set general.revisions_enabled=True
        conan create . user/testing                    
        conan create . user/testing -s build_type=Debug
+       conan upload hello* --all -r=artifactory --confirm
        echo "#comment" >> conanfile.py                
        conan create . user/testing                    
        conan create . user/testing -s build_type=Debug
+       conan upload hello* --all -r=artifactory --confirm
        conan search hello/0.1@user/testing        
 }                                                     
 
