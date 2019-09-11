@@ -54,8 +54,6 @@ consumer_cmake_modern() {
    cmake .. -DCMAKE_BUILD_TYPE=Release
    cmake --build .
    ./timer
-   conan search
-   conan search zlib/1.2.11@conan/stable
 }
 
 consumer_cmake_find() {
@@ -73,37 +71,70 @@ consumer_cmake_find() {
 create() {
    echo "performing Exercise 7 (Create a Conan Package)"
    cd create
-   conan new Hello/0.1
+   conan new hello/0.1
    conan create . user/testing
    conan search
-   conan search Hello/0.1@user/testing
+   conan search hello/0.1@user/testing
    conan create . user/testing -s build_type=Debug
-   conan search Hello/0.1@user/testing
-   conan new Hello/0.1 -t
+   conan search hello/0.1@user/testing
+}
+
+consume_hello() {
+   echo "performing Exercise 8 (Consume the hello package)"
+   cd consumer
+   sed -i 's/[requires]/[requires]\nhello/0.1@user/testing/g' conanfile.txt
+   sed -i 's/CONAN_PKG::Poco/CONAN_PKG::Poco CONAN_PKG::hello/g' CMakeLists.txt
+   sed -i 's/TimerExample example;/TimerExample example;\nhello();/g' timer.cpp
+   sed -i 's/#include <iostream>/#include <iostream>\n#include "hello.h"/g' timer.cpp
+   rm -rf build
+   mkdir -p build
+   cd build
+   conan install ..
+   cmake .. -DCMAKE_BUILD_TYPE=Release
+   cmake --build .
+   ./timer
+}
+
+create_test() {
+   echo "performing Exercise 9 (Create a Conan Package)"
+   cd create
+   conan new hello/0.1 -t
    conan create . user/testing
+   conan create . user/testing -s build_type=Debug
 }
 
 create_sources() {
-   echo "performing Exercise 6 (Create Package with sources)"
+   echo "performing Exercise 10 (Create Package with sources)"
    cd create_sources
-   conan new Hello/0.1 -t -s
+   conan new hello/0.1 -t -s
    conan create . user/testing
    conan create . user/testing -s build_type=Debug
 }
 
 upload_artifactory() {
-   echo "performing Exercise 7 (Upload packages to artifactory)"
-   conan upload Hello/0.1@user/testing -r artifactory --all
+   echo "performing Exercise 11 (Upload packages to artifactory)"
+   conan upload hello/0.1@user/testing -r artifactory --all
    conan search -r=artifactory
-   conan search Hello/0.1@user/testing -r=artifactory
-   conan remove Hello/0.1@user/testing -f
-   cd create_sources
-   conan test test_package Hello/0.1@user/testing
-   conan test test_package Hello/0.1@user/testing -s build_type=Debug
+   conan search hello/0.1@user/testing -r=artifactory
    conan upload "*" -r=artifactory --all --confirm
+}
+
+consume_artifactory() {
+   echo "performing Exercise 12 (Consume packages from artifactory)"
+   # remove everything from local cache
    conan remove "*" -f
    cd ../consumer/build
-   conan install ..
+   conan install .. -r=artifactory
+   cmake .. -DCMAKE_BUILD_TYPE=Release
+   cmake --build .
+   ./timer
+}
+
+test_artifactory() {
+   echo "performing Exercise 13 (conan test command)"
+   cd create_sources
+   conan test test_package hello/0.1@user/testing
+   conan test test_package hello/0.1@user/testing -s build_type=Debug
 }
 
 cross_build_hello(){
@@ -229,7 +260,12 @@ read_options(){
             5) consumer_cmake_modern ;;
             6) consumer_cmake_find ;;
             7) create ;;
-            8) create_sources ;;
+            8) consume_hello ;;
+            9) create_test ;;
+            10) create_sources ;;
+            11) upload_artifactory ;;
+            12) consume_artifactory ;;
+            13) test_artifactory ;;
             
             -1) exit 0 ;;
             *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
@@ -247,9 +283,14 @@ show_menus() {
         echo "4. Consume with GCC"
         echo "5. Consume with CMake, modern targets"
         echo "6. Consume with CMake find_package"
-        echo "7. Create a conan package"
-        echo "6. Create package with sources"
-        echo "7. Upload packages to artifactory"
+        echo "7. Create a conan 'hello' package"
+        echo "8. Consume the 'hello' package"
+        echo "9. Create & test the 'hello' package with test_package"
+        echo "10. Create a conan 'hello' package recipe in-source"
+        echo "11. Upload packages to Artifactory"
+        echo "12. Consume packages from Artifactory"
+        echo "13. Test packages with 'conan test'"
+
         echo "8. Cross build to ARM - RPI"
         echo "9. Cross build zlib dependency to ARM"
         echo "10. Use Gtest as a require"
