@@ -42,8 +42,36 @@ consumer_gcc() {
    ./timer
 }
 
+consumer_cmake_modern() {
+   echo "performing Exercise 5 (consumer, with CMake modern)"
+   cd consumer
+   sed -i 's/conan_basic_setup()/conan_basic_setup(NO_OUTPUT_DIRS TARGETS)/g' CMakeLists.txt
+   sed -i 's/${CONAN_LIBS}/CONAN_PKG::Poco CONAN_PKG::boost/g' CMakeLists.txt
+   rm -rf build
+   mkdir -p build
+   cd build
+   conan install ..
+   cmake .. -DCMAKE_BUILD_TYPE=Release
+   cmake --build .
+   ./timer
+   conan search
+   conan search zlib/1.2.11@conan/stable
+}
+
+consumer_cmake_find() {
+   echo "performing Exercise 6 (consumer, with cmake_find_package)"
+   cd consumer_cmake_find
+   rm -rf build
+   mkdir -p build
+   cd build
+   conan install .. -g cmake_find_package
+   cmake .. -DCMAKE_BUILD_TYPE=Release
+   cmake --build .
+   ./timer
+}
+
 create() {
-   echo "performing Exercise 5 (Create a Conan Package)"
+   echo "performing Exercise 7 (Create a Conan Package)"
    cd create
    conan new Hello/0.1
    conan create . user/testing
@@ -198,19 +226,11 @@ read_options(){
             2) consumer ;;
             3) consumer_debug ;;
             4) consumer_gcc ;;
-            5) create ;;
-            6) create_sources ;;
-            7) upload_artifactory ;;
-            8) cross_build_hello ;;
-            9) profile_arm_compiler ;;
-            10) gtest ;;
-            11) gtest_build_require ;;
-            12) cmake_build_require ;;
-            13) package_header_only ;;
-            14) python_requires ;;
-            15) hooks ;;
-            16) version_ranges ;;
-            17) revisions ;;
+            5) consumer_cmake_modern ;;
+            6) consumer_cmake_find ;;
+            7) create ;;
+            8) create_sources ;;
+            
             -1) exit 0 ;;
             *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
     esac
@@ -225,7 +245,9 @@ show_menus() {
         echo "2. Consume with CMake"
         echo "3. Consume with CMake, with different build_type, Debug"
         echo "4. Consume with GCC"
-        echo "5. Create a conan package"
+        echo "5. Consume with CMake, modern targets"
+        echo "6. Consume with CMake find_package"
+        echo "7. Create a conan package"
         echo "6. Create package with sources"
         echo "7. Upload packages to artifactory"
         echo "8. Cross build to ARM - RPI"
