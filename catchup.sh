@@ -82,7 +82,7 @@ create() {
 consume_hello() {
    echo "performing Exercise 8 (Consume the hello package)"
    cd consumer
-   sed -i 's/[requires]/[requires]\nhello/0.1@user/testing/g' conanfile.txt
+   sed -i "s#\[requires\]#\[requires\]\nhello/0.1@user/testing#g" conanfile.txt
    sed -i 's/CONAN_PKG::Poco/CONAN_PKG::Poco CONAN_PKG::hello/g' CMakeLists.txt
    sed -i 's/TimerExample example;/TimerExample example;\nhello();/g' timer.cpp
    sed -i 's/#include <iostream>/#include <iostream>\n#include "hello.h"/g' timer.cpp
