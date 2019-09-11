@@ -1,10 +1,12 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
+#include <iostream>
+#include "hello.h"
 #include <zlib.h>
+#include <stdio.h>
 
-int main(void) {
+
+void hello(){
+    std::cout << "Hello world!\n";
+    
     char buffer_in [100] = {"Conan Package Manager is GREEEEEEEEEEEEEEAAAAAAAAAAT"};
     char buffer_out [100] = {0};
 
@@ -27,6 +29,4 @@ int main(void) {
     printf("Compressed string is: %s\n", buffer_out);
 
     printf("ZLIB VERSION: %s\n", zlibVersion());
-
-    return EXIT_SUCCESS;
 }

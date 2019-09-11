@@ -152,47 +152,37 @@ create_options_greet() {
    conan create . user/testing -o greet:language=Italian
 }
 
-cross_build(){
-   cd cross_build
-   rm -rf build
-   mkdir -p build
-   cd build
-   conan install ..
-   cmake .. -DCMAKE_BUILD_TYPE=Release
-   cmake --build .
-   ./bin/example
-   rm -rf *
-   conan install .. -pr=../rpi_armv7
-   conan install .. -pr=../rpi_armv7 --build=missing
-   cmake .. -DCMAKE_BUILD_TYPE=Release
-   cmake --build .
-   ls bin/example && echo "Example built ok!"
-   ./bin/example
-}
-
 cross_build_hello(){
-   cd create_sources
+   echo "Cross building hello to RPI"
+   cd cross_build
    conan create . user/testing -pr=../cross_build/rpi_armv7
    conan search
-   conan search Hello/0.1@user/testing
+   conan search hello/0.1@user/testing
 }
 
-gtest() {
-    conan remote add conan-center https://conan.bintray.com
-    cd gtest/package
-    conan create . user/testing
-    cd ../consumer
-    conan install .
-    conan remove "gtest*" -f
-    conan install .
+requires(){
+   cd requires
+   conan create . user/testing
+   conan create . user/testing -pr=../cross_build/rpi_armv7
+   conan create . user/testing -pr=../cross_build/rpi_armv7 --build=missing
+}
+
+gtest_require() {
+   cd gtest/package
+   conan create . user/testing
+   cd ../consumer
+   conan install .
+   conan remove "gtest*" -f
+   conan install .
 }
 
 gtest_build_require() {
-    cd gtest/package
-    conan create . user/testing
-    conan remove "gtest*" -f
-    cd ../consumer
-    conan install .
+   cd gtest/package
+   sed -i 's/requires =/build_requires = /g' CMakeLists.txt
+   conan create . user/testing
+   conan remove "gtest*" -f
+   cd ../consumer
+   conan install .
 }
 
 cmake_build_require() {
@@ -289,8 +279,10 @@ read_options(){
             13) test_artifactory ;;
             14) create_options_shared ;;
             15) create_options_greet ;;
-            16) cross_build ;;
-            17) cross_build_hello ;;
+            16) cross_build_hello ;;
+            17) requires ;;
+            18) gtest_require ;;
+            19) gtest_build_require ;;
             
             -1) exit 0 ;;
             *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
@@ -317,8 +309,10 @@ show_menus() {
         echo "13. Test packages with 'conan test'"
         echo "14. Package options: shared"
         echo "15. Custom package options: language"
-        echo "16. Build app with zlib for RPI-armv7"
-        echo "17. Cross build 'hello' package for RPI-armv7"
+        echo "16. Cross-build 'hello' pkg for RPI-armv7"
+        echo "17. 'hello' transitive requires 'zlib'"
+        echo "18. requires 'gtest'"
+        echo "19. build-requires 'gtest'"
 
         echo "8. Cross build to ARM - RPI"
         echo "9. Cross build zlib dependency to ARM"
