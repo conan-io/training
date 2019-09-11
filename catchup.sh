@@ -187,7 +187,6 @@ gtest_build_require() {
 
 cmake_build_require() {
     cd gtest/package
-    echo 'message(STATUS "CMAKE VERSION ${CMAKE_VERSION}")' >> CMakeLists.txt
     conan create . user/testing
     echo 'include(default)
 [build_requires]
@@ -283,6 +282,8 @@ read_options(){
             17) requires ;;
             18) gtest_require ;;
             19) gtest_build_require ;;
+            20) cmake_build_require ;;
+            21) python_requires ;;
             
             -1) exit 0 ;;
             *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
@@ -313,17 +314,8 @@ show_menus() {
         echo "17. 'hello' transitive requires 'zlib'"
         echo "18. requires 'gtest'"
         echo "19. build-requires 'gtest'"
-
-        echo "8. Cross build to ARM - RPI"
-        echo "9. Cross build zlib dependency to ARM"
-        echo "10. Use Gtest as a require"
-        echo "11. Use Gtest as a build_require"
-        echo "12. CMake as build require"
-        echo "13. Create a package for a header only library"
-	    echo "14. Python requires"
-	    echo "15. Hooks"
-        echo "16. Version ranges"
-        echo "17. Revisions"
+	     echo "20. build-requires 'cmake'"
+	     echo "21. python-requires"
         echo "-1. Exit"
 }
 
