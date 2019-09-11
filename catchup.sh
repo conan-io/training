@@ -123,7 +123,7 @@ consume_artifactory() {
    echo "performing Exercise 12 (Consume packages from artifactory)"
    # remove everything from local cache
    conan remove "*" -f
-   cd ../consumer/build
+   cd consumer/build
    conan install .. -r=artifactory
    cmake .. -DCMAKE_BUILD_TYPE=Release
    cmake --build .
@@ -135,6 +135,21 @@ test_artifactory() {
    cd create_sources
    conan test test_package hello/0.1@user/testing
    conan test test_package hello/0.1@user/testing -s build_type=Debug
+}
+
+create_options_shared() {
+   echo "performing Exercise 14 (Package options: shared)"
+   cd create_sources
+   conan create . user/testing -o hello:shared=True
+   conan create . user/testing -o hello:shared=True -s build_type=Debug
+}
+
+create_options_greet() {
+   echo "performing Exercise 15 (Custom options: language)"
+   cd create_options
+   conan create . user/testing -o greet:language=English
+   conan create . user/testing -o greet:language=Spanish
+   conan create . user/testing -o greet:language=Italian
 }
 
 cross_build_hello(){
@@ -266,6 +281,8 @@ read_options(){
             11) upload_artifactory ;;
             12) consume_artifactory ;;
             13) test_artifactory ;;
+            14) create_options_shared ;;
+            15) create_options_greet ;;
             
             -1) exit 0 ;;
             *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
@@ -290,6 +307,8 @@ show_menus() {
         echo "11. Upload packages to Artifactory"
         echo "12. Consume packages from Artifactory"
         echo "13. Test packages with 'conan test'"
+        echo "14. Package options: shared"
+        echo "15. Custom package options: language"
 
         echo "8. Cross build to ARM - RPI"
         echo "9. Cross build zlib dependency to ARM"
