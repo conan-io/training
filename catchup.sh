@@ -152,46 +152,31 @@ create_options_greet() {
    conan create . user/testing -o greet:language=Italian
 }
 
-cross_build_hello(){
-   cd create_sources
-   conan create . user/testing -pr=../profile_arm/arm_gcc_debug.profile
-   conan search
-   conan search Hello/0.1@user/testing
-}
-
-profile_arm_compiler() {
-   cd profile_arm
+cross_build(){
+   cd cross_build
    rm -rf build
    mkdir -p build
    cd build
-   conan install .. --profile ../arm_gcc_debug.profile
-   conan install .. -pr=../arm_gcc_debug.profile --build missing
-   conan search zlib/1.2.11@conan/stable
-   conan build ..
+   conan install ..
+   cmake .. -DCMAKE_BUILD_TYPE=Release
+   cmake --build .
+   ./bin/example
+   rm -rf build
+   mkdir -p build
+   cd build
+   conan install .. -pr=../rpi_armv7
+   conan install .. -pr=../rpi_armv7 --build=missing
+   cmake .. -DCMAKE_BUILD_TYPE=Release
+   cmake --build .
    ls bin/example && echo "Example built ok!"
+   ./bin/example
 }
 
-package_header_only(){
-    cd header_only
-    conan new picojson/1.3.0 -i -t
-    cp example.cpp test_package
-
-    echo 'from conans import ConanFile
-
-class PicojsonConan(ConanFile):
-    name = "picojson"
-    version = "1.3.0"
-    license = "The 2-Clause BSD License"
-    url = "https://github.com/kazuho/picojson"
-    # No settings/options are necessary, this is header only
-
-    def source(self):
-        self.run("git clone https://github.com/kazuho/picojson.git")
-
-    def package(self):
-        self.copy("*.h", "include")' > conanfile.py
-
-    conan create . user/testing
+cross_build_hello(){
+   cd create_sources
+   conan create . user/testing -pr=../cross_build/rpi_armv7
+   conan search
+   conan search Hello/0.1@user/testing
 }
 
 gtest() {
@@ -264,6 +249,29 @@ revisions(){
        conan search hello/0.1@user/testing        
 }                                                     
 
+package_header_only(){
+    cd header_only
+    conan new picojson/1.3.0 -i -t
+    cp example.cpp test_package
+
+    echo 'from conans import ConanFile
+
+class PicojsonConan(ConanFile):
+    name = "picojson"
+    version = "1.3.0"
+    license = "The 2-Clause BSD License"
+    url = "https://github.com/kazuho/picojson"
+    # No settings/options are necessary, this is header only
+
+    def source(self):
+        self.run("git clone https://github.com/kazuho/picojson.git")
+
+    def package(self):
+        self.copy("*.h", "include")' > conanfile.py
+
+    conan create . user/testing
+}
+
 read_options(){
     local choice
     cd ${curdir}
@@ -283,6 +291,8 @@ read_options(){
             13) test_artifactory ;;
             14) create_options_shared ;;
             15) create_options_greet ;;
+            16) cross_build ;;
+            17) cross_build_hello ;;
             
             -1) exit 0 ;;
             *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
@@ -309,6 +319,8 @@ show_menus() {
         echo "13. Test packages with 'conan test'"
         echo "14. Package options: shared"
         echo "15. Custom package options: language"
+        echo "16. Build app with zlib for RPI-armv7"
+        echo "17. Cross build 'hello' package for RPI-armv7"
 
         echo "8. Cross build to ARM - RPI"
         echo "9. Cross build zlib dependency to ARM"
