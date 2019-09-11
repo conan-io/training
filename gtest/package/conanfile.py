@@ -2,7 +2,7 @@ from conans import ConanFile, CMake
 
 
 class HelloConan(ConanFile):
-    name = hello"
+    name = "hello"
     version = "0.1"
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
