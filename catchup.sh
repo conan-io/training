@@ -178,7 +178,7 @@ gtest_require() {
 
 gtest_build_require() {
    cd gtest/package
-   sed -i 's/requires =/build_requires = /g' CMakeLists.txt
+   sed -i 's/requires =/build_requires = /g' conanfile.py
    conan create . user/testing
    conan remove "gtest*" -f
    cd ../consumer
