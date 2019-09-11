@@ -1,3 +1,0 @@
-[requires]
-hello/1.0@lasote/testing
-

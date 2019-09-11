@@ -2,7 +2,7 @@
 #include "hello.h"
 #include <zlib.h>
 #include <stdio.h>
-
+#include <string.h>
 
 void hello(){
     std::cout << "Hello world!\n";
