@@ -161,9 +161,7 @@ cross_build(){
    cmake .. -DCMAKE_BUILD_TYPE=Release
    cmake --build .
    ./bin/example
-   rm -rf build
-   mkdir -p build
-   cd build
+   rm -rf *
    conan install .. -pr=../rpi_armv7
    conan install .. -pr=../rpi_armv7 --build=missing
    cmake .. -DCMAKE_BUILD_TYPE=Release
