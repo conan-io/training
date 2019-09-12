@@ -214,12 +214,15 @@ hooks_config_install(){
 	conan config install myconfig
 	cd hooks
 	conan new Hello-Pkg/0.1 -s
-	conan create . user/testing
+	conan export . user/testing
 	conan new hello-pkg/0.1 -s
-	conan create . user/testing
+	conan export . user/testing
    echo "    if '-'' in ref:
         raise Exception('Use _ instead of -'')" > ../myconfig
    conan config install ../myconfig
+   conan export . user/testing
+   conan new hello_pkg/0.1 -s
+
 	rm conanfile.py
 }
 
@@ -333,6 +336,7 @@ show_menus() {
         echo "20. build-requires 'gtest'"
 	     echo "21. build-requires 'cmake'"
 	     echo "22. python-requires"
+        echo "23. Hooks and conan config install"
         echo "-1. Exit"
 }
 
