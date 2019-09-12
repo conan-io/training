@@ -261,25 +261,22 @@ revisions(){
        conan search hello/0.1@user/testing        
 }                                                     
 
-package_header_only(){
-    cd header_only
+package_pico_json(){
+    cd pico_json
     conan new picojson/1.3.0 -i -t
     cp example.cpp test_package
 
-    echo 'from conans import ConanFile
-
-class PicojsonConan(ConanFile):
+    echo 'class PicojsonConan(ConanFile):
     name = "picojson"
     version = "1.3.0"
-    license = "The 2-Clause BSD License"
-    url = "https://github.com/kazuho/picojson"
+    no_copy_source = True
     # No settings/options are necessary, this is header only
 
     def source(self):
-        self.run("git clone https://github.com/kazuho/picojson.git")
+        tools.get("https://github.com/kazuho/picojson/archive/v1.3.0.zip")
 
     def package(self):
-        self.copy("*.h", "include")' > conanfile.py
+        self.copy("*.h", dst="include/picojson", src="picojson-1.3.0")' > conanfile.py
 
     conan create . user/testing
 }
@@ -313,6 +310,8 @@ read_options(){
          23) hooks_config_install ;;
          24) version_ranges ;;
          25) lockfiles ;;
+         26) revisions ;;
+         27) package_pico_json ;;
          
          -1) exit 0 ;;
          *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
@@ -349,6 +348,8 @@ show_menus() {
       echo "23. Hooks and conan config install"
       echo "24. Version ranges"
       echo "25. Lockfiles"
+      echo "26. Package revisions"
+      echo "27. Create a package for Pico-json"
       echo "-1. Exit"
 }
 
