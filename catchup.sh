@@ -167,6 +167,15 @@ requires(){
    conan create . user/testing -pr=../cross_build/rpi_armv7 --build=missing
 }
 
+requires_conflict(){
+   cd requires_conflict
+   conan create lib_a user/testing
+   conan create lib_b user/testing
+   conan install .
+   sed -i "s#\[requires\]#\[requires\]\nzlib/1.2.11@conan/stable#g" conanfile.txt
+   conan install .
+}
+
 gtest_require() {
    cd gtest/package
    conan create . user/testing
@@ -201,11 +210,16 @@ python_requires(){
 	conan create . user/testing
 }
 
-hooks(){
-	conan config install hooks
+hooks_config_install(){
+	conan config install myconfig
 	cd hooks
-	conan new Hello/0.1
+	conan new Hello-Pkg/0.1 -s
 	conan create . user/testing
+	conan new hello-pkg/0.1 -s
+	conan create . user/testing
+   echo "    if '-'' in ref:
+        raise Exception('Use _ instead of -'')" > ../myconfig
+   conan config install ../myconfig
 	rm conanfile.py
 }
 
@@ -280,10 +294,12 @@ read_options(){
             15) create_options_greet ;;
             16) cross_build_hello ;;
             17) requires ;;
-            18) gtest_require ;;
-            19) gtest_build_require ;;
-            20) cmake_build_require ;;
-            21) python_requires ;;
+            18) requires_conflict ;;
+            19) gtest_require ;;
+            20) gtest_build_require ;;
+            21) cmake_build_require ;;
+            22) python_requires ;;
+            23) hooks_config_install ;;
             
             -1) exit 0 ;;
             *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
@@ -312,10 +328,11 @@ show_menus() {
         echo "15. Custom package options: language"
         echo "16. Cross-build 'hello' pkg for RPI-armv7"
         echo "17. 'hello' transitive requires 'zlib'"
-        echo "18. requires 'gtest'"
-        echo "19. build-requires 'gtest'"
-	     echo "20. build-requires 'cmake'"
-	     echo "21. python-requires"
+        echo "18. Transitive requirements conflicts"
+        echo "19. requires 'gtest'"
+        echo "20. build-requires 'gtest'"
+	     echo "21. build-requires 'cmake'"
+	     echo "22. python-requires"
         echo "-1. Exit"
 }
 

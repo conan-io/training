@@ -1,0 +1,3 @@
+[requires]
+lib_a/0.1@user/testing
+lib_b/0.1@user/testing
