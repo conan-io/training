@@ -266,7 +266,7 @@ package_pico_json(){
     conan new picojson/1.3.0 -i -t
     cp example.cpp test_package
 
-    echo 'from conans import ConanFile
+    echo 'from conans import ConanFile, tools
 
 class PicojsonConan(ConanFile):
     name = "picojson"
