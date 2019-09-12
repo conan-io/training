@@ -225,15 +225,25 @@ hooks_config_install(){
 }
 
 version_ranges(){
-    mkdir version_ranges && cd version_ranges
-    conan remove Hello* -f
-    conan new hello/0.1 -s
-    conan create . user/testing
-    conan install "hello/[>0.0 <1.0]@user/testing"
-    conan new hello/0.2 -s
-    conan create . user/testing
-    conan search
-    conan install "hello/[>0.0 <1.0]@user/testing"
+    cd version_ranges
+    conan create hello1 user/testing
+    conan create chat user/testing
+    # generate a new hello/0.2 version
+    conan create hello2 user/testing
+    # the chat package will use it because it is inside its valid range
+    conan create chat user/testing
+}
+
+lockfiles(){
+    cd version_ranges
+    conan remove hello/0.2* -f
+    # will generate a conan.lock file
+    conan graph lock chat
+    conan create hello2 user/testing
+    # This will use the 
+    conan create chat user/testing
+    # the chat package will NOT use 0.2 it is locked to 0.1
+    conan create chat user/testing --lockfile
 }
 
 revisions(){                                          
@@ -279,63 +289,67 @@ read_options(){
     cd ${curdir}
     read -p "Enter choice: " choice
     case $choice in
-            2) consumer ;;
-            3) consumer_debug ;;
-            4) consumer_gcc ;;
-            5) consumer_cmake_modern ;;
-            6) consumer_cmake_find ;;
-            7) create ;;
-            8) consume_hello ;;
-            9) create_test ;;
-            10) create_sources ;;
-            11) upload_artifactory ;;
-            12) consume_artifactory ;;
-            13) test_artifactory ;;
-            14) create_options_shared ;;
-            15) create_options_greet ;;
-            16) cross_build_hello ;;
-            17) requires ;;
-            18) requires_conflict ;;
-            19) gtest_require ;;
-            20) gtest_build_require ;;
-            21) cmake_build_require ;;
-            22) python_requires ;;
-            23) hooks_config_install ;;
-            
-            -1) exit 0 ;;
-            *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
+         2) consumer ;;
+         3) consumer_debug ;;
+         4) consumer_gcc ;;
+         5) consumer_cmake_modern ;;
+         6) consumer_cmake_find ;;
+         7) create ;;
+         8) consume_hello ;;
+         9) create_test ;;
+         10) create_sources ;;
+         11) upload_artifactory ;;
+         12) consume_artifactory ;;
+         13) test_artifactory ;;
+         14) create_options_shared ;;
+         15) create_options_greet ;;
+         16) cross_build_hello ;;
+         17) requires ;;
+         18) requires_conflict ;;
+         19) gtest_require ;;
+         20) gtest_build_require ;;
+         21) cmake_build_require ;;
+         22) python_requires ;;
+         23) hooks_config_install ;;
+         24) version_ranges ;;
+         25) lockfiles ;;
+         
+         -1) exit 0 ;;
+         *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
     esac
 }
 
 
 # function to display menus
 show_menus() {
-        echo "~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        echo " Automation Catch Up Menu "
-        echo "~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        echo "2. Consume with CMake"
-        echo "3. Consume with CMake, with different build_type, Debug"
-        echo "4. Consume with GCC"
-        echo "5. Consume with CMake, modern targets"
-        echo "6. Consume with CMake find_package"
-        echo "7. Create a conan 'hello' package"
-        echo "8. Consume the 'hello' package"
-        echo "9. Create & test the 'hello' package with test_package"
-        echo "10. Create a conan 'hello' package recipe in-source"
-        echo "11. Upload packages to Artifactory"
-        echo "12. Consume packages from Artifactory"
-        echo "13. Test packages with 'conan test'"
-        echo "14. Package options: shared"
-        echo "15. Custom package options: language"
-        echo "16. Cross-build 'hello' pkg for RPI-armv7"
-        echo "17. 'hello' transitive requires 'zlib'"
-        echo "18. Transitive requirements conflicts"
-        echo "19. requires 'gtest'"
-        echo "20. build-requires 'gtest'"
-	     echo "21. build-requires 'cmake'"
-	     echo "22. python-requires"
-        echo "23. Hooks and conan config install"
-        echo "-1. Exit"
+      echo "~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      echo " Automation Catch Up Menu "
+      echo "~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      echo "2. Consume with CMake"
+      echo "3. Consume with CMake, with different build_type, Debug"
+      echo "4. Consume with GCC"
+      echo "5. Consume with CMake, modern targets"
+      echo "6. Consume with CMake find_package"
+      echo "7. Create a conan 'hello' package"
+      echo "8. Consume the 'hello' package"
+      echo "9. Create & test the 'hello' package with test_package"
+      echo "10. Create a conan 'hello' package recipe in-source"
+      echo "11. Upload packages to Artifactory"
+      echo "12. Consume packages from Artifactory"
+      echo "13. Test packages with 'conan test'"
+      echo "14. Package options: shared"
+      echo "15. Custom package options: language"
+      echo "16. Cross-build 'hello' pkg for RPI-armv7"
+      echo "17. 'hello' transitive requires 'zlib'"
+      echo "18. Transitive requirements conflicts"
+      echo "19. requires 'gtest'"
+      echo "20. build-requires 'gtest'"
+      echo "21. build-requires 'cmake'"
+      echo "22. python-requires"
+      echo "23. Hooks and conan config install"
+      echo "24. Version ranges"
+      echo "25. Lockfiles"
+      echo "-1. Exit"
 }
 
 while true
