@@ -218,7 +218,7 @@ hooks_config_install(){
 	conan new hello-pkg/0.1 -s
 	conan export . user/testing
    conan remove hello-pkg* -f
-   sed -i "s/#TODO/if '-' in ref:\n        raise Exception('Use _ instead of -'')/g" ../myconfig/hooks/check_name.py
+   sed -i "s/#TODO/if '-' in ref:\n        raise Exception('Use _ instead of -')/g" ../myconfig/hooks/check_name.py
    conan config install ../myconfig
    conan export . user/testing
 	rm conanfile.py
