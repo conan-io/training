@@ -218,7 +218,7 @@ hooks_config_install(){
 	conan new hello-pkg/0.1 -s
 	conan export . user/testing
    echo "    if '-'' in ref:
-        raise Exception('Use _ instead of -'')" > ../myconfig
+        raise Exception('Use _ instead of -'')" > ../myconfig/hooks/check_name.py
    conan config install ../myconfig
    conan export . user/testing
    conan new hello_pkg/0.1 -s
