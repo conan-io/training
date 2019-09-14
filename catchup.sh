@@ -7,6 +7,7 @@ STD='\033[0;0;39m'
 consumer() {
    echo "performing Exercise 2 (consumer, with CMake)"
    cd consumer
+   sed -i 's/booost/boost/g' conanfile.txt
    rm -rf build
    mkdir -p build
    cd build
@@ -59,6 +60,7 @@ consumer_cmake_modern() {
 consumer_cmake_find() {
    echo "performing Exercise 6 (consumer, with cmake_find_package)"
    cd consumer_cmake_find
+   sed -i 's/cmake_find_pakcage/cmake_find_package/g' conanfile.txt
    rm -rf build
    mkdir -p build
    cd build
@@ -147,6 +149,7 @@ create_options_shared() {
 create_options_greet() {
    echo "performing Exercise 15 (Custom options: language)"
    cd create_options
+   sed -i 's/self.copy2/self.copy/g' conanfile.py
    conan create . user/testing -o greet:language=English
    conan create . user/testing -o greet:language=Spanish
    conan create . user/testing -o greet:language=Italian
@@ -155,7 +158,8 @@ create_options_greet() {
 cross_build_hello(){
    echo "Cross building hello to RPI"
    cd cross_build
-   conan create . user/testing -pr=../cross_build/rpi_armv7
+   sed -i 's/Linus/Linux/g' rpi_armv7
+   conan create . user/testing -pr=rpi_armv7
    conan search
    conan search hello/0.1@user/testing
 }
@@ -171,6 +175,7 @@ requires_conflict(){
    cd requires_conflict
    conan create lib_a user/testing
    conan create lib_b user/testing
+   sed -i "s#us$r#user#g" conanfile.txt
    conan install .
    sed -i "s#\[requires\]#\[requires\]\nzlib/1.2.11@conan/stable#g" conanfile.txt
    conan install .
@@ -178,6 +183,7 @@ requires_conflict(){
 
 gtest_require() {
    cd gtest/package
+   sed -i "s#require =#requires =" conanfile.py
    conan create . user/testing
    cd ../consumer
    conan install .
