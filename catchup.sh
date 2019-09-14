@@ -175,7 +175,7 @@ requires_conflict(){
    cd requires_conflict
    conan create lib_a user/testing
    conan create lib_b user/testing
-   sed -i "s#us$r#user#g" conanfile.txt
+   sed -i "s#us\$r#user#g" conanfile.txt
    conan install .
    sed -i "s#\[requires\]#\[requires\]\nzlib/1.2.11@conan/stable#g" conanfile.txt
    conan install .
@@ -183,7 +183,7 @@ requires_conflict(){
 
 gtest_require() {
    cd gtest/package
-   sed -i "s#require =#requires =" conanfile.py
+   sed -i "s#require =#requires =#g" conanfile.py
    conan create . user/testing
    cd ../consumer
    conan install .
