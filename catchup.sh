@@ -205,7 +205,7 @@ cmake_build_require() {
     conan create .
     echo 'include(default)
 [build_requires]
-cmake/3.3.2' > myprofile
+cmake/3.16.3' > myprofile
     conan create . -pr=myprofile
 }
 
