@@ -10,4 +10,4 @@ find_package(boost REQUIRED)
 find_package(poco REQUIRED)
 
 add_executable(timer timer.cpp)
-target_link_libraries(timer poco::poco boost::boost)
+target_link_libraries(timer Poco::Poco Boost::Boost)
