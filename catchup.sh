@@ -17,7 +17,7 @@ consumer() {
    cd bin
    ./timer
    conan search
-   conan search zlib/1.2.11@conan/stable
+   conan search zlib/1.2.11@
 }
 
 consumer_debug() {
@@ -47,7 +47,7 @@ consumer_cmake_modern() {
    echo "performing Exercise 5 (consumer, with CMake modern)"
    cd consumer
    sed -i 's/conan_basic_setup()/conan_basic_setup(NO_OUTPUT_DIRS TARGETS)/g' CMakeLists.txt
-   sed -i 's/${CONAN_LIBS}/CONAN_PKG::Poco CONAN_PKG::boost/g' CMakeLists.txt
+   sed -i 's/${CONAN_LIBS}/CONAN_PKG::poco CONAN_PKG::boost/g' CMakeLists.txt
    rm -rf build
    mkdir -p build
    cd build
@@ -85,7 +85,7 @@ consume_hello() {
    echo "performing Exercise 8 (Consume the hello package)"
    cd consumer
    sed -i "s#\[requires\]#\[requires\]\nhello/0.1#g" conanfile.txt
-   sed -i 's/CONAN_PKG::Poco/CONAN_PKG::Poco CONAN_PKG::hello/g' CMakeLists.txt
+   sed -i 's/CONAN_PKG::poco/CONAN_PKG::poco CONAN_PKG::hello/g' CMakeLists.txt
    sed -i 's/TimerExample example;/TimerExample example;\nhello();/g' timer.cpp
    sed -i 's/#include <iostream>/#include <iostream>\n#include "hello.h"/g' timer.cpp
    rm -rf build

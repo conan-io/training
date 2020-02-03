@@ -7,7 +7,7 @@ class HelloConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
     exports_sources = "src/*"
-    requires = "zlib/1.2.11@conan/stable"
+    requires = "zlib/1.2.11"
 
     def build(self):
         cmake = CMake(self)
