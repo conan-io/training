@@ -1,6 +1,6 @@
 [requires]
 boost/1.72.0
-poco/1.10.0
+poco/1.9.4
 
 [generators]
 
