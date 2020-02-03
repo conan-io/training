@@ -6,7 +6,7 @@ class GreetConan(ConanFile):
     version = "0.1"
     settings = "os", "compiler", "build_type", "arch"
     options = {"language": ["English", "Spanish"]}
-    default_options = "language=English"
+    default_options = {"language": "English"}
     generators = "cmake"
     exports_sources = "src/*"
 

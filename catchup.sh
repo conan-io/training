@@ -32,7 +32,7 @@ consumer_debug() {
    cd bin
    ./timer
    conan search
-   conan search zlib/1.2.11@conan/stable
+   conan search zlib/1.2.11@
 }
 
 consumer_gcc() {
@@ -74,17 +74,17 @@ create() {
    echo "performing Exercise 7 (Create a Conan Package)"
    cd create
    conan new hello/0.1
-   conan create . user/testing
+   conan create .
    conan search
-   conan search hello/0.1@user/testing
-   conan create . user/testing -s build_type=Debug
-   conan search hello/0.1@user/testing
+   conan search hello/0.1@
+   conan create . -s build_type=Debug
+   conan search hello/0.1@
 }
 
 consume_hello() {
    echo "performing Exercise 8 (Consume the hello package)"
    cd consumer
-   sed -i "s#\[requires\]#\[requires\]\nhello/0.1@user/testing#g" conanfile.txt
+   sed -i "s#\[requires\]#\[requires\]\nhello/0.1#g" conanfile.txt
    sed -i 's/CONAN_PKG::Poco/CONAN_PKG::Poco CONAN_PKG::hello/g' CMakeLists.txt
    sed -i 's/TimerExample example;/TimerExample example;\nhello();/g' timer.cpp
    sed -i 's/#include <iostream>/#include <iostream>\n#include "hello.h"/g' timer.cpp
@@ -101,23 +101,23 @@ create_test() {
    echo "performing Exercise 9 (Create a Conan Package)"
    cd create
    conan new hello/0.1 -t
-   conan create . user/testing
-   conan create . user/testing -s build_type=Debug
+   conan create .
+   conan create . -s build_type=Debug
 }
 
 create_sources() {
    echo "performing Exercise 10 (Create Package with sources)"
    cd create_sources
    conan new hello/0.1 -t -s
-   conan create . user/testing
-   conan create . user/testing -s build_type=Debug
+   conan create .
+   conan create . -s build_type=Debug
 }
 
 upload_artifactory() {
    echo "performing Exercise 11 (Upload packages to artifactory)"
-   conan upload hello/0.1@user/testing -r artifactory --all
+   conan upload hello/0.1@ -r artifactory --all
    conan search -r=artifactory
-   conan search hello/0.1@user/testing -r=artifactory
+   conan search hello/0.1@ -r=artifactory
    conan upload "*" -r=artifactory --all --confirm
 }
 
@@ -135,56 +135,56 @@ consume_artifactory() {
 test_artifactory() {
    echo "performing Exercise 13 (conan test command)"
    cd create_sources
-   conan test test_package hello/0.1@user/testing
-   conan test test_package hello/0.1@user/testing -s build_type=Debug
+   conan test test_package hello/0.1@
+   conan test test_package hello/0.1@ -s build_type=Debug
 }
 
 create_options_shared() {
    echo "performing Exercise 14 (Package options: shared)"
    cd create_sources
-   conan create . user/testing -o hello:shared=True
-   conan create . user/testing -o hello:shared=True -s build_type=Debug
+   conan create . -o hello:shared=True
+   conan create . -o hello:shared=True -s build_type=Debug
 }
 
 create_options_greet() {
    echo "performing Exercise 15 (Custom options: language)"
    cd create_options
    sed -i 's/self.copy2/self.copy/g' conanfile.py
-   conan create . user/testing -o greet:language=English
-   conan create . user/testing -o greet:language=Spanish
-   conan create . user/testing -o greet:language=Italian
+   conan create . -o greet:language=English
+   conan create . -o greet:language=Spanish
+   conan create . -o greet:language=Italian
 }
 
 cross_build_hello(){
    echo "Cross building hello to RPI"
    cd cross_build
    sed -i 's/Linus/Linux/g' rpi_armv7
-   conan create . user/testing -pr=rpi_armv7
+   conan create . -pr=rpi_armv7
    conan search
-   conan search hello/0.1@user/testing
+   conan search hello/0.1@
 }
 
-requires(){
+requires() {
    cd requires
-   conan create . user/testing
-   conan create . user/testing -pr=../cross_build/rpi_armv7
-   conan create . user/testing -pr=../cross_build/rpi_armv7 --build=missing
+   conan create .
+   conan create . -pr=../cross_build/rpi_armv7
+   conan create . -pr=../cross_build/rpi_armv7 --build=missing
 }
 
-requires_conflict(){
+requires_conflict() {
    cd requires_conflict
-   conan create lib_a user/testing
-   conan create lib_b user/testing
+   conan create lib_a
+   conan create lib_b
    sed -i "s#us\$r#user#g" conanfile.txt
    conan install .
-   sed -i "s#\[requires\]#\[requires\]\nzlib/1.2.11@conan/stable#g" conanfile.txt
+   sed -i "s#\[requires\]#\[requires\]\nzlib/1.2.11#g" conanfile.txt
    conan install .
 }
 
 gtest_require() {
    cd gtest/package
    sed -i "s#require =#requires =#g" conanfile.py
-   conan create . user/testing
+   conan create .
    cd ../consumer
    conan install .
    conan remove "gtest*" -f
@@ -194,7 +194,7 @@ gtest_require() {
 gtest_build_require() {
    cd gtest/package
    sed -i 's/requires =/build_requires = /g' conanfile.py
-   conan create . user/testing
+   conan create .
    conan remove "gtest*" -f
    cd ../consumer
    conan install .
@@ -202,72 +202,72 @@ gtest_build_require() {
 
 cmake_build_require() {
     cd gtest/package
-    conan create . user/testing
+    conan create .
     echo 'include(default)
 [build_requires]
-cmake_installer/3.3.2@conan/stable' > myprofile
-    conan create . user/testing -pr=myprofile
+cmake/3.3.2' > myprofile
+    conan create . -pr=myprofile
 }
 
-python_requires(){
+python_requires() {
 	cd python_requires/mytools
-	conan export . user/testing
+	conan export .
 	cd ../consumer
-	conan create . user/testing
+	conan create .
 }
 
-hooks_config_install(){
+hooks_config_install() {
 	conan config install myconfig
 	cd hooks
 	conan new Hello-Pkg/0.1 -s
-	conan export . user/testing
+	conan export .
 	conan new hello-pkg/0.1 -s
-	conan export . user/testing
+	conan export .
    conan remove hello-pkg* -f
    sed -i "s/#TODO/if '-' in ref:\n        raise Exception('Use _ instead of -')/g" ../myconfig/hooks/check_name.py
    conan config install ../myconfig
-   conan export . user/testing
+   conan export .
 	rm conanfile.py
 }
 
-version_ranges(){
+version_ranges() {
     cd version_ranges
-    conan create hello1 user/testing
-    conan create chat user/testing
+    conan create hello1
+    conan create chat
     # generate a new hello/0.2 version
-    conan create hello2 user/testing
+    conan create hello2
     # the chat package will use it because it is inside its valid range
-    conan create chat user/testing
+    conan create chat
 }
 
-lockfiles(){
+lockfiles() {
     cd version_ranges
     conan remove hello/0.2* -f
     # will generate a conan.lock file
     conan graph lock chat
-    conan create hello2 user/testing
+    conan create hello2
     # This will use the 
-    conan create chat user/testing
+    conan create chat
     # the chat package will NOT use 0.2 it is locked to 0.1
-    conan create chat user/testing --lockfile
+    conan create chat --lockfile
 }
 
-revisions(){                                          
-       mkdir revisions && cd revisions
-       conan remove hello* -f
-       conan new hello/0.1 -s                         
-       conan config set general.revisions_enabled=True
-       conan create . user/testing                    
-       conan create . user/testing -s build_type=Debug
-       conan upload hello* --all -r=artifactory --confirm
-       echo "#comment" >> conanfile.py                
-       conan create . user/testing                    
-       conan create . user/testing -s build_type=Debug
-       conan upload hello* --all -r=artifactory --confirm
-       conan search hello/0.1@user/testing        
-}                                                     
+revisions() {
+    mkdir revisions && cd revisions
+    conan remove hello* -f
+    conan new hello/0.1 -s
+    conan config set general.revisions_enabled=True
+    conan create .
+    conan create . -s build_type=Debug
+    conan upload hello* --all -r=artifactory --confirm
+    echo "#comment" >> conanfile.py
+    conan create .
+    conan create . -s build_type=Debug
+    conan upload hello* --all -r=artifactory --confirm
+    conan search hello/0.1@
+}
 
-package_pico_json(){
+package_pico_json() {
     cd pico_json
     conan new picojson/1.3.0 -i -t
     cp example.cpp test_package
@@ -286,10 +286,10 @@ class PicojsonConan(ConanFile):
     def package(self):
         self.copy("*.h", dst="include/picojson", src="picojson-1.3.0")' > conanfile.py
 
-    conan create . user/testing
+    conan create .
 }
 
-read_options(){
+read_options() {
     local choice
     cd ${curdir}
     read -p "Enter choice: " choice

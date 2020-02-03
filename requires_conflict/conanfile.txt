@@ -1,3 +1,3 @@
 [requires]
-lib_a/0.1@us$r/testing
-lib_b/0.1@user/testing
+lib_a/0.1
+lib_b/0.1
