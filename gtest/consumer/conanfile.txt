@@ -1,5 +1,5 @@
 [requires]
-hello/0.1
+hello/0.1@user/testing
 
 [generators]
 cmake

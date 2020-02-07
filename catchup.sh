@@ -74,17 +74,17 @@ create() {
    echo "performing Exercise 7 (Create a Conan Package)"
    cd create
    conan new hello/0.1
-   conan create .
+   conan create . user/testing
    conan search
-   conan search hello/0.1@
-   conan create . -s build_type=Debug
-   conan search hello/0.1@
+   conan search hello/0.1@user/testing
+   conan create . user/testing -s build_type=Debug
+   conan search hello/0.1@user/testing
 }
 
 consume_hello() {
    echo "performing Exercise 8 (Consume the hello package)"
    cd consumer
-   sed -i "s#\[requires\]#\[requires\]\nhello/0.1#g" conanfile.txt
+   sed -i "s#\[requires\]#\[requires\]\nhello/0.1@user/testing#g" conanfile.txt
    sed -i 's/CONAN_PKG::poco/CONAN_PKG::poco CONAN_PKG::hello/g' CMakeLists.txt
    sed -i 's/TimerExample example;/TimerExample example;\nhello();/g' timer.cpp
    sed -i 's/#include <iostream>/#include <iostream>\n#include "hello.h"/g' timer.cpp
@@ -101,23 +101,23 @@ create_test() {
    echo "performing Exercise 9 (Create a Conan Package)"
    cd create
    conan new hello/0.1 -t
-   conan create .
-   conan create . -s build_type=Debug
+   conan create . user/testing
+   conan create . user/testing -s build_type=Debug
 }
 
 create_sources() {
    echo "performing Exercise 10 (Create Package with sources)"
    cd create_sources
    conan new hello/0.1 -t -s
-   conan create .
-   conan create . -s build_type=Debug
+   conan create . user/testing
+   conan create . user/testing -s build_type=Debug
 }
 
 upload_artifactory() {
    echo "performing Exercise 11 (Upload packages to artifactory)"
-   conan upload hello/0.1@ -r artifactory --all
+   conan upload hello/0.1@user/testing -r artifactory --all
    conan search -r=artifactory
-   conan search hello/0.1@ -r=artifactory
+   conan search hello/0.1@user/testing -r=artifactory
    conan upload "*" -r=artifactory --all --confirm
 }
 
@@ -135,40 +135,40 @@ consume_artifactory() {
 test_artifactory() {
    echo "performing Exercise 13 (conan test command)"
    cd create_sources
-   conan test test_package hello/0.1@
-   conan test test_package hello/0.1@ -s build_type=Debug
+   conan test test_package hello/0.1@user/testing
+   conan test test_package hello/0.1@user/testing -s build_type=Debug
 }
 
 create_options_shared() {
    echo "performing Exercise 14 (Package options: shared)"
    cd create_sources
-   conan create . -o hello:shared=True
-   conan create . -o hello:shared=True -s build_type=Debug
+   conan create . user/testing -o hello:shared=True
+   conan create . user/testing -o hello:shared=True -s build_type=Debug
 }
 
 create_options_greet() {
    echo "performing Exercise 15 (Custom options: language)"
    cd create_options
    sed -i 's/self.copy2/self.copy/g' conanfile.py
-   conan create . -o greet:language=English
-   conan create . -o greet:language=Spanish
-   conan create . -o greet:language=Italian
+   conan create . user/testing -o greet:language=English
+   conan create . user/testing -o greet:language=Spanish
+   conan create . user/testing -o greet:language=Italian
 }
 
 cross_build_hello(){
    echo "Cross building hello to RPI"
    cd cross_build
    sed -i 's/Linus/Linux/g' rpi_armv7
-   conan create . -pr=rpi_armv7
+   conan create . user/testing -pr=rpi_armv7
    conan search
-   conan search hello/0.1@
+   conan search hello/0.1@user/testing
 }
 
 requires() {
    cd requires
    conan create .
-   conan create . -pr=../cross_build/rpi_armv7
-   conan create . -pr=../cross_build/rpi_armv7 --build=missing
+   conan create . user/testing -pr=../cross_build/rpi_armv7
+   conan create . user/testing -pr=../cross_build/rpi_armv7 --build=missing
 }
 
 requires_conflict() {
@@ -206,7 +206,7 @@ cmake_build_require() {
     echo 'include(default)
 [build_requires]
 cmake/3.16.3' > myprofile
-    conan create . -pr=myprofile
+    conan create . user/testing -pr=myprofile
 }
 
 python_requires() {
@@ -258,13 +258,13 @@ revisions() {
     conan new hello/0.1 -s
     conan config set general.revisions_enabled=True
     conan create .
-    conan create . -s build_type=Debug
+    conan create . user/testing -s build_type=Debug
     conan upload hello* --all -r=artifactory --confirm
     echo "#comment" >> conanfile.py
     conan create .
-    conan create . -s build_type=Debug
+    conan create . user/testing -s build_type=Debug
     conan upload hello* --all -r=artifactory --confirm
-    conan search hello/0.1@
+    conan search hello/0.1@user/testing
 }
 
 package_pico_json() {
