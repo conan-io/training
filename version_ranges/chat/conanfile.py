@@ -14,7 +14,7 @@ class ChatConan(ConanFile):
     default_options = "shared=False"
     generators = "cmake"
     exports_sources = "src/*"
-    requires = "hello/[>0.0 <1.0]"
+    requires = "hello/[>0.0 <1.0]@user/testing"
 
     def build(self):
         cmake = CMake(self)

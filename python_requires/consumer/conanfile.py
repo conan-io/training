@@ -1,6 +1,6 @@
 from conans import ConanFile, python_requires
 
-mytools = python_requires("mytools/0.1")
+mytools = python_requires("mytools/0.1@user/testing")
 
 class ConsumerConan(ConanFile):
     name = "consumer"
