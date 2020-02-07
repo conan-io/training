@@ -166,15 +166,15 @@ cross_build_hello(){
 
 requires() {
    cd requires
-   conan create .
+   conan create . user/testing
    conan create . user/testing -pr=../cross_build/rpi_armv7
    conan create . user/testing -pr=../cross_build/rpi_armv7 --build=missing
 }
 
 requires_conflict() {
    cd requires_conflict
-   conan create lib_a
-   conan create lib_b
+   conan create lib_a user/testing
+   conan create lib_b user/testing
    sed -i "s#us\$r#user#g" conanfile.txt
    conan install .
    sed -i "s#\[requires\]#\[requires\]\nzlib/1.2.11#g" conanfile.txt
@@ -232,12 +232,12 @@ hooks_config_install() {
 
 version_ranges() {
     cd version_ranges
-    conan create hello1
-    conan create chat
+    conan create hello1 user/testing
+    conan create chat user/testing
     # generate a new hello/0.2 version
-    conan create hello2
+    conan create hello2 user/testing
     # the chat package will use it because it is inside its valid range
-    conan create chat
+    conan create chat user/testing
 }
 
 lockfiles() {
@@ -245,9 +245,9 @@ lockfiles() {
     conan remove hello/0.2* -f
     # will generate a conan.lock file
     conan graph lock chat
-    conan create hello2
+    conan create hello2 user/testing
     # This will use the 
-    conan create chat
+    conan create chat user/testing
     # the chat package will NOT use 0.2 it is locked to 0.1
     conan create chat --lockfile
 }
