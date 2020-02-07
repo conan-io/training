@@ -184,7 +184,7 @@ requires_conflict() {
 gtest_require() {
    cd gtest/package
    sed -i "s#require =#requires =#g" conanfile.py
-   conan create .
+   conan create . user/testing
    cd ../consumer
    conan install .
    conan remove "gtest*" -f
@@ -194,7 +194,7 @@ gtest_require() {
 gtest_build_require() {
    cd gtest/package
    sed -i 's/requires =/build_requires = /g' conanfile.py
-   conan create .
+   conan create . user/testing
    conan remove "gtest*" -f
    cd ../consumer
    conan install .
@@ -202,7 +202,7 @@ gtest_build_require() {
 
 cmake_build_require() {
     cd gtest/package
-    conan create .
+    conan create . user/testing
     echo 'include(default)
 [build_requires]
 cmake/3.16.3' > myprofile
@@ -211,22 +211,22 @@ cmake/3.16.3' > myprofile
 
 python_requires() {
 	cd python_requires/mytools
-	conan export .
+	conan export . user/testing
 	cd ../consumer
-	conan create .
+	conan create . user/testing
 }
 
 hooks_config_install() {
 	conan config install myconfig
 	cd hooks
 	conan new Hello-Pkg/0.1 -s
-	conan export .
+	conan export . user/testing
 	conan new hello-pkg/0.1 -s
-	conan export .
+	conan export . user/testing
    conan remove hello-pkg* -f
    sed -i "s/#TODO/if '-' in ref:\n        raise Exception('Use _ instead of -')/g" ../myconfig/hooks/check_name.py
    conan config install ../myconfig
-   conan export .
+   conan export . user/testing
 	rm conanfile.py
 }
 
@@ -257,11 +257,11 @@ revisions() {
     conan remove hello* -f
     conan new hello/0.1 -s
     conan config set general.revisions_enabled=True
-    conan create .
+    conan create . user/testing
     conan create . user/testing -s build_type=Debug
     conan upload hello* --all -r=artifactory --confirm
     echo "#comment" >> conanfile.py
-    conan create .
+    conan create . user/testing
     conan create . user/testing -s build_type=Debug
     conan upload hello* --all -r=artifactory --confirm
     conan search hello/0.1@user/testing
@@ -286,7 +286,7 @@ class PicojsonConan(ConanFile):
     def package(self):
         self.copy("*.h", dst="include/picojson", src="picojson-1.3.0")' > conanfile.py
 
-    conan create .
+    conan create . user/testing
 }
 
 read_options() {
