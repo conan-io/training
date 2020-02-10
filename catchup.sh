@@ -249,7 +249,7 @@ lockfiles() {
     # This will use the 
     conan create chat user/testing
     # the chat package will NOT use 0.2 it is locked to 0.1
-    conan create chat --lockfile
+    conan create chat user/testing --lockfile
 }
 
 revisions() {
