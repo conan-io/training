@@ -109,6 +109,9 @@ create_sources() {
    echo "performing Exercise 10 (Create Package with sources)"
    cd create_sources
    conan new hello/0.1 -t -s
+   sed -i -E 's/exports_sources = "src\/\*"/scm = { "type": "git", "url": "auto", "revision": "auto"}/g' conanfile.py
+   sed -i -E 's/source_folder="src"/source_folder="create_sources\/src"/g' conanfile.py
+   sed -i -E 's/src="src"/src="create_sources\/src"/g' conanfile.py
    conan create . user/testing
    conan create . user/testing -s build_type=Debug
 }
