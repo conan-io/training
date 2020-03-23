@@ -94,7 +94,7 @@ create_test() {
 create_sources() {
    echo "performing Exercise 8 (Create Package with sources)"
    cd create_sources
-   conan new hello/0.1 -t -s
+   sed -i 's/"svn"/"git"/g' conanfile.py
    conan create . user/testing
    conan create . user/testing -s build_type=Debug
 }
