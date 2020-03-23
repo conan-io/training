@@ -118,22 +118,15 @@ consume_artifactory() {
    ./timer
 }
 
-test_artifactory() {
-   echo "performing Exercise 11 (conan test command)"
-   cd create_sources
-   conan test test_package hello/0.1@user/testing
-   conan test test_package hello/0.1@user/testing -s build_type=Debug
-}
-
 create_options_shared() {
-   echo "performing Exercise 12 (Package options: shared)"
+   echo "performing Exercise 11 (Package options: shared)"
    cd create_sources
    conan create . user/testing -o hello:shared=True
    conan create . user/testing -o hello:shared=True -s build_type=Debug
 }
 
 create_options_greet() {
-   echo "performing Exercise 13 (Custom options: language)"
+   echo "performing Exercise 12 (Custom options: language)"
    cd create_options
    sed -i 's/self.copy2/self.copy/g' conanfile.py
    conan create . user/testing -o greet:language=English
@@ -290,21 +283,20 @@ read_options() {
          8) create_sources ;;
          9) upload_artifactory ;;
          10) consume_artifactory ;;
-         11) test_artifactory ;;
-         12) create_options_shared ;;
-         13) create_options_greet ;;
-         14) cross_build_hello ;;
-         15) requires ;;
-         16) requires_conflict ;;
-         17) gtest_require ;;
-         18) gtest_build_require ;;
-         19) cmake_build_require ;;
-         20) python_requires ;;
-         21) hooks_config_install ;;
-         22) version_ranges ;;
-         23) lockfiles ;;
-         24) revisions ;;
-         25) package_pico_json ;;
+         11) create_options_shared ;;
+         12) create_options_greet ;;
+         13) cross_build_hello ;;
+         14) requires ;;
+         15) requires_conflict ;;
+         16) gtest_require ;;
+         17) gtest_build_require ;;
+         18) cmake_build_require ;;
+         19) python_requires ;;
+         20) hooks_config_install ;;
+         21) version_ranges ;;
+         22) lockfiles ;;
+         23) revisions ;;
+         24) package_pico_json ;;
 
          -1) exit 0 ;;
          *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
@@ -327,21 +319,20 @@ show_menus() {
       echo "8. Create a conan 'hello' package recipe in-source"
       echo "9. Upload packages to Artifactory"
       echo "10. Consume packages from Artifactory"
-      echo "11. Test packages with 'conan test'"
-      echo "12. Package options: shared"
-      echo "13. Custom package options: language"
-      echo "14. Cross-build 'hello' pkg for RPI-armv7"
-      echo "15. 'hello' transitive requires 'zlib'"
-      echo "16. Transitive requirements conflicts"
-      echo "17. requires 'gtest'"
-      echo "18. build-requires 'gtest'"
-      echo "19. build-requires 'cmake'"
-      echo "20. python-requires"
-      echo "21. Hooks and conan config install"
-      echo "22. Version ranges"
-      echo "23. Lockfiles"
-      echo "24. Package revisions"
-      echo "25. Create a package for Pico-json"
+      echo "11. Package options: shared"
+      echo "12. Custom package options: language"
+      echo "13. Cross-build 'hello' pkg for RPI-armv7"
+      echo "14. 'hello' transitive requires 'zlib'"
+      echo "15. Transitive requirements conflicts"
+      echo "16. requires 'gtest'"
+      echo "17. build-requires 'gtest'"
+      echo "18. build-requires 'cmake'"
+      echo "19. python-requires"
+      echo "20. Hooks and conan config install"
+      echo "21. Version ranges"
+      echo "22. Lockfiles"
+      echo "23. Package revisions"
+      echo "24. Create a package for Pico-json"
       echo "-1. Exit"
 }
 
