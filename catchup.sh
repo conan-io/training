@@ -38,8 +38,8 @@ consumer_debug() {
 consumer_gcc() {
    echo "performing Exercise 3 (consumer, with GCC)"
    cd consumer_gcc
-   conan install . -g gcc
-   g++ timer.cpp @conanbuildinfo.gcc -o timer --std=c++11
+   conan install . -g compiler_args
+   g++ timer.cpp @conanbuildinfo.args -o timer --std=c++11
    ./timer
 }
 
@@ -50,7 +50,7 @@ consumer_cmake_find() {
    rm -rf build
    mkdir -p build
    cd build
-   conan install .. -g cmake_find_package
+   conan install ..
    cmake .. -DCMAKE_BUILD_TYPE=Release
    cmake --build .
    ./timer
