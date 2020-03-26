@@ -9,7 +9,7 @@ class HelloConan(ConanFile):
     default_options = {"shared": False}
     generators = "cmake"
     scm =  {
-        "type": "svn",
+        "type": "git",
         "url": "auto",
         "revision": "auto",
     }
