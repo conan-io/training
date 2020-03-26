@@ -16,11 +16,11 @@ class HelloConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(source_folder="create_sources/src")
+        cmake.configure(source_folder="create_sources_scm/src")
         cmake.build()
 
     def package(self):
-        self.copy("*.h", dst="include", src="create_sources/src")
+        self.copy("*.h", dst="include", src="create_sources_scm/src")
         self.copy("*.lib", dst="lib", keep_path=False)
         self.copy("*.dll", dst="bin", keep_path=False)
         self.copy("*.dylib*", dst="lib", keep_path=False)
