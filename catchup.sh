@@ -94,13 +94,21 @@ create_test() {
 create_sources() {
    echo "performing Exercise 8 (Create Package with sources)"
    cd create_sources
+   conan new hello/0.1 -t -s
+   conan create . user/testing
+   conan create . user/testing -s build_type=Debug
+}
+
+create_sources_scm() {
+   echo "performing Exercise 9 (Create Package with sources)"
+   cd create_sources_scm
    sed -i 's/"svn"/"git"/g' conanfile.py
    conan create . user/testing
    conan create . user/testing -s build_type=Debug
 }
 
 upload_artifactory() {
-   echo "performing Exercise 9 (Upload packages to artifactory)"
+   echo "performing Exercise 10 (Upload packages to artifactory)"
    conan upload hello/0.1@user/testing -r artifactory --all
    conan search -r=artifactory
    conan search hello/0.1@user/testing -r=artifactory
@@ -108,7 +116,7 @@ upload_artifactory() {
 }
 
 consume_artifactory() {
-   echo "performing Exercise 10 (Consume packages from artifactory)"
+   echo "performing Exercise 11 (Consume packages from artifactory)"
    # remove everything from local cache
    conan remove "*" -f
    cd consumer/build
@@ -119,14 +127,14 @@ consume_artifactory() {
 }
 
 create_options_shared() {
-   echo "performing Exercise 11 (Package options: shared)"
+   echo "performing Exercise 12 (Package options: shared)"
    cd create_sources
    conan create . user/testing -o hello:shared=True
    conan create . user/testing -o hello:shared=True -s build_type=Debug
 }
 
 create_options_greet() {
-   echo "performing Exercise 12 (Custom options: language)"
+   echo "performing Exercise 13 (Custom options: language)"
    cd create_options
    sed -i 's/self.copy2/self.copy/g' conanfile.py
    conan create . user/testing -o greet:language=English
@@ -281,22 +289,23 @@ read_options() {
          6) consume_hello ;;
          7) create_test ;;
          8) create_sources ;;
-         9) upload_artifactory ;;
-         10) consume_artifactory ;;
-         11) create_options_shared ;;
-         12) create_options_greet ;;
-         13) cross_build_hello ;;
-         14) requires ;;
-         15) requires_conflict ;;
-         16) gtest_require ;;
-         17) gtest_build_require ;;
-         18) cmake_build_require ;;
-         19) python_requires ;;
-         20) hooks_config_install ;;
-         21) version_ranges ;;
-         22) lockfiles ;;
-         23) revisions ;;
-         24) package_pico_json ;;
+         9) create_sources_scm ;;
+         10) upload_artifactory ;;
+         11) consume_artifactory ;;
+         12) create_options_shared ;;
+         13) create_options_greet ;;
+         14) cross_build_hello ;;
+         15) requires ;;
+         16) requires_conflict ;;
+         17) gtest_require ;;
+         18) gtest_build_require ;;
+         19) cmake_build_require ;;
+         20) python_requires ;;
+         21) hooks_config_install ;;
+         22) version_ranges ;;
+         23) lockfiles ;;
+         24) revisions ;;
+         25) package_pico_json ;;
 
          -1) exit 0 ;;
          *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
@@ -317,22 +326,23 @@ show_menus() {
       echo "6. Consume the 'hello' package"
       echo "7. Create & test the 'hello' package with test_package"
       echo "8. Create a conan 'hello' package recipe in-source"
-      echo "9. Upload packages to Artifactory"
-      echo "10. Consume packages from Artifactory"
-      echo "11. Package options: shared"
-      echo "12. Custom package options: language"
-      echo "13. Cross-build 'hello' pkg for RPI-armv7"
-      echo "14. 'hello' transitive requires 'zlib'"
-      echo "15. Transitive requirements conflicts"
-      echo "16. requires 'gtest'"
-      echo "17. build-requires 'gtest'"
-      echo "18. build-requires 'cmake'"
-      echo "19. python-requires"
-      echo "20. Hooks and conan config install"
-      echo "21. Version ranges"
-      echo "22. Lockfiles"
-      echo "23. Package revisions"
-      echo "24. Create a package for Pico-json"
+      echo "9. Create a conan 'hello' package recipe in-source using scm"
+      echo "10. Upload packages to Artifactory"
+      echo "11. Consume packages from Artifactory"
+      echo "12. Package options: shared"
+      echo "13. Custom package options: language"
+      echo "14. Cross-build 'hello' pkg for RPI-armv7"
+      echo "15. 'hello' transitive requires 'zlib'"
+      echo "16. Transitive requirements conflicts"
+      echo "17. requires 'gtest'"
+      echo "18. build-requires 'gtest'"
+      echo "19. build-requires 'cmake'"
+      echo "20. python-requires"
+      echo "21. Hooks and conan config install"
+      echo "22. Version ranges"
+      echo "23. Lockfiles"
+      echo "24. Package revisions"
+      echo "25. Create a package for Pico-json"
       echo "-1. Exit"
 }
 
