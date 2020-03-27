@@ -109,11 +109,11 @@ upload_artifactory() {
 }
 
 explore_cache() {
-   echo "performing Exercise 10 (Consume packages from artifactory)"
+   echo "performing Exercise 10 (Explorer cache and remove packages)"
    ls ~/.conan
    ls ~/.conan/data
    ls ~/.conan/data/hello/0.1/user/testing
-   conan remove "*" –f
+   conan remove "*" -f
    conan search
    ls ~/.conan/data
 }
