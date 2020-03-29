@@ -144,7 +144,6 @@ create_options_greet() {
    sed -i 's/self.copy2/self.copy/g' conanfile.py
    conan create . user/testing -o greet:language=English
    conan create . user/testing -o greet:language=Spanish
-   conan create . user/testing -o greet:language=Italian
 }
 
 configuration_values() {
