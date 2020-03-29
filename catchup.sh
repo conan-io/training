@@ -135,6 +135,7 @@ create_options_shared() {
    cd create_sources
    conan create . user/testing -o hello:shared=True
    conan create . user/testing -o hello:shared=True -s build_type=Debug
+   conan search hello/0.1@user/testing
 }
 
 create_options_greet() {
@@ -146,8 +147,21 @@ create_options_greet() {
    conan create . user/testing -o greet:language=Italian
 }
 
+configuration_values() {
+   echo "performing Exercise 14 (Configuration values and errors)"
+   cd create_options
+   conan create . user/testing -o greet:language=Italian
+   conan inspect greet/0.1@user/testing
+   conan inspect zlib/1.2.11@
+   conan get zlib/1.2.11@
+
+   conan create . user/testing -s compiler=unknown
+   conan create . user/testing -s compiler.version=200
+   cat ~/.conan/settings.yml
+}
+
 cross_build_hello(){
-   echo "Cross building hello to RPI"
+   echo "performing Exercise 15 (Cross building hello to RPI)"
    cd cross_build
    sed -i 's/Linus/Linux/g' rpi_armv7
    conan create . user/testing -pr=rpi_armv7
@@ -298,18 +312,19 @@ read_options() {
          11) consume_artifactory ;;
          12) create_options_shared ;;
          13) create_options_greet ;;
-         14) cross_build_hello ;;
-         15) requires ;;
-         16) requires_conflict ;;
-         17) gtest_require ;;
-         18) gtest_build_require ;;
-         19) cmake_build_require ;;
-         20) python_requires ;;
-         21) hooks_config_install ;;
-         22) version_ranges ;;
-         23) lockfiles ;;
-         24) revisions ;;
-         25) package_pico_json ;;
+         14) configuration_values ;;
+         15) cross_build_hello ;;
+         16) requires ;;
+         17) requires_conflict ;;
+         18) gtest_require ;;
+         19) gtest_build_require ;;
+         20) cmake_build_require ;;
+         21) python_requires ;;
+         22) hooks_config_install ;;
+         23) version_ranges ;;
+         24) lockfiles ;;
+         25) revisions ;;
+         26) package_pico_json ;;
 
          -1) exit 0 ;;
          *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
@@ -322,6 +337,7 @@ show_menus() {
       echo "~~~~~~~~~~~~~~~~~~~~~~~~~~"
       echo " Automation Catch Up Menu "
       echo "~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      echo "============== Conan Essentials ================="
       echo "1. Consume with CMake"
       echo "2. Consume with CMake, with different build_type, Debug"
       echo "3. Consume with GCC"
@@ -335,18 +351,20 @@ show_menus() {
       echo "11. Consume packages from Artifactory"
       echo "12. Package options: shared"
       echo "13. Custom package options: language"
-      echo "14. Cross-build 'hello' pkg for RPI-armv7"
-      echo "15. 'hello' transitive requires 'zlib'"
-      echo "16. Transitive requirements conflicts"
-      echo "17. requires 'gtest'"
-      echo "18. build-requires 'gtest'"
-      echo "19. build-requires 'cmake'"
-      echo "20. python-requires"
-      echo "21. Hooks and conan config install"
-      echo "22. Version ranges"
-      echo "23. Lockfiles"
-      echo "24. Package revisions"
-      echo "25. Create a package for Pico-json"
+      echo "14. Configuration values and errors"
+      echo "15. Cross-build 'hello' pkg for RPI-armv7"
+      echo "=============== Conan Advanced ==================="
+      echo "16. 'hello' transitive requires 'zlib'"
+      echo "17. Transitive requirements conflicts"
+      echo "18. requires 'gtest'"
+      echo "19. build-requires 'gtest'"
+      echo "20. build-requires 'cmake'"
+      echo "21. python-requires"
+      echo "22. Hooks and conan config install"
+      echo "23. Version ranges"
+      echo "24. Lockfiles"
+      echo "25. Package revisions"
+      echo "26. Create a package for Pico-json"
       echo "-1. Exit"
 }
 
