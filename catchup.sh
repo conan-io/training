@@ -173,8 +173,8 @@ requires() {
    cd requires
    sed -i 's/ZLib/zlib/g' conanfile.py
    conan create . user/testing
-   conan create . user/testing -pr=../cross_build/rpi_armv7
-   conan create . user/testing -pr=../cross_build/rpi_armv7 --build=missing
+   conan create . user/testing -pr=rpi_armv7
+   conan create . user/testing -pr=rpi_armv7 --build=missing
 }
 
 requires_conflict() {
@@ -191,7 +191,7 @@ requires_conditional() {
    echo "performing Exercise 18 (Conditional requires)"
    cd requires_conditional
    conan create . user/testing
-   sed -i 's#self.requires#if self.options.zip:\n        self.requires#g' conanfile.py
+   sed -i 's#self.requires#if self.options.zip:\n            self.requires#g' conanfile.py
    conan create . user/testing
 }
 
@@ -229,6 +229,7 @@ cmake/3.16.3' > myprofile
 python_requires() {
    echo "performing Exercise 22 (python_requires)"
 	cd python_requires/mytools
+   sed -i 's/mymsg()/mymsg(conanfile)/g' conanfile.py
    sed -i 's/message!!!"/message %s!!!" % conanfile.name /g' conanfile.py
 	conan export . user/testing
 	cd ../consumer
