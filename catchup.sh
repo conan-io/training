@@ -293,11 +293,8 @@ class PicojsonConan(ConanFile):
     conan create . user/testing
 }
 
-read_options() {
-    local choice
-    cd ${curdir}
-    read -p "Enter choice: " choice
-    case $choice in
+run_option() {
+    case $1 in
          1) consumer ;;
          2) consumer_debug ;;
          3) consumer_gcc ;;
@@ -332,7 +329,7 @@ read_options() {
 
 
 # function to display menus
-show_menus() {
+show_menu() {
       echo "~~~~~~~~~~~~~~~~~~~~~~~~~~"
       echo " Automation Catch Up Menu "
       echo "~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -367,8 +364,16 @@ show_menus() {
       echo "-1. Exit"
 }
 
-while true
-do
-        show_menus
-        read_options
-done
+
+if [[ $1 ]]
+then
+  run_option $1
+else
+  while true
+  do
+    show_menu
+    echo -n "Enter choice: "
+    read choice
+    run_option $choice
+  done
+fi
