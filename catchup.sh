@@ -169,25 +169,36 @@ cross_build_hello(){
 }
 
 requires() {
+   echo "performing Exercise 16 (Transitive requires)"
    cd requires
+   sed -i 's/ZLib/zlib/g' conanfile.py
    conan create . user/testing
    conan create . user/testing -pr=../cross_build/rpi_armv7
    conan create . user/testing -pr=../cross_build/rpi_armv7 --build=missing
 }
 
 requires_conflict() {
+   echo "performing Exercise 17 (Transitive requires conflict)"
    cd requires_conflict
    conan create lib_a user/testing
    conan create lib_b user/testing
-   sed -i "s#us\$r#user#g" conanfile.txt
    conan install .
    sed -i "s#\[requires\]#\[requires\]\nzlib/1.2.11#g" conanfile.txt
    conan install .
 }
 
+requires_conditional() {
+   echo "performing Exercise 18 (Conditional requires)"
+   cd requires_conditional
+   conan create . user/testing
+   sed -i 's/self.requires(/if self.options.zip:\n\t\tself.requires(/g' conanfile.py
+   conan create . user/testing
+}
+
 gtest_require() {
-   cd gtest/package
-   sed -i "s#require =#requires =#g" conanfile.py
+   echo "performing Exercise 19 (Requiring gtest)"
+   cd gtest/hello
+   sed -i "s#import ConanFile =#import ConanFile, CMake =#g" conanfile.py
    conan create . user/testing
    cd ../consumer
    conan install .
@@ -196,7 +207,8 @@ gtest_require() {
 }
 
 gtest_build_require() {
-   cd gtest/package
+   echo "performing Exercise 20 (Requiring gtest as build_require)"
+   cd gtest/hello
    sed -i 's/requires =/build_requires = /g' conanfile.py
    conan create . user/testing
    conan remove "gtest*" -f
@@ -205,7 +217,7 @@ gtest_build_require() {
 }
 
 cmake_build_require() {
-    cd gtest/package
+    cd gtest/hello
     conan create . user/testing
     echo 'include(default)
 [build_requires]
@@ -215,8 +227,10 @@ cmake/3.16.3' > myprofile
 
 python_requires() {
 	cd python_requires/mytools
+   sed -i 's/message!!!"/message %s!!!" % conanfile.name /g' conanfile.py
 	conan export . user/testing
 	cd ../consumer
+   sed -i 's/mymsg()/mymsg(self)/g' conanfile.py
 	conan create . user/testing
 }
 
@@ -355,9 +369,11 @@ show_menus() {
       echo "=============== Conan Advanced ==================="
       echo "16. 'hello' transitive requires 'zlib'"
       echo "17. Transitive requirements conflicts"
+      "optional requirement"
       echo "18. requires 'gtest'"
       echo "19. build-requires 'gtest'"
       echo "20. build-requires 'cmake'"
+      "virtualrunenv"
       echo "21. python-requires"
       echo "22. Hooks and conan config install"
       echo "23. Version ranges"

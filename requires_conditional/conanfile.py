@@ -7,10 +7,18 @@ class HelloConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
     exports_sources = "src/*"
-    requires = "ZLib/1.2.11"
+    options = {"zip": [True, False]}
+    default_options = {"zip": True}
+
+    def requirements(self):
+        self.requires("zlib/1.2.11")
 
     def build(self):
         cmake = CMake(self)
+        if self.options.zip:
+            cmake.definitions["WITH_ZIP"] = "1"
+        else:
+            cmake.definitions["WITH_ZIP"] = "0"
         cmake.configure(source_folder="src")
         cmake.build()
 

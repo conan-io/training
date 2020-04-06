@@ -1,4 +1,4 @@
-from conans import ConanFile, CMake
+from conans import ConanFile
 
 
 class HelloConan(ConanFile):
@@ -7,7 +7,7 @@ class HelloConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
     exports_sources = "*"
-    require = "gtest/1.8.0@bincrafters/stable"
+    requires = "gtest/1.8.1"
     default_options = "gtest:shared=False"
 
     def build(self):
