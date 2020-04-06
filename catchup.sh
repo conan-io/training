@@ -190,9 +190,9 @@ requires_conflict() {
 requires_conditional() {
    echo "performing Exercise 18 (Conditional requires)"
    cd requires_conditional
-   conan create . user/testing
+   conan create . user/testing -o hello:zip=False
    sed -i 's#self.requires#if self.options.zip:\n            self.requires#g' conanfile.py
-   conan create . user/testing
+   conan create . user/testing -o hello:zip=False
 }
 
 gtest_require() {
