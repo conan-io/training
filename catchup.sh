@@ -191,14 +191,14 @@ requires_conditional() {
    echo "performing Exercise 18 (Conditional requires)"
    cd requires_conditional
    conan create . user/testing
-   sed -i 's/self.requires(/if self.options.zip:\n\t\tself.requires(/g' conanfile.py
+   sed -i 's#self.requires#if self.options.zip:\n        self.requires#g' conanfile.py
    conan create . user/testing
 }
 
 gtest_require() {
    echo "performing Exercise 19 (Requiring gtest)"
    cd gtest/hello
-   sed -i "s#import ConanFile =#import ConanFile, CMake =#g" conanfile.py
+   sed -i "s#import ConanFile#import ConanFile, CMake#g" conanfile.py
    conan create . user/testing
    cd ../consumer
    conan install .
@@ -217,6 +217,7 @@ gtest_build_require() {
 }
 
 cmake_build_require() {
+    echo "performing Exercise 21 (cmake build_requires)"
     cd gtest/hello
     conan create . user/testing
     echo 'include(default)
@@ -226,6 +227,7 @@ cmake/3.16.3' > myprofile
 }
 
 python_requires() {
+   echo "performing Exercise 22 (python_requires)"
 	cd python_requires/mytools
    sed -i 's/message!!!"/message %s!!!" % conanfile.name /g' conanfile.py
 	conan export . user/testing
@@ -329,13 +331,14 @@ read_options() {
          15) cross_build_hello ;;
          16) requires ;;
          17) requires_conflict ;;
-         18) gtest_require ;;
-         19) gtest_build_require ;;
-         20) cmake_build_require ;;
-         21) python_requires ;;
-         22) hooks_config_install ;;
-         23) version_ranges ;;
-         24) lockfiles ;;
+         18) requires_conditional ;;
+         19) gtest_require ;;
+         20) gtest_build_require ;;
+         21) cmake_build_require ;;
+         22) python_requires ;;
+         23) hooks_config_install ;;
+         24) version_ranges ;;
+         25) lockfiles ;;
          25) revisions ;;
          26) package_pico_json ;;
 
@@ -369,12 +372,11 @@ show_menus() {
       echo "=============== Conan Advanced ==================="
       echo "16. 'hello' transitive requires 'zlib'"
       echo "17. Transitive requirements conflicts"
-      "optional requirement"
-      echo "18. requires 'gtest'"
-      echo "19. build-requires 'gtest'"
-      echo "20. build-requires 'cmake'"
-      "virtualrunenv"
-      echo "21. python-requires"
+      echo "18. Conditional requirements"
+      echo "19. requires 'gtest'"
+      echo "20. build-requires 'gtest'"
+      echo "21. build-requires 'cmake'"
+      echo "22. python-requires"
       echo "22. Hooks and conan config install"
       echo "23. Version ranges"
       echo "24. Lockfiles"
