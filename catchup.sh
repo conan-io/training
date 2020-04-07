@@ -158,7 +158,6 @@ create_options_greet() {
 }
 
 configuration_values() {
-    set -e
     echo "performing Exercise 14 (Configuration values and errors)"
     cd create_options
     conan create . user/testing -o greet:language=Italian
