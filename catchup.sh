@@ -294,6 +294,8 @@ class PicojsonConan(ConanFile):
 }
 
 run_option() {
+    set -e
+
     case $1 in
          1) consumer ;;
          2) consumer_debug ;;
