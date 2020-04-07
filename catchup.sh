@@ -101,7 +101,6 @@ create_sources() {
 }
 
 upload_artifactory() {
-    set +e
     echo "performing Exercise 9 (Upload packages to artifactory)"
     conan upload hello/0.1@user/testing -r artifactory --all
     conan search -r=artifactory
@@ -120,7 +119,6 @@ explore_cache() {
 }
 
 consume_artifactory() {
-    set +e
     echo "performing Exercise 11 (Consume packages from artifactory)"
     # remove everything from local cache
     conan remove "*" -f
@@ -149,7 +147,6 @@ create_options_greet() {
 }
 
 configuration_values() {
-    set +e
     echo "performing Exercise 14 (Configuration values and errors)"
     cd create_options
     conan create . user/testing -o greet:language=Italian
@@ -163,7 +160,6 @@ configuration_values() {
 }
 
 cross_build_hello() {
-    set +e
     echo "performing Exercise 15 (Cross building hello to RPI)"
     cd cross_build
     sed -i 's/Linus/Linux/g' rpi_armv7
@@ -180,7 +176,6 @@ requires() {
 }
 
 requires_conflict() {
-    set +e
     cd requires_conflict
     conan create lib_a user/testing
     conan create lib_b user/testing
@@ -262,7 +257,6 @@ lockfiles() {
 }
 
 revisions() {
-    set +e
     mkdir revisions && cd revisions
     conan remove hello* -f
     conan new hello/0.1 -s
@@ -300,8 +294,6 @@ class PicojsonConan(ConanFile):
 }
 
 run_option() {
-    set -e
-
     case $1 in
         1) consumer ;;
         2) consumer_debug ;;
