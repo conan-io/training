@@ -16,7 +16,7 @@ set -e && ./catchup.sh 13
 set +e && ./catchup.sh 14   # option error
 set +e && ./catchup.sh 15   # requires xbuilding
 set +e && ./catchup.sh 16   # requires xbuilding
-set +e && ./catchup.sh 17   # requires conflict
+set -e && ./catchup.sh 17   # requires conflict
 set -e && ./catchup.sh 18
 set -e && ./catchup.sh 19
 set -e && ./catchup.sh 20
