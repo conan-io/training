@@ -149,13 +149,17 @@ create_options_greet() {
 configuration_values() {
     echo "performing Exercise 14 (Configuration values and errors)"
     cd create_options
+    set +e
     conan create . user/testing -o greet:language=Italian
+    set -e
     conan inspect greet/0.1@user/testing
     conan inspect zlib/1.2.11@
     conan get zlib/1.2.11@
 
+    set +e
     conan create . user/testing -s compiler=unknown
     conan create . user/testing -s compiler.version=200
+    set -e
     cat ~/.conan/settings.yml
 }
 
@@ -180,7 +184,9 @@ requires_conflict() {
     conan create lib_a user/testing
     conan create lib_b user/testing
     sed -i "s#us\$r#user#g" conanfile.txt
+    set +e
     conan install .
+    set -e
     sed -i "s#\[requires\]#\[requires\]\nzlib/1.2.11#g" conanfile.txt
     conan install .
 }
