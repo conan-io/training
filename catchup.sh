@@ -230,13 +230,17 @@ hooks_config_install() {
     conan config install myconfig
     cd hooks
     conan new Hello-Pkg/0.1 -s
+    set +e
     conan export . user/testing
+    set -e
     conan new hello-pkg/0.1 -s
     conan export . user/testing
     conan remove hello-pkg* -f
     sed -i "s/#TODO/if '-' in ref:\n        raise Exception('Use _ instead of -')/g" ../myconfig/hooks/check_name.py
     conan config install ../myconfig
+    set +e
     conan export . user/testing
+    set -e
     rm conanfile.py
 }
 
