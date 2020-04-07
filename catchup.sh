@@ -5,7 +5,6 @@ RED='\033[0;51;30m'
 STD='\033[0;0;39m'
 
 consumer() {
-    set -e
     echo "performing Exercise 1 (consumer, with CMake)"
     cd consumer
     sed -i 's/booost/boost/g' conanfile.txt
@@ -22,7 +21,6 @@ consumer() {
 }
 
 consumer_debug() {
-    set -e
     echo "performing Exercise 2 (consumer, with build_type Debug)"
     cd consumer
     rm -rf build
@@ -38,7 +36,6 @@ consumer_debug() {
 }
 
 consumer_gcc() {
-    set -e
     echo "performing Exercise 3 (consumer, with GCC)"
     cd consumer_gcc
     conan install . -g compiler_args
@@ -47,7 +44,6 @@ consumer_gcc() {
 }
 
 consumer_cmake_find() {
-    set -e
     echo "performing Exercise 4 (consumer, with cmake_find_package)"
     cd consumer_cmake_find
     sed -i 's/cmake_find_pakcage/cmake_find_package/g' conanfile.txt
@@ -61,7 +57,6 @@ consumer_cmake_find() {
 }
 
 create() {
-    set -e
     echo "performing Exercise 5 (Create a Conan Package)"
     cd create
     conan new hello/0.1
@@ -73,7 +68,6 @@ create() {
 }
 
 consume_hello() {
-    set -e
     echo "performing Exercise 6 (Consume the hello package)"
     cd consumer
     sed -i "s#\[requires\]#\[requires\]\nhello/0.1@user/testing#g" conanfile.txt
@@ -91,7 +85,6 @@ consume_hello() {
 }
 
 create_test() {
-    set -e
     echo "performing Exercise 7 (Create a Conan Package with test_package)"
     cd create
     conan new hello/0.1 -t
@@ -100,7 +93,6 @@ create_test() {
 }
 
 create_sources() {
-    set -e
     echo "performing Exercise 8 (Create Package with sources)"
     cd create_sources
     conan new hello/0.1 -t -s
@@ -109,6 +101,7 @@ create_sources() {
 }
 
 upload_artifactory() {
+    set +e
     echo "performing Exercise 9 (Upload packages to artifactory)"
     conan upload hello/0.1@user/testing -r artifactory --all
     conan search -r=artifactory
@@ -117,7 +110,6 @@ upload_artifactory() {
 }
 
 explore_cache() {
-    set -e
     echo "performing Exercise 10 (Explorer cache and remove packages)"
     ls ~/.conan
     ls ~/.conan/data
@@ -128,6 +120,7 @@ explore_cache() {
 }
 
 consume_artifactory() {
+    set +e
     echo "performing Exercise 11 (Consume packages from artifactory)"
     # remove everything from local cache
     conan remove "*" -f
@@ -140,7 +133,6 @@ consume_artifactory() {
 }
 
 create_options_shared() {
-    set -e
     echo "performing Exercise 12 (Package options: shared)"
     cd create_sources
     conan create . user/testing -o hello:shared=True
@@ -149,7 +141,6 @@ create_options_shared() {
 }
 
 create_options_greet() {
-    set -e
     echo "performing Exercise 13 (Custom options: language)"
     cd create_options
     sed -i 's/self.copy2/self.copy/g' conanfile.py
@@ -158,6 +149,7 @@ create_options_greet() {
 }
 
 configuration_values() {
+    set +e
     echo "performing Exercise 14 (Configuration values and errors)"
     cd create_options
     conan create . user/testing -o greet:language=Italian
@@ -170,7 +162,8 @@ configuration_values() {
     cat ~/.conan/settings.yml
 }
 
-cross_build_hello(){
+cross_build_hello() {
+    set +e
     echo "performing Exercise 15 (Cross building hello to RPI)"
     cd cross_build
     sed -i 's/Linus/Linux/g' rpi_armv7
@@ -180,7 +173,6 @@ cross_build_hello(){
 }
 
 requires() {
-    set -e
     cd requires
     conan create . user/testing
     conan create . user/testing -pr=../cross_build/rpi_armv7
@@ -188,7 +180,7 @@ requires() {
 }
 
 requires_conflict() {
-    set -e
+    set +e
     cd requires_conflict
     conan create lib_a user/testing
     conan create lib_b user/testing
@@ -199,9 +191,8 @@ requires_conflict() {
 }
 
 gtest_require() {
-    set -e
     cd gtest/package
-   sed -i "s#require =#requires =#g" conanfile.py
+    sed -i "s#require =#requires =#g" conanfile.py
     conan create . user/testing
     cd ../consumer
     conan install .
@@ -210,7 +201,6 @@ gtest_require() {
 }
 
 gtest_build_require() {
-    set -e
     cd gtest/package
     sed -i 's/requires =/build_requires = /g' conanfile.py
     conan create . user/testing
@@ -220,7 +210,6 @@ gtest_build_require() {
 }
 
 cmake_build_require() {
-    set -e
     cd gtest/package
     conan create . user/testing
     echo 'include(default)
@@ -230,7 +219,6 @@ cmake/3.16.3' > myprofile
 }
 
 python_requires() {
-    set -e
     cd python_requires/mytools
     conan export . user/testing
     cd ../consumer
@@ -238,7 +226,6 @@ python_requires() {
 }
 
 hooks_config_install() {
-    set -e
     conan config install myconfig
     cd hooks
     conan new Hello-Pkg/0.1 -s
@@ -253,7 +240,6 @@ hooks_config_install() {
 }
 
 version_ranges() {
-    set -e
     cd version_ranges
     conan create hello1 user/testing
     conan create chat user/testing
@@ -264,7 +250,6 @@ version_ranges() {
 }
 
 lockfiles() {
-    set -e
     cd version_ranges
     conan remove hello/0.2* -f
     # will generate a conan.lock file
@@ -277,6 +262,7 @@ lockfiles() {
 }
 
 revisions() {
+    set +e
     mkdir revisions && cd revisions
     conan remove hello* -f
     conan new hello/0.1 -s
@@ -292,7 +278,6 @@ revisions() {
 }
 
 package_pico_json() {
-    set -e
     cd pico_json
     conan new picojson/1.3.0 -i -t
     cp example.cpp test_package
@@ -315,7 +300,7 @@ class PicojsonConan(ConanFile):
 }
 
 run_option() {
-    set +e
+    set -e
 
     case $1 in
         1) consumer ;;
