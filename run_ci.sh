@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -e && ./catchup.sh 1
 set -e && ./catchup.sh 2
 set -e && ./catchup.sh 3
