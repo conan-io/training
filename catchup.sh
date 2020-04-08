@@ -226,8 +226,21 @@ cmake/3.16.3' > myprofile
     conan create . user/testing -pr=myprofile
 }
 
+running_apps() {
+   echo "performing Exercise 22 (Running apps)"
+	cd running_apps
+   conan install cmake/3.16.3 -g deploy
+   cmake/cmake
+
+   conan install cmake/3.16.3 -g virtualrunenv
+   cmake --version
+   source activate_run.sh && cmake --version
+   source deactivate_run.sh 
+   cmake --version
+}
+
 python_requires() {
-   echo "performing Exercise 22 (python_requires)"
+   echo "performing Exercise 23 (python_requires)"
 	cd python_requires/mytools
    sed -i 's/mymsg()/mymsg(conanfile)/g' conanfile.py
    sed -i 's/message!!!"/message %s!!!" % conanfile.name /g' conanfile.py
@@ -235,20 +248,6 @@ python_requires() {
 	cd ../consumer
    sed -i 's/mymsg()/mymsg(self)/g' conanfile.py
 	conan create . user/testing
-}
-
-hooks_config_install() {
-	conan config install myconfig
-	cd hooks
-	conan new Hello-Pkg/0.1 -s
-	conan export . user/testing
-	conan new hello-pkg/0.1 -s
-	conan export . user/testing
-   conan remove hello-pkg* -f
-   sed -i "s/#TODO/if '-' in ref:\n        raise Exception('Use _ instead of -')/g" ../myconfig/hooks/check_name.py
-   conan config install ../myconfig
-   conan export . user/testing
-	rm conanfile.py
 }
 
 version_ranges() {
@@ -261,17 +260,6 @@ version_ranges() {
     conan create chat user/testing
 }
 
-lockfiles() {
-    cd version_ranges
-    conan remove hello/0.2* -f
-    # will generate a conan.lock file
-    conan graph lock chat
-    conan create hello2 user/testing
-    # This will use the 
-    conan create chat user/testing
-    # the chat package will NOT use 0.2 it is locked to 0.1
-    conan create chat user/testing --lockfile
-}
 
 revisions() {
     mkdir revisions && cd revisions
@@ -287,6 +275,34 @@ revisions() {
     conan upload hello* --all -r=artifactory --confirm
     conan search hello/0.1@user/testing
 }
+
+lockfiles() {
+    cd version_ranges
+    conan remove hello/0.2* -f
+    # will generate a conan.lock file
+    conan graph lock chat
+    conan create hello2 user/testing
+    # This will use the 
+    conan create chat user/testing
+    # the chat package will NOT use 0.2 it is locked to 0.1
+    conan create chat user/testing --lockfile
+}
+
+hooks_config_install() {
+   echo "performing Exercise 28 (Hooks and conan config install)"
+	conan config install myconfig
+	cd hooks
+	conan new Hello-Pkg/0.1 -s
+	conan export . user/testing
+	conan new hello-pkg/0.1 -s
+	conan export . user/testing
+   conan remove hello-pkg* -f
+   sed -i "s/#TODO/if '-' in ref:\n        raise Exception('Use _ instead of -')/g" ../myconfig/hooks/check_name.py
+   conan config install ../myconfig
+   conan export . user/testing
+	rm conanfile.py
+}
+
 
 package_pico_json() {
     cd pico_json
@@ -336,12 +352,13 @@ read_options() {
          19) gtest_require ;;
          20) gtest_build_require ;;
          21) cmake_build_require ;;
-         22) python_requires ;;
-         23) hooks_config_install ;;
-         24) version_ranges ;;
-         25) lockfiles ;;
+         22) running_apps ;;
+         23) python_requires ;;
+         24) version_ranges ;;    
          25) revisions ;;
-         26) package_pico_json ;;
+         26) lockfiles ;;
+         27) package_id ;;
+         28) hooks_config_install ;;
 
          -1) exit 0 ;;
          *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
@@ -377,12 +394,16 @@ show_menus() {
       echo "19. requires 'gtest'"
       echo "20. build-requires 'gtest'"
       echo "21. build-requires 'cmake'"
-      echo "22. python-requires"
-      echo "22. Hooks and conan config install"
-      echo "23. Version ranges"
-      echo "24. Lockfiles"
+      echo "22. Running apps"
+      echo "23. python-requires"  
+      echo "24. Version ranges"
       echo "25. Package revisions"
-      echo "26. Create a package for Pico-json"
+      echo "26. Lockfiles"
+      echo "27. package_id()"
+      echo "28. Hooks and conan config install"
+      "package_id()" => compatible_package, package_id_mode
+
+      echo "Homework"
       echo "-1. Exit"
 }
 
