@@ -271,12 +271,11 @@ revisions() {
     echo "performing Exercise 25 (revisions)"
     conan config set general.revisions_enabled=True
     conan remove hello* -f
-    mkdir revisions && cd revisions
-    conan new hello/0.1 -s
+    cd revisions
     conan create . user/testing
     conan create . user/testing -s build_type=Debug
     conan upload hello* --all -r=artifactory --confirm
-    echo "#comment" >> conanfile.py
+    sed -i 's/World/World IMPROVED/g' hello/src/hello.cpp
     conan create . user/testing
     conan create . user/testing -s build_type=Debug
     conan upload hello* --all -r=artifactory --confirm
@@ -285,14 +284,16 @@ revisions() {
 
 lockfiles() {
     echo "performing Exercise 26 (lockfiles)"
-    cd version_ranges
-    conan remove hello/0.2* -f
+    cd lockfiles
+    conan remove hello* -f
+    conan create hello 0.1@user/testing
     # will generate a conan.lock file
     conan graph lock chat
+    sed -i 's/World/World **** 0.2 ****/g' hello/src/hello.cpp
     conan create hello 0.2@user/testing
-    # This will use the latest 0.2
+    # NOT locked: This will use the latest 0.2
     conan create chat user/testing
-    # the chat package will NOT use 0.2 it is locked to 0.1
+    # LOCKED: the chat package will NOT use 0.2 it is locked to 0.1
     conan create chat user/testing --lockfile
 }
 
