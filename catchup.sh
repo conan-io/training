@@ -272,14 +272,13 @@ revisions() {
     conan config set general.revisions_enabled=True
     conan remove hello* -f
     cd revisions
-    conan create . user/testing
-    conan create . user/testing -s build_type=Debug
+    conan create hello user/testing
     conan upload hello* --all -r=artifactory --confirm
     sed -i 's/World/World IMPROVED/g' hello/src/hello.cpp
-    conan create . user/testing
-    conan create . user/testing -s build_type=Debug
+    conan create hello user/testing
     conan upload hello* --all -r=artifactory --confirm
-    conan search hello/0.1@user/testing
+    conan search hello/0.1@user/testing --revisions
+    conan search hello/0.1@user/testing --revisions -r=artifactory
 }
 
 lockfiles() {
