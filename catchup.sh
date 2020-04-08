@@ -257,10 +257,11 @@ python_requires() {
 version_ranges() {
     echo "performing Exercise 24 (version ranges)"
     cd version_ranges
-    conan create hello1 user/testing
+    conan create hello 0.1@user/testing
     conan create chat user/testing
+    sed -i 's/World/World **** 0.2 ****/g' conanfile.py
     # generate a new hello/0.2 version
-    conan create hello2 user/testing
+    conan create hello 0.2@user/testing
     # the chat package will use it because it is inside its valid range
     conan create chat user/testing
 }
