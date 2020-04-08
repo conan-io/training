@@ -223,14 +223,16 @@ cmake_build_require() {
     echo 'include(default)
 [build_requires]
 cmake/3.16.3' > myprofile
+    cmake --version
     conan create . user/testing -pr=myprofile
+    cmake --version
 }
 
 running_apps() {
    echo "performing Exercise 22 (Running apps)"
 	cd running_apps
    conan install cmake/3.16.3 -g deploy
-   cmake/cmake
+   cmake/bin/cmake
 
    conan install cmake/3.16.3 -g virtualrunenv
    cmake --version
@@ -286,6 +288,11 @@ lockfiles() {
     conan create chat user/testing
     # the chat package will NOT use 0.2 it is locked to 0.1
     conan create chat user/testing --lockfile
+}
+
+package_id() {
+   echo "performing Exercise 27 (package_id)"
+
 }
 
 hooks_config_install() {
