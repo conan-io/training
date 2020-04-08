@@ -231,12 +231,14 @@ cmake/3.16.3' > myprofile
 running_apps() {
    echo "performing Exercise 22 (Running apps)"
 	cd running_apps
-   conan install cmake/3.16.3 -g deploy
-   cmake/bin/cmake
+   conan install cmake/3.16.3@ -g deploy
+   cmake/bin/cmake --version
+   rm -rf *
 
-   conan install cmake/3.16.3 -g virtualrunenv
+   conan install cmake/3.16.3@ -g virtualrunenv
    cmake --version
-   source activate_run.sh && cmake --version
+   source activate_run.sh
+   cmake --version
    source deactivate_run.sh 
    cmake --version
 }
@@ -245,7 +247,7 @@ python_requires() {
    echo "performing Exercise 23 (python_requires)"
 	cd python_requires/mytools
    sed -i 's/mymsg()/mymsg(conanfile)/g' conanfile.py
-   sed -i 's/message!!!"/message %s!!!" % conanfile.name /g' conanfile.py
+   sed -i 's/message!!!"/message Pkg:%s!!!" % conanfile.name /g' conanfile.py
 	conan export . user/testing
 	cd ../consumer
    sed -i 's/mymsg()/mymsg(self)/g' conanfile.py
@@ -253,6 +255,7 @@ python_requires() {
 }
 
 version_ranges() {
+    echo "performing Exercise 24 (version ranges)"
     cd version_ranges
     conan create hello1 user/testing
     conan create chat user/testing
@@ -406,11 +409,8 @@ show_menus() {
       echo "24. Version ranges"
       echo "25. Package revisions"
       echo "26. Lockfiles"
-      echo "27. package_id()"
+      echo "27. package_id"
       echo "28. Hooks and conan config install"
-      "package_id()" => compatible_package, package_id_mode
-
-      echo "Homework"
       echo "-1. Exit"
 }
 
