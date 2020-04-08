@@ -3,6 +3,7 @@ from conans import ConanFile, CMake
 
 class HelloConan(ConanFile):
     name = "hello"
+    version = "0.1"
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False]}
     default_options = "shared=False"
