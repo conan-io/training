@@ -300,18 +300,18 @@ package_id() {
     echo "performing Exercise 27 (package_id)"
     cd package_id
     conan remove "*" -f
-    conan create hello 0.1@user/testing
+    conan create hello 1.0@user/testing
     conan create chat user/testing
     conan create app user/testing
 
-    sed -i 's/World/World **** 0.2 ****/g' hello/src/hello.h
-    conan create hello 0.2@user/testing
+    sed -i 's/World/World **** 1.1 ****/g' hello/src/hello.h
+    conan create hello 1.1@user/testing
     conan create app user/testing
 
     conan config set general.default_package_id_mode=full_version_mode
     conan create app user/testing
     conan create app user/testing --build=missing
-    conan search chat/0.1@user/testing
+    conan search chat/1.0@user/testing
 }
 
 hooks_config_install() {

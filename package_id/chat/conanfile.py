@@ -3,7 +3,7 @@ from conans import ConanFile, CMake
 
 class ChatConan(ConanFile):
     name = "chat"
-    version = "0.1"
+    version = "1.0"
     license = "<Put the package license here>"
     author = "<Put your name here> <And your email here>"
     url = "<Package recipe repository url here, for issues about the package>"
@@ -14,7 +14,7 @@ class ChatConan(ConanFile):
     default_options = "shared=False"
     generators = "cmake"
     exports_sources = "src/*"
-    requires = "hello/[>0.0 <1.0]@user/testing"
+    requires = "hello/[>=1.0 <2.0]@user/testing"
 
     def build(self):
         cmake = CMake(self)

@@ -6,7 +6,7 @@ class AppConan(ConanFile):
     version = "0.1"
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
-    requires = "chat/0.1@user/testing"
+    requires = "chat/1.0@user/testing"
     exports_sources = "src/*"
 
     def build(self):
