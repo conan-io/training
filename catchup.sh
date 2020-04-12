@@ -202,8 +202,6 @@ gtest_require() {
    conan create . user/testing
    cd ../consumer
    conan install .
-   conan remove "gtest*" -f
-   conan install .
 }
 
 gtest_build_require() {
@@ -211,7 +209,6 @@ gtest_build_require() {
    cd gtest/hello
    sed -i 's/requires =/build_requires = /g' conanfile.py
    conan create . user/testing
-   conan remove "gtest*" -f
    cd ../consumer
    conan install .
 }
@@ -233,7 +230,7 @@ running_apps() {
 	cd running_apps
    conan install cmake/3.16.3@ -g deploy
    cmake/bin/cmake --version
-   rm -rf *
+   rm -rf cmake
 
    conan install cmake/3.16.3@ -g virtualrunenv
    cmake --version
@@ -246,8 +243,6 @@ running_apps() {
 python_requires() {
    echo "performing Exercise 23 (python_requires)"
 	cd python_requires/mytools
-   sed -i 's/mymsg()/mymsg(conanfile)/g' conanfile.py
-   sed -i 's/message!!!"/message Pkg:%s!!!" % conanfile.name /g' conanfile.py
 	conan export . user/testing
 	cd ../consumer
    sed -i 's/mymsg()/mymsg(self)/g' conanfile.py

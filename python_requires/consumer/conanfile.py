@@ -9,3 +9,6 @@ class ConsumerConan(ConanFile):
     def build(self):
         mytools = self.python_requires["mytools"].module
         mytools.mymsg()
+
+    # This is incomplete, not packaging anything,
+    # but enough to see python_requires

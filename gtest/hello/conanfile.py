@@ -8,7 +8,6 @@ class HelloConan(ConanFile):
     generators = "cmake"
     exports_sources = "*"
     requires = "gtest/1.8.1"
-    default_options = "gtest:shared=False"
 
     def build(self):
         cmake = CMake(self)

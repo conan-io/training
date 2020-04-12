@@ -1,8 +1,8 @@
 from conans import ConanFile
 
 
-def mymsg():
-    print("MyTool working cool message!!!")
+def mymsg(conanfile):
+    print("MyTool working cool message Pkg:%s!!!" % conanfile.name)
 
 
 class ToolConan(ConanFile):
