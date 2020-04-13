@@ -300,14 +300,16 @@ lockfiles() {
 package_id() {
     echo "performing Exercise 27 (package_id)"
     cd package_id
-    conan remove "*" -f
+    #conan remove "*" -f
     conan create hello 1.0@user/testing
     conan create chat user/testing
     conan create app user/testing
 
     sed -i 's/World/World **** 1.1 ****/g' hello/src/hello.h
     conan create hello 1.1@user/testing
+    set +e
     conan create app user/testing
+    set -e
 
     conan config set general.default_package_id_mode=full_version_mode
     conan create app user/testing
