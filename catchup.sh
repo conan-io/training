@@ -307,12 +307,12 @@ package_id() {
 
     sed -i 's/World/World **** 1.1 ****/g' hello/src/hello.h
     conan create hello 1.1@user/testing
+    conan create app user/testing
+
+    conan config set general.default_package_id_mode=full_version_mode
     set +e
     conan create app user/testing
     set -e
-
-    conan config set general.default_package_id_mode=full_version_mode
-    conan create app user/testing
     conan create app user/testing --build=missing
     conan search chat/1.0@user/testing
 }
