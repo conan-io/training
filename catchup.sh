@@ -186,7 +186,9 @@ requires_conflict() {
    cd requires_conflict
    conan create lib_a user/testing
    conan create lib_b user/testing
+   set +e
    conan install .
+   set -e
    sed -i "s#\[requires\]#\[requires\]\nzlib/1.2.11#g" conanfile.txt
    conan install .
 }
@@ -314,18 +316,22 @@ package_id() {
 }
 
 hooks_config_install() {
-   echo "performing Exercise 28 (Hooks and conan config install)"
-	conan config install myconfig
-	cd hooks
-	conan new Hello-Pkg/0.1 -s
-	conan export . user/testing
-	conan new hello-pkg/0.1 -s
-	conan export . user/testing
-   conan remove hello-pkg* -f
-   sed -i "s/#TODO/if '-' in ref:\n        raise Exception('Use _ instead of -')/g" ../myconfig/hooks/check_name.py
-   conan config install ../myconfig
-   conan export . user/testing
-	rm conanfile.py
+    echo "performing Exercise 28 (Hooks and conan config install)"
+    conan config install myconfig
+    cd hooks
+    conan new Hello-Pkg/0.1 -s
+    set +e
+    conan export . user/testing
+    set -e
+    conan new hello-pkg/0.1 -s
+    conan export . user/testing
+    conan remove hello-pkg* -f
+    sed -i "s/#TODO/if '-' in ref:\n        raise Exception('Use _ instead of -')/g" ../myconfig/hooks/check_name.py
+    conan config install ../myconfig
+    set +e
+    conan export . user/testing
+    set -e
+    rm conanfile.py
 }
 
 
@@ -420,7 +426,7 @@ show_menu() {
     echo "20. build-requires 'gtest'"
     echo "21. build-requires 'cmake'"
     echo "22. Running apps"
-    echo "23. python-requires"  
+    echo "23. python-requires"
     echo "24. Version ranges"
     echo "25. Package revisions"
     echo "26. Lockfiles"
