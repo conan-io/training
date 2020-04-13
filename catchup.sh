@@ -173,113 +173,161 @@ cross_build_hello() {
 }
 
 requires() {
-    cd requires
-    conan create . user/testing
-    conan create . user/testing -pr=../cross_build/rpi_armv7
-    conan create . user/testing -pr=../cross_build/rpi_armv7 --build=missing
+   echo "performing Exercise 16 (Transitive requires)"
+   cd requires
+   sed -i 's/ZLib/zlib/g' conanfile.py
+   conan create . user/testing
+   conan create . user/testing -pr=rpi_armv7
+   conan create . user/testing -pr=rpi_armv7 --build=missing
 }
 
 requires_conflict() {
-    cd requires_conflict
-    conan create lib_a user/testing
-    conan create lib_b user/testing
-    sed -i "s#us\$r#user#g" conanfile.txt
-    set +e
-    conan install .
-    set -e
-    sed -i "s#\[requires\]#\[requires\]\nzlib/1.2.11#g" conanfile.txt
-    conan install .
+   echo "performing Exercise 17 (Transitive requires conflict)"
+   cd requires_conflict
+   conan create lib_a user/testing
+   conan create lib_b user/testing
+   conan install .
+   sed -i "s#\[requires\]#\[requires\]\nzlib/1.2.11#g" conanfile.txt
+   conan install .
+}
+
+requires_conditional() {
+   echo "performing Exercise 18 (Conditional requires)"
+   cd requires_conditional
+   conan create . user/testing -o hello:zip=False
+   sed -i 's#self.requires#if self.options.zip:\n            self.requires#g' conanfile.py
+   conan create . user/testing -o hello:zip=False
 }
 
 gtest_require() {
-    cd gtest/package
-    sed -i "s#require =#requires =#g" conanfile.py
-    conan create . user/testing
-    cd ../consumer
-    conan install .
-    conan remove "gtest*" -f
-    conan install .
+   echo "performing Exercise 19 (Requiring gtest)"
+   cd gtest/hello
+   sed -i "s#import ConanFile#import ConanFile, CMake#g" conanfile.py
+   conan create . user/testing
+   cd ../consumer
+   conan install .
 }
 
 gtest_build_require() {
-    cd gtest/package
-    sed -i 's/requires =/build_requires = /g' conanfile.py
-    conan create . user/testing
-    conan remove "gtest*" -f
-    cd ../consumer
-    conan install .
+   echo "performing Exercise 20 (Requiring gtest as build_require)"
+   cd gtest/hello
+   sed -i 's/requires =/build_requires = /g' conanfile.py
+   conan create . user/testing
+   cd ../consumer
+   conan install .
 }
 
 cmake_build_require() {
-    cd gtest/package
+    echo "performing Exercise 21 (cmake build_requires)"
+    cd gtest/hello
     conan create . user/testing
     echo 'include(default)
 [build_requires]
 cmake/3.16.3' > myprofile
+    cmake --version
     conan create . user/testing -pr=myprofile
+    cmake --version
+}
+
+running_apps() {
+   echo "performing Exercise 22 (Running apps)"
+	cd running_apps
+   conan install cmake/3.16.3@ -g deploy
+   cmake/bin/cmake --version
+   rm -rf cmake
+
+   conan install cmake/3.16.3@ -g virtualrunenv
+   cmake --version
+   source activate_run.sh
+   cmake --version
+   source deactivate_run.sh 
+   cmake --version
 }
 
 python_requires() {
+    echo "performing Exercise 23 (python_requires)"
     cd python_requires/mytools
     conan export . user/testing
     cd ../consumer
+    sed -i 's/mymsg()/mymsg(self)/g' conanfile.py
     conan create . user/testing
 }
 
-hooks_config_install() {
-    conan config install myconfig
-    cd hooks
-    conan new Hello-Pkg/0.1 -s
-    set +e
-    conan export . user/testing
-    set -e
-    conan new hello-pkg/0.1 -s
-    conan export . user/testing
-    conan remove hello-pkg* -f
-    sed -i "s/#TODO/if '-' in ref:\n        raise Exception('Use _ instead of -')/g" ../myconfig/hooks/check_name.py
-    conan config install ../myconfig
-    set +e
-    conan export . user/testing
-    set -e
-    rm conanfile.py
-}
-
 version_ranges() {
+    echo "performing Exercise 24 (version ranges)"
     cd version_ranges
-    conan create hello1 user/testing
+    conan create hello 0.1@user/testing
     conan create chat user/testing
+    sed -i 's/World/World **** 0.2 ****/g' hello/src/hello.cpp
     # generate a new hello/0.2 version
-    conan create hello2 user/testing
+    conan create hello 0.2@user/testing
     # the chat package will use it because it is inside its valid range
     conan create chat user/testing
 }
 
+
+revisions() {
+    echo "performing Exercise 25 (revisions)"
+    conan config set general.revisions_enabled=True
+    conan remove hello* -f
+    cd revisions
+    conan create hello user/testing
+    conan upload hello* --all -r=artifactory --confirm
+    sed -i 's/World/World IMPROVED/g' hello/src/hello.cpp
+    conan create hello user/testing
+    conan upload hello* --all -r=artifactory --confirm
+    conan search hello/0.1@user/testing --revisions
+    conan search hello/0.1@user/testing --revisions -r=artifactory
+}
+
 lockfiles() {
-    cd version_ranges
-    conan remove hello/0.2* -f
+    echo "performing Exercise 26 (lockfiles)"
+    cd lockfiles
+    conan remove hello* -f
+    conan create hello 0.1@user/testing
     # will generate a conan.lock file
     conan graph lock chat
-    conan create hello2 user/testing
-    # This will use the 
+    sed -i 's/World/World **** 0.2 ****/g' hello/src/hello.cpp
+    conan create hello 0.2@user/testing
+    # NOT locked: This will use the latest 0.2
     conan create chat user/testing
-    # the chat package will NOT use 0.2 it is locked to 0.1
+    # LOCKED: the chat package will NOT use 0.2 it is locked to 0.1
     conan create chat user/testing --lockfile
 }
 
-revisions() {
-    mkdir revisions && cd revisions
-    conan remove hello* -f
-    conan new hello/0.1 -s
-    conan config set general.revisions_enabled=True
-    conan create . user/testing
-    conan create . user/testing -s build_type=Debug
-    conan upload hello* --all -r=artifactory --confirm
-    echo "#comment" >> conanfile.py
-    conan create . user/testing
-    conan create . user/testing -s build_type=Debug
-    conan upload hello* --all -r=artifactory --confirm
-    conan search hello/0.1@user/testing
+package_id() {
+    echo "performing Exercise 27 (package_id)"
+    cd package_id
+    conan remove "*" -f
+    conan create hello 1.0@user/testing
+    conan create chat user/testing
+    conan create app user/testing
+
+    sed -i 's/World/World **** 1.1 ****/g' hello/src/hello.h
+    conan create hello 1.1@user/testing
+    conan create app user/testing
+
+    conan config set general.default_package_id_mode=full_version_mode
+    conan create app user/testing
+    conan create app user/testing --build=missing
+    conan search chat/1.0@user/testing
 }
+
+hooks_config_install() {
+   echo "performing Exercise 28 (Hooks and conan config install)"
+	conan config install myconfig
+	cd hooks
+	conan new Hello-Pkg/0.1 -s
+	conan export . user/testing
+	conan new hello-pkg/0.1 -s
+	conan export . user/testing
+   conan remove hello-pkg* -f
+   sed -i "s/#TODO/if '-' in ref:\n        raise Exception('Use _ instead of -')/g" ../myconfig/hooks/check_name.py
+   conan config install ../myconfig
+   conan export . user/testing
+	rm conanfile.py
+}
+
 
 package_pico_json() {
     cd pico_json
@@ -308,35 +356,37 @@ run_option() {
     set -x
 
     case $1 in
-        1) consumer ;;
-        2) consumer_debug ;;
-        3) consumer_gcc ;;
-        4) consumer_cmake_find ;;
-        5) create ;;
-        6) consume_hello ;;
-        7) create_test ;;
-        8) create_sources ;;
-        9) upload_artifactory ;;
-        10) explore_cache ;;
-        11) consume_artifactory ;;
-        12) create_options_shared ;;
-        13) create_options_greet ;;
-        14) configuration_values ;;
-        15) cross_build_hello ;;
-        16) requires ;;
-        17) requires_conflict ;;
-        18) gtest_require ;;
-        19) gtest_build_require ;;
-        20) cmake_build_require ;;
-        21) python_requires ;;
-        22) hooks_config_install ;;
-        23) version_ranges ;;
-        24) lockfiles ;;
-        25) revisions ;;
-        26) package_pico_json ;;
+         1) consumer ;;
+         2) consumer_debug ;;
+         3) consumer_gcc ;;
+         4) consumer_cmake_find ;;
+         5) create ;;
+         6) consume_hello ;;
+         7) create_test ;;
+         8) create_sources ;;
+         9) upload_artifactory ;;
+         10) explore_cache ;;
+         11) consume_artifactory ;;
+         12) create_options_shared ;;
+         13) create_options_greet ;;
+         14) configuration_values ;;
+         15) cross_build_hello ;;
+         16) requires ;;
+         17) requires_conflict ;;
+         18) requires_conditional ;;
+         19) gtest_require ;;
+         20) gtest_build_require ;;
+         21) cmake_build_require ;;
+         22) running_apps ;;
+         23) python_requires ;;
+         24) version_ranges ;;    
+         25) revisions ;;
+         26) lockfiles ;;
+         27) package_id ;;
+         28) hooks_config_install ;;
 
-        -1) exit 0 ;;
-        *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
+         -1) exit 0 ;;
+         *) echo -e "${RED}Not valid option! ${STD}" && sleep 2
     esac
 }
 
@@ -365,15 +415,17 @@ show_menu() {
     echo "=============== Conan Advanced ==================="
     echo "16. 'hello' transitive requires 'zlib'"
     echo "17. Transitive requirements conflicts"
-    echo "18. requires 'gtest'"
-    echo "19. build-requires 'gtest'"
-    echo "20. build-requires 'cmake'"
-    echo "21. python-requires"
-    echo "22. Hooks and conan config install"
-    echo "23. Version ranges"
-    echo "24. Lockfiles"
+    echo "18. Conditional requirements"
+    echo "19. requires 'gtest'"
+    echo "20. build-requires 'gtest'"
+    echo "21. build-requires 'cmake'"
+    echo "22. Running apps"
+    echo "23. python-requires"  
+    echo "24. Version ranges"
     echo "25. Package revisions"
-    echo "26. Create a package for Pico-json"
+    echo "26. Lockfiles"
+    echo "27. package_id"
+    echo "28. Hooks and conan config install"
     echo "-1. Exit"
 }
 
