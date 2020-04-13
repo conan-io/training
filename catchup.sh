@@ -300,7 +300,7 @@ lockfiles() {
 package_id() {
     echo "performing Exercise 27 (package_id)"
     cd package_id
-    #conan remove "*" -f
+    conan remove "*" -f
     conan create hello 1.0@user/testing
     conan create chat user/testing
     conan create app user/testing
