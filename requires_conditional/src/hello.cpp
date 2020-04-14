@@ -1,6 +1,6 @@
 #include <iostream>
 #include "hello.h"
-#if WITH_ZIP == 1
+#ifdef WITH_ZIP
     #include <zlib.h>
 #endif
 #include <stdio.h>
@@ -12,7 +12,7 @@ void hello(){
     char buffer_in [100] = {"Conan Package Manager is GREEEEEEEEEEEEEEAAAAAAAAAAT"};
     char buffer_out [100] = {0};
 
-    #if WITH_ZIP == 1
+    #ifdef WITH_ZIP
         z_stream defstream;
         defstream.zalloc = Z_NULL;
         defstream.zfree = Z_NULL;

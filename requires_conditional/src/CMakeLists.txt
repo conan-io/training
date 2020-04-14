@@ -4,5 +4,10 @@ project(MyHello CXX)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
+option(WITH_ZIP "Use zlib library")
+
 add_library(hello hello.cpp)
-target_compile_definitions(hello PRIVATE WITH_ZIP=${WITH_ZIP})
+if(WITH_ZIP)
+   message("Add WITH_ZIP definition")
+   target_compile_definitions(hello PRIVATE WITH_ZIP)
+endif()
