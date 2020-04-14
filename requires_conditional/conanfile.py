@@ -15,7 +15,7 @@ class HelloConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.definitions["WITH_ZIP"] = bool('zlib' in self.deps_cpp_info.deps)
+        cmake.definitions["WITH_ZIP"] = bool(self.options.zip)
         cmake.configure(source_folder="src")
         cmake.build()
 
