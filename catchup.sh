@@ -361,7 +361,6 @@ class PicojsonConan(ConanFile):
 
 run_option() {
     set -e
-    set -x
 
     case $1 in
          1) consumer ;;
@@ -445,6 +444,7 @@ else
     while true
     do
         show_menu
+        cd ${curdir}
         echo -n "Enter choice: "
         read choice
         run_option $choice
