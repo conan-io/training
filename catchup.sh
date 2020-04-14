@@ -177,7 +177,9 @@ requires() {
    cd requires
    sed -i 's/ZLib/zlib/g' conanfile.py
    conan create . user/testing
+   set +e
    conan create . user/testing -pr=rpi_armv7
+   set -e
    conan create . user/testing -pr=rpi_armv7 --build=missing
 }
 
