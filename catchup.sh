@@ -274,6 +274,7 @@ revisions() {
     echo "performing Exercise 25 (revisions)"
     conan config set general.revisions_enabled=True
     conan remove hello* -f
+    conan remote add artifactory http://localhost:8081/artifactory/api/conan/conan-local
     cd revisions
     conan create hello user/testing
     conan upload hello* --all -r=artifactory --confirm
