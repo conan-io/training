@@ -260,11 +260,11 @@ python_requires() {
 version_ranges() {
     echo "performing Exercise 24 (version ranges)"
     cd version_ranges
-    conan create hello 0.1@user/testing
+    conan create hello hello/0.1@user/testing
     conan create chat user/testing
     sed -i 's/World/World **** 0.2 ****/g' hello/src/hello.cpp
     # generate a new hello/0.2 version
-    conan create hello 0.2@user/testing
+    conan create hello hello/0.2@user/testing
     # the chat package will use it because it is inside its valid range
     conan create chat user/testing
 }
@@ -288,11 +288,11 @@ lockfiles() {
     echo "performing Exercise 26 (lockfiles)"
     cd lockfiles
     conan remove hello* -f
-    conan create hello 0.1@user/testing
+    conan create hello hello/0.1@user/testing
     # will generate a conan.lock file
     conan graph lock chat
     sed -i 's/World/World **** 0.2 ****/g' hello/src/hello.cpp
-    conan create hello 0.2@user/testing
+    conan create hello hello/0.2@user/testing
     # NOT locked: This will use the latest 0.2
     conan create chat user/testing
     # LOCKED: the chat package will NOT use 0.2 it is locked to 0.1
@@ -303,12 +303,12 @@ package_id() {
     echo "performing Exercise 27 (package_id)"
     cd package_id
     conan remove "*" -f
-    conan create hello 1.0@user/testing
+    conan create hello hello/1.0@user/testing
     conan create chat user/testing
     conan create app user/testing
 
     sed -i 's/World/World **** 1.1 ****/g' hello/src/hello.h
-    conan create hello 1.1@user/testing
+    conan create hello hello/1.1@user/testing
     conan create app user/testing
 
     conan config set general.default_package_id_mode=full_version_mode
