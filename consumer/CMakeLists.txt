@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12)
-project(BoostPoco)
+project(timer)
 add_compile_options(-std=c++11)
 
 # Using the "cmake" generator
