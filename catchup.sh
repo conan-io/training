@@ -291,7 +291,7 @@ lockfiles() {
     conan remove hello* -f
     conan create hello hello/0.1@user/testing
     # will generate a conan.lock file
-    conan lock create chat/conanfile.py
+    conan lock create chat/conanfile.py --user=user --channel=testing --lockfile-out=conan.lock
     sed -i 's/World/World **** 0.2 ****/g' hello/src/hello.cpp
     conan create hello hello/0.2@user/testing
     # NOT locked: This will use the latest 0.2
