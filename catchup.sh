@@ -7,7 +7,7 @@ STD='\033[0;0;39m'
 consumer() {
     echo "performing Exercise 1 (consumer, with CMake)"
     cd consumer
-    sed -i 's/booost/boost/g' conanfile.txt
+    #sed -i 's/booost/boost/g' conanfile.txt
     rm -rf build
     mkdir -p build
     cd build
@@ -46,7 +46,7 @@ consumer_gcc() {
 consumer_cmake_find() {
     echo "performing Exercise 4 (consumer, with cmake_find_package)"
     cd consumer_cmake_find
-    sed -i 's/cmake_find_pakcage/cmake_find_package/g' conanfile.txt
+    #sed -i 's/cmake_find_pakcage/cmake_find_package/g' conanfile.txt
     rm -rf build
     mkdir -p build
     cd build
@@ -141,7 +141,7 @@ create_options_shared() {
 create_options_greet() {
     echo "performing Exercise 13 (Custom options: language)"
     cd create_options
-    sed -i 's/self.copy2/self.copy/g' conanfile.py
+    #sed -i 's/self.copy2/self.copy/g' conanfile.py
     conan create . user/testing -o greet:language=English
     conan create . user/testing -o greet:language=Spanish
 }
@@ -166,7 +166,7 @@ configuration_values() {
 cross_build_hello() {
     echo "performing Exercise 15 (Cross building hello to RPI)"
     cd cross_build
-    sed -i 's/Linus/Linux/g' rpi_armv7
+    #sed -i 's/Linus/Linux/g' rpi_armv7
     conan create . user/testing -pr=rpi_armv7
     conan search
     conan search hello/0.1@user/testing
@@ -175,7 +175,7 @@ cross_build_hello() {
 requires() {
    echo "performing Exercise 16 (Transitive requires)"
    cd requires
-   sed -i 's/ZLib/zlib/g' conanfile.py
+   #sed -i 's/ZLib/zlib/g' conanfile.py
    conan create . user/testing
    set +e
    conan create . user/testing -pr=rpi_armv7
@@ -206,7 +206,7 @@ requires_conditional() {
 gtest_require() {
    echo "performing Exercise 19 (Requiring gtest)"
    cd gtest/hello
-   sed -i "s#import ConanFile#import ConanFile, CMake#g" conanfile.py
+   #sed -i "s#import ConanFile#import ConanFile, CMake#g" conanfile.py
    conan create . user/testing
    cd ../consumer
    conan install .
@@ -253,7 +253,7 @@ python_requires() {
     cd python_requires/mytools
     conan export . user/testing
     cd ../consumer
-    sed -i 's/mymsg()/mymsg(self)/g' conanfile.py
+    #sed -i 's/mymsg()/mymsg(self)/g' conanfile.py
     conan create . user/testing
 }
 
