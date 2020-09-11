@@ -291,13 +291,13 @@ lockfiles() {
     conan remove hello* -f
     conan create hello hello/0.1@user/testing
     # will generate a conan.lock file
-    conan graph lock chat
+    conan lock create chat/conanfile.py --user=user --channel=testing --lockfile-out=conan.lock
     sed -i 's/World/World **** 0.2 ****/g' hello/src/hello.cpp
     conan create hello hello/0.2@user/testing
     # NOT locked: This will use the latest 0.2
     conan create chat user/testing
     # LOCKED: the chat package will NOT use 0.2 it is locked to 0.1
-    conan create chat user/testing --lockfile
+    conan create chat user/testing --lockfile conan.lock
 }
 
 package_id() {
