@@ -7,8 +7,8 @@ RUN apt-get -qq update \
        vim \
        nano
 
-RUN git clone https://github.com/conan-io/training
-
 USER conan
+
+RUN git clone https://github.com/conan-io/training
 
 WORKDIR /home/conan/training
