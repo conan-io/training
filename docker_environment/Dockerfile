@@ -5,7 +5,9 @@ USER root
 RUN apt-get -qq update \
     && apt-get -qq install -y --no-install-recommends \
        vim \
-       nano
+       nano \
+       less \
+       g++-arm-linux-gnueabihf
 
 USER conan
 
