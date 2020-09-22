@@ -15,7 +15,10 @@ class HelloConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.definitions["WITH_ZIP"] = bool(self.options.zip)
+        if self.options.zip:
+            cmake.definitions["WITH_ZIP"] = "1"
+        else:
+            cmake.definitions["WITH_ZIP"] = "0"
         cmake.configure(source_folder="src")
         cmake.build()
 
