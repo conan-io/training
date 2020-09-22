@@ -12,5 +12,7 @@ RUN apt-get -qq update \
 USER conan
 
 RUN git clone https://github.com/conan-io/training
+RUN conan profile new default --detect
+RUN conan profile update settings.compiler.libcxx=libstdc++11 default
 
 WORKDIR /home/conan/training
