@@ -7,7 +7,8 @@ RUN apt-get -qq update \
        vim \
        nano \
        less \
-       g++-arm-linux-gnueabihf
+       g++-arm-linux-gnueabihf \
+       cmake
 
 USER conan
 
