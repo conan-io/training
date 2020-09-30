@@ -9,7 +9,7 @@ RUN apt-get -qq update \
        less \
        g++-arm-linux-gnueabihf \
        cmake
-
+RUN echo -e "nameserver 8.8.8.8" > /etc/resolv.conf
 USER conan
 
 RUN git clone https://github.com/conan-io/training
