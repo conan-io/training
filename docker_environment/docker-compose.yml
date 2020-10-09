@@ -1,10 +1,25 @@
 version: "3.5"
 
 services:
-           
-    conan-developer:
+    conan-training:
         container_name: conan-training
         build:
             dockerfile: Dockerfile
-            context: .
+            context: ./conan-training
+        networks:
+            - conan-training
         command: tail -f /dev/null
+
+    artifactory-training:
+        container_name: artifactory-training
+        build:
+            dockerfile: Dockerfile
+            context: ./artifactory-training
+        networks:
+            - conan-training
+        ports:
+            - "8082:8082"
+        restart: always
+
+networks:
+    conan-training:
