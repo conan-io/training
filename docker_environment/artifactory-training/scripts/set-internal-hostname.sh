@@ -6,5 +6,5 @@ curl -m 5 -f -X PATCH \
 -H 'Content-Type: application/yaml' \
 http://localhost:8082/artifactory/api/system/configuration \
 -d '
-urlBase: http://artifactory-training:8082
+urlBase: http://jfrog-artifactory-training:8082
 '
