@@ -4,7 +4,11 @@ COPY scripts/* /scripts/
 
 USER root
 
+#Set executable permission
 RUN chmod +x /scripts/*
+
+#Remove windows EOL character
+RUN sed -i "s/\r//g" /scripts/*
 
 RUN chown -hR artifactory:artifactory /scripts
 
