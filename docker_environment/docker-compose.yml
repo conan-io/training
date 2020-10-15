@@ -10,8 +10,8 @@ services:
             - conan-training
         command: tail -f /dev/null
 
-    artifactory-training:
-        container_name: artifactory-training
+    jfrog-artifactory-training:
+        container_name: jfrog-artifactory-training
         build:
             dockerfile: Dockerfile
             context: ./artifactory-training
