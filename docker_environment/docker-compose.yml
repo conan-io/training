@@ -16,10 +16,25 @@ services:
             dockerfile: Dockerfile
             context: ./artifactory-training
         networks:
-            - conan-training
+            conan-training:
+                aliases: 
+                    - artifactory
         ports:
             - "8082:8082"
         restart: always
+
+    gitbucket-training:
+        container_name: gitbucket-training
+        build:
+            dockerfile: Dockerfile
+            context: ./gitbucket-training
+        networks:
+            conan-training:
+                aliases: 
+                    - gitbucket
+            
+        ports:
+            - "80:80"
 
 networks:
     conan-training:

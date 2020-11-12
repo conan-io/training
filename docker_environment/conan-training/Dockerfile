@@ -1,4 +1,4 @@
-FROM conanio/gcc7:1.28.1
+FROM conanio/gcc7:1.30.2
 
 USER root
 
@@ -12,7 +12,10 @@ RUN apt-get -qq update \
 
 USER conan
 
-RUN git clone https://github.com/conan-io/training
+RUN git clone https://github.com/solvingj/training
+WORKDIR training
+RUN git checkout add_ci_cd_content
+RUN chmod +x cicd/bootstrap/bootstrap.sh
 RUN conan profile new default --detect
 RUN conan profile update settings.compiler.libcxx=libstdc++11 default
 
