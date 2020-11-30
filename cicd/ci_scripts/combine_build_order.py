@@ -8,9 +8,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
     'build_order_files', 
     nargs='+',
-    help='build order files')
-            
+    help='build order file')
+
+parser.add_argument(
+    '--output_file',
+    help='output_file')
+
 args = parser.parse_args()
+
 # read build order files into list of dictionaries
 build_orders = []
 for _file in args.build_order_files:
@@ -35,8 +40,5 @@ combined_order = {}
 for pref, position in po_dict.items():
     combined_order.setdefault(position, []).append(pref) 
 
-#Print packages in next level, 1 line per package
-for key, values in combined_order.items():
-    for value in values:
-        print(value.split('@')[0])
-    exit(0)
+with open(args.output_file, 'w') as file:
+    json.dump(combined_order, file, indent=4)
