@@ -12,7 +12,7 @@ parser.add_argument(
     help='source directory to search')
 parser.add_argument(
     'dst_dir',
-    help='udestination directory to copy to')
+    help='destination directory to copy to')
             
 args = parser.parse_args()
 
