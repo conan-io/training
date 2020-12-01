@@ -9,7 +9,7 @@ git config --global user.name "Your Name"
 CI_DATA=~/training/cicd/data
 CI_SCRIPTS=~/training/cicd/ci_scripts
 WORKSPACE=~/workspace
-SCRIPTS=~/scripts
+SCRIPTS=~/ci_scripts
 
 mkdir -p "${WORKSPACE}"
 mkdir -p "${SCRIPTS}"
