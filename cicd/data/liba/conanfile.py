@@ -3,11 +3,12 @@ from conans import ConanFile, CMake
 class LibA(ConanFile):
     name = "liba"
     version = "1.0"
-
+    url = "https://github.com/conan-io/training"
+    license = "MIT"
+    description = "training"
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False]}
     default_options = {"shared": False}
-
     generators = "cmake"
 
     scm = {"type": "git",

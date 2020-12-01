@@ -3,7 +3,9 @@ from conans import ConanFile, CMake
 class app2(ConanFile):
     name = "app2"
     version = "1.0"
-
+    url = "https://github.com/conan-io/training"
+    license = "MIT"
+    description = "training"
     settings = "os", "arch", "compiler", "build_type"
 
     generators = "cmake"
