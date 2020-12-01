@@ -21,24 +21,24 @@ repos=`ls ${WORKSPACE}`
 
 for repo in `echo $repos`; do
 
-    echo "--- creating $repo on server"
+    echo "--- creating GIT repository on server: $repo"
     curl --user "${DEMO_GIT_CREDS_USR}:${DEMO_GIT_CREDS_PSW}" -X POST -d '{"name":"'$repo'"}' "http://gitbucket/api/v3/user/repos"
     
     
-    echo "--- creating webhook pointing to jenkins for $repo"
+    echo "--- creating webhook pointing to jenkins for GIT repository: $repo"
     curl --user "${DEMO_GIT_CREDS_USR}:${DEMO_GIT_CREDS_PSW}" \
     -X POST "http://gitbucket/api/v3/repos/${DEMO_GIT_CREDS_USR}/${repo}/hooks" \
     -d '{"name":"jenkins","config":{"url":"http://jenkins:8080/github-webhook/"},"events":["push", "pull_request"]}'
     
     pushd ${WORKSPACE}/$repo
-    echo "--- creating ${WORKSPACE}/$repo locally"
+    echo "--- creating GIT repo locally: ${WORKSPACE}/$repo"
     
     git init 
     git checkout -b develop
     git add . 
     git commit -m "initial commit"
     
-    echo "--- pushing $repo"
+    echo "--- pushing GIT repository: $repo"
     git remote add origin "http://${DEMO_GIT_CREDS_USR}:${DEMO_GIT_CREDS_PSW}@gitbucket/git/${DEMO_GIT_CREDS_USR}/${repo}.git"
     git push origin --mirror -f
     
