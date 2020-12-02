@@ -26,11 +26,12 @@ for src_root, dirs, files in os.walk(args.src_dir):
             with open(src_path_joined, 'r') as file:
                 build_order = json.load(file)
                 for position, level in enumerate(build_order):
-                    for pref, prev, _context, _id in level:
-                        pref_short = pref.split('@')[0]
-                        if args.package_ref == pref_short:
-                            upstream_package_ref = "/".join(src_root.split("/")[2:4])
-                            lockfile_dir = "/".join(src_root.split("/")[4:]) 
-                            dst_root = os.path.join(args.dst_dir, lockfile_dir,upstream_package_ref) 
-                            print("copying: %s -> %s" % (src_root, dst_root))
-                            shutil.copytree(src_root, dst_root)
+                    if position == 0: # Only evalute the "first" position
+                        for pref, prev, _context, _id in level:
+                            pref_short = pref.split('@')[0]
+                            if args.package_ref == pref_short:
+                                upstream_package_ref = "/".join(src_root.split("/")[2:4])
+                                lockfile_dir = "/".join(src_root.split("/")[4:]) 
+                                dst_root = os.path.join(args.dst_dir, lockfile_dir, upstream_package_ref) 
+                                print("copying: %s -> %s" % (src_root, dst_root))
+                                shutil.copytree(src_root, dst_root)
