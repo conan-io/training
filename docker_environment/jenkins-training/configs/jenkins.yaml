@@ -4,90 +4,62 @@ jenkins:
   globalNodeProperties:
   - envVars:
       env:
-      - key: DEMO_DOCKER_NETWORK_NAME
-        value: ${DEMO_DOCKER_NETWORK_NAME}
+      - key: TRAINING_DOCKER_NETWORK_NAME
+        value: ${TRAINING_DOCKER_NETWORK_NAME}
   - envVars:
       env:
-      - key: DEMO_JENKINS_DOWNSTREAM_BRANCH_NAME
-        value: master
+      - key: TRAINING_CONAN_USER
+        value: ci
   - envVars:
       env:
-      - key: DEMO_CONAN_USER
-        value: mycompany
-  - envVars:
-      env:
-      - key: DEMO_CONAN_CHANNEL
+      - key: TRAINING_CONAN_CHANNEL
         value: stable
   - envVars:
       env:
-      - key: DEMO_WORKING_SUBDIR
-        value: project
-  - envVars:
-      env:
-      - key: DEMO_CONAN_CONFIG_URL
+      - key: TRAINING_CONAN_CONFIG_URL
         value: http://gitbucket/git/root/settings.git
   - envVars:
       env:
-      - key: DEMO_ARTIFACTORY_URL
+      - key: TRAINING_LOCKS_URL
+        value: http://gitbucket/git/root/locks.git
+  - envVars:
+      env:
+      - key: TRAINING_CI_SCRIPTS_URL
+        value: http://gitbucket/git/root/ci_scripts.git
+  - envVars:
+      env:
+      - key: TRAINING_ARTIFACTORY_URL
         value: http://artifactory:8082/artifactory
   - envVars:
       env:
-      - key: ARTIFACTORY_URL
-        value: artifactory
+      - key: TRAINING_CONAN_REMOTE_PROD
+        value: name=conan-develop;cred=TRAINING_ART_CREDS
   - envVars:
       env:
-      - key: DEMO_CONAN_REMOTE_PROD
-        value: name=conan-local-prod;cred=DEMO_ART_CREDS
-  - envVars:
-      env:
-      - key: DEMO_CONAN_REMOTE_TEMP
-        value: name=conan-local-temp;cred=DEMO_ART_CREDS
-  - envVars:
-      env:
-      - key: DEMO_CONAN_METADATA_PROD
-        value: name=conan-metadata-prod;cred=DEMO_ART_CREDS
-  - envVars:
-      env:
-      - key: DEMO_CONAN_META_REPO_TEMP
-        value: name=conan-metadata-temp;cred=DEMO_ART_CREDS
+      - key: TRAINING_CONAN_REMOTE_TEMP
+        value: name=conan-temp;cred=TRAINING_ART_CREDS
       
 credentials:
   system:
     domainCredentials:
       - credentials:
           - usernamePassword:
-              id: "DEMO_GIT_CREDS"
-              username: ${DEMO_GIT_CREDS_USR}
-              password: ${DEMO_GIT_CREDS_PSW}
+              id: "TRAINING_GIT_CREDS"
+              username: ${TRAINING_GIT_CREDS_USR}
+              password: ${TRAINING_GIT_CREDS_PSW}
               description: "Git credentials"
               scope: GLOBAL
           - usernamePassword:
-              id: "DEMO_ART_CREDS"
-              username: ${DEMO_ART_CREDS_USR}
-              password: ${DEMO_ART_CREDS_PSW}
+              id: "TRAINING_ART_CREDS"
+              username: ${TRAINING_ART_CREDS_USR}
+              password: ${TRAINING_ART_CREDS_PSW}
               description: "Artifactory credentials"
-              scope: GLOBAL
-          - usernamePassword:
-              id: "artifactory-credentials"
-              username: ${DEMO_ART_CREDS_USR}
-              password: ${DEMO_ART_CREDS_PSW}
-              description: "Artifactory credentials for training"
               scope: GLOBAL
                   
 unclassified:
   location:
     adminAddress: "demo@demo.local"
     url: "http://jenkins:8080/"
-  globalLibraries:
-    libraries:
-      - name: "demo_jenkins_library"
-        defaultVersion: "master"
-        retriever:
-          modernSCM:
-            scm:
-              git:
-                remote: "http://gitbucket/git/root/demo_jenkins_library.git"
-                credentialsId: "DEMO_GIT_CREDS"
 
   gitHubConfiguration:
     apiRateLimitChecker: ThrottleForNormalize
@@ -102,7 +74,7 @@ jobs:
         organizations {
           github {
             apiUri("http://gitbucket/api/v3")
-            credentialsId('DEMO_GIT_CREDS')
+            credentialsId('TRAINING_GIT_CREDS')
             repoOwner('root')
           }
         }

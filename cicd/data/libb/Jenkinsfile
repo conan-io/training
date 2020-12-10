@@ -1,32 +1,37 @@
 pipeline {
-    agent any
+    agent {
+        docker { image 'conanio/gcc7' }
+    }
     environment {
         DEMO_GIT_CREDS = credentials("DEMO_GIT_CREDS")
         DEMO_ART_CREDS = credentials("DEMO_ART_CREDS")
-        LOCKS_REPO = 'http://gitbucket/git/root/locks.git'
-        LOCKS_BRANCH = 'develop'
-        CI_SCRIPTS_REPO = 'http://gitbucket/git/root/ci_scripts.git'
-        CI_SCRIPTS_BRANCH = 'develop'
+        TRAINING_CONAN_USER = 'ci'
+        TRAINING_CONAN_CHANNEL = 'stable'
+        TRAINING_CONAN_CONFIG_URL = 'http://gitbucket/git/root/settings.git'
+        TRAINING_LOCKS_URL = 'http://gitbucket/git/root/locks.git'
+        TRAINING_LOCKS_BRANCH = 'develop'
+        TRAINING_CI_SCRIPTS_URL = 'http://gitbucket/git/root/ci_scripts.git'
+        TRAINING_CI_SCRIPTS_BRANCH = 'develop'
+        TRAINING_ARTIFACTORY_URL = 'http://artifactory:8082/artifactory'
+        TRAINING_CONAN_REMOTE_PROD = 'name=conan-develop;cred=TRAINING_ART_CREDS'
+        TRAINING_CONAN_REMOTE_TEMP = 'name=conan-temp;cred=TRAINING_ART_CREDS'
     }
     parameters {
         string(name: 'lock_branch', defaultValue: '', description: 'Branch in Lockfile Repository to use.')
     }
     stages {
         stage('package_pipeline') {
-            when { 
-                triggeredBy 'SCMTrigger' 
-                not {
-                    branch pattern: "PR-\\d+"
-                    branch pattern: "develop"
-                    
-                }
-            }
+            // when { 
+                // triggeredBy 'SCMTrigger' 
+                // not { branch pattern: "PR-\\d+" }
+                // not { branch pattern: "develop" }
+            // }
             stages {
                 stage('package_pipeline') {
                     steps{
-                        sh printenv
-                        sh git clone $CI_SCRIPTS_REPO -b $CI_SCRIPTS_BRANCH
-                        sh ./ci_scripts/package_pipeline_init.sh
+                        sh "printenv"
+                        sh "git clone $TRAINING_CI_SCRIPTS_URL -b $TRAINING_CI_SCRIPTS_BRANCH"
+                        sh "./ci_scripts/package_pipeline_init.sh"
                         // sh ./ci_scripts/package_pipeline_run.sh
                     }
                 }
