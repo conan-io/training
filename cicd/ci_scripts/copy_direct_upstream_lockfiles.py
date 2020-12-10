@@ -3,8 +3,7 @@ import argparse
 import os
 import shutil
 
-# Script takes a reference and a directory and recursively
-# removes all lockfiles which don't contain the reference
+# Copies all lockfiles which contain the given reference
 
 parser = argparse.ArgumentParser()
 parser.add_argument(

@@ -7,7 +7,7 @@ services:
             dockerfile: Dockerfile
             context: ./conan-training
         networks:
-            - conan-training
+            - primary
         command: tail -f /dev/null
 
     jfrog-artifactory-training:
@@ -16,7 +16,7 @@ services:
             dockerfile: Dockerfile
             context: ./artifactory-training
         networks:
-            conan-training:
+            primary:
                 aliases: 
                     - artifactory
         ports:
@@ -29,12 +29,34 @@ services:
             dockerfile: Dockerfile
             context: ./gitbucket-training
         networks:
-            conan-training:
+            primary:
                 aliases: 
                     - gitbucket
-            
         ports:
             - "80:80"
 
+    jenkins-training:
+        depends_on:
+            - gitbucket-training
+        container_name: jenkins-training
+        build:
+            dockerfile: Dockerfile
+            context: ./jenkins-training
+        volumes:
+           - type: bind
+             source: /var/run/docker.sock
+             target: /var/run/docker.sock
+        networks:
+            primary:
+                aliases: 
+                    - jenkins
+        ports:
+            - "8080:8080"
+        environment:
+                - DEMO_GIT_CREDS_USR=root
+                - DEMO_GIT_CREDS_PSW=root
+                - DEMO_ART_CREDS_USR=admin
+                - DEMO_ART_CREDS_PSW=password
+                - DEMO_DOCKER_NETWORK_NAME=${COMPOSE_PROJECT_NAME}_primary
 networks:
-    conan-training:
+    primary:
