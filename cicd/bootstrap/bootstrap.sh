@@ -1,56 +1,56 @@
 #!/bin/bash
 
-DEMO_GIT_CREDS_USR=${DEMO_GIT_CREDS_USR:-root}
-DEMO_GIT_CREDS_PSW=${DEMO_GIT_CREDS_PSW:-root}
+TRAINING_GIT_CREDS_USR=${TRAINING_GIT_CREDS_USR:-root}
+TRAINING_GIT_CREDS_PSW=${TRAINING_GIT_CREDS_PSW:-root}
+TRAINING_GIT_URL=${TRAINING_GIT_SERVER:-http://$TRAINING_GIT_CREDS_USR:$TRAINING_GIT_CREDS_PSW@gitbucket}
+TRAINING_JENKINS_URL=${TRAINING_JENKINS_URL:-http://jenkins:8080}
 
 git config --global user.email "you@example.com"
 git config --global user.name "Your Name"
 
-CI_DATA=~/training/cicd/data
-CI_SCRIPTS=~/training/cicd/ci_scripts
+JENKINSLIB_SRC=~/training/cicd/automation/jenkinslib
+SCRIPTS_SRC=~/training/cicd/automation/scripts
+DATA_SRC=~/training/cicd/data
+
 WORKSPACE=~/workspace
-SCRIPTS=~/ci_scripts
+SCRIPTS=~/scripts
+JENKINSLIB=~/jenkinslib
 
 mkdir -p "${WORKSPACE}"
 mkdir -p "${SCRIPTS}"
+mkdir -p "${JENKINSLIB}"
 
-cp -RT "${CI_DATA}" "${WORKSPACE}"
-cp -RT "${CI_SCRIPTS}" "${SCRIPTS}"
+cp -RT "${DATA_SRC}" "${WORKSPACE}"
+cp -RT "${SCRIPTS_SRC}" "${SCRIPTS}"
+cp -RT "${JENKINSLIB_SRC}" "${JENKINSLIB}"
 
-repos=`ls ${WORKSPACE}`
-
-for repo in `echo $repos`; do
-    echo "--- creating GIT repository on server: $repo"
-    curl --user "${DEMO_GIT_CREDS_USR}:${DEMO_GIT_CREDS_PSW}" -X POST -d '{"name":"'$repo'"}' "http://gitbucket/api/v3/user/repos"
+initialize_repo(){
+    echo "--- creating GIT repository on server: ${1}"
+    curl --user "${DEMO_GIT_CREDS_USR}:${DEMO_GIT_CREDS_PSW}" -X POST -d '{"name":"'$1'"}' "${DEMO_GIT_CREDS_USR}/api/v3/user/repos"
     
-    echo "--- creating webhook pointing to jenkins for GIT repository: $repo"
+    echo "--- creating webhook pointing to jenkins for GIT repository: ${1}"
     curl --user "${DEMO_GIT_CREDS_USR}:${DEMO_GIT_CREDS_PSW}" \
-    -X POST "http://gitbucket/api/v3/repos/${DEMO_GIT_CREDS_USR}/${repo}/hooks" \
-    -d '{"name":"jenkins","config":{"url":"http://jenkins:8080/github-webhook/"},"events":["push", "pull_request"]}'
+    -X POST "${TRAINING_GIT_URL}/api/v3/repos/${DEMO_GIT_CREDS_USR}/${1}/hooks" \
+    -d '{"name":"jenkins","config":{"url":"${TRAINING_JENKINS_URL}/github-webhook/"},"events":["push", "pull_request"]}'
     
-    pushd ${WORKSPACE}/$repo
-    echo "--- creating GIT repo locally: ${WORKSPACE}/$repo"
-    
+    pushd $1
+    echo "--- creating GIT repo locally: ${1}"
     git init 
     git checkout -b develop
     git add . 
     git commit -m "initial commit"
-    
-    echo "--- pushing GIT repository: $repo"
-    git remote add origin "http://${DEMO_GIT_CREDS_USR}:${DEMO_GIT_CREDS_PSW}@gitbucket/git/${DEMO_GIT_CREDS_USR}/${repo}.git"
+    echo "--- pushing GIT repository: ${1}"
+    git remote add origin "${TRAINING_GIT_URL}/git/${DEMO_GIT_CREDS_USR}/${1}.git"
     git push origin --mirror -f
-    
     popd
+}
+
+cd ~
+initialize_repo $SCRIPTS
+initialize_repo $JENKINSLIB
+
+cd ${WORKSPACE}
+for repo in $(ls $WORKSPACE); do
+    initialize_repo $repo $WORKSPACE
 done
 
-echo "--- creating GIT repository on server: ci_scripts"
-curl --user "${DEMO_GIT_CREDS_USR}:${DEMO_GIT_CREDS_PSW}" -X POST -d '{"name":"ci_scripts"}' "http://gitbucket/api/v3/user/repos"
-pushd ${SCRIPTS}
-echo "--- creating GIT repo locally: ${SCRIPTS}"
-git init 
-git checkout -b develop
-git add . 
-git commit -m "initial commit"
-echo "--- pushing GIT repository: ci_scripts"
-git remote add origin "http://${DEMO_GIT_CREDS_USR}:${DEMO_GIT_CREDS_PSW}@gitbucket/git/${DEMO_GIT_CREDS_USR}/ci_scripts.git"
-git push origin --mirror -f

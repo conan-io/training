@@ -1,0 +1,21 @@
+package conan.ci.step
+
+@Library('demo_jenkins_library') _
+
+pipeline {
+    agent any
+    stages {
+        stage('withenvbug') {
+            environment {
+                DEMO_LOG_LEVEL = "DEBUG"
+            }
+            steps {
+                withMapEnv(SOMEVAR : "SOMEVAL", SOMEVAR2 : "SOME_VAL_2"){
+                    echo "SOMEVAR inside closure = ${env.SOMEVAR}"
+                }
+                //SOMEVAR should be null after closure, it's not
+                echo "SOMEVAR outside closure = ${env.SOMEVAR}"
+            }
+        }
+    }
+}

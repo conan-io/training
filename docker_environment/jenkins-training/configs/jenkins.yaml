@@ -1,5 +1,5 @@
 jenkins:
-  systemMessage: "Demo Jenkins Environment"
+  systemMessage: "Training Jenkins Environment"
   numExecutors: 8
   globalNodeProperties:
   - envVars:
@@ -58,14 +58,23 @@ credentials:
                   
 unclassified:
   location:
-    adminAddress: "demo@demo.local"
+    adminAddress: "training@conan.local"
     url: "http://jenkins:8080/"
-
   gitHubConfiguration:
     apiRateLimitChecker: ThrottleForNormalize
     endpoints:
     - apiUri: "http://gitbucket/api/v3"
       name: "gitbucket"
+  globalLibraries:
+    libraries:
+      - name: "jenkins_shared_library"
+        defaultVersion: "develop"
+        retriever:
+          modernSCM:
+            scm:
+              git:
+                remote: "http://gitbucket/git/root/jenkinslib.git"
+                credentialsId: "TRAINING_GIT_CREDS"
 jobs:
   - script: >
       organizationFolder('gitbucket') {

@@ -1,0 +1,24 @@
+[
+ [
+  [
+   "3",
+   "libB/1.0@mycompany/stable#ddd949983d7d98ecff163e995530f655:1601c9908ece22a80eb184a8ebc609930ce79700"
+  ],
+  [
+   "5",
+   "libC/1.0@mycompany/stable#2d72442493a73de4d5a04077194112a4:1601c9908ece22a80eb184a8ebc609930ce79700"
+  ]
+ ],
+ [
+  [
+   "2",
+   "libD/1.0@mycompany/stable#e4b55773f5af3b54872da5cb3925481c:8134bfebdc02a860762e792348a58c5cf72d79d3"
+  ]
+ ],
+ [
+  [
+   "1",
+   "App/1.0@mycompany/stable#0218ff21ca6ce217dbd7ad0129305878:2261a7577d2f5d730b88e6d0a1094fd6a40a1e98"
+  ]
+ ]
+]

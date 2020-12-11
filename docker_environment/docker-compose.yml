@@ -53,10 +53,10 @@ services:
         ports:
             - "8080:8080"
         environment:
-                - DEMO_GIT_CREDS_USR=root
-                - DEMO_GIT_CREDS_PSW=root
-                - DEMO_ART_CREDS_USR=admin
-                - DEMO_ART_CREDS_PSW=password
-                - DEMO_DOCKER_NETWORK_NAME=${COMPOSE_PROJECT_NAME}_primary
+                - TRAINING_GIT_CREDS_USR=root
+                - TRAINING_GIT_CREDS_PSW=root
+                - TRAINING_ART_CREDS_USR=admin
+                - TRAINING_ART_CREDS_PSW=password
+                - TRAINING_DOCKER_NETWORK_NAME=${COMPOSE_PROJECT_NAME}_primary
 networks:
     primary:

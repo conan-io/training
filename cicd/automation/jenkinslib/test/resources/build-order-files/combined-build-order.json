@@ -1,0 +1,123 @@
+[
+  [
+    {
+      "position": 0,
+      "id": "3",
+      "pRef": {
+        "user": "mycompany",
+        "PId": "ddd949983d7d98ecff163e995530f655",
+        "version": "1.0",
+        "rRev": null,
+        "bRef": {
+          "pId": "ddd949983d7d98ecff163e995530f655",
+          "pRev": "1601c9908ece22a80eb184a8ebc609930ce79700"
+        },
+        "prev": "1601c9908ece22a80eb184a8ebc609930ce79700",
+        "name": "libB",
+        "channel": "stable",
+        "pRefShort": {
+          "user": "mycompany",
+          "version": "1.0",
+          "channel": "stable",
+          "name": "libB"
+        }
+      }
+    },
+    {
+      "position": 0,
+      "id": "2",
+      "pRef": {
+        "user": "mycompany",
+        "PId": "2d72442493a73de4d5a04077194112a4",
+        "version": "1.0",
+        "rRev": null,
+        "bRef": {
+          "pId": "2d72442493a73de4d5a04077194112a4",
+          "pRev": "1601c9908ece22a80eb184a8ebc609930ce79700"
+        },
+        "prev": "1601c9908ece22a80eb184a8ebc609930ce79700",
+        "name": "libC",
+        "channel": "stable",
+        "pRefShort": {
+          "user": "mycompany",
+          "version": "1.0",
+          "channel": "stable",
+          "name": "libC"
+        }
+      }
+    }
+  ],
+  [
+    {
+      "position": 1,
+      "id": "2",
+      "pRef": {
+        "user": "mycompany",
+        "PId": "e4b55773f5af3b54872da5cb3925481c",
+        "version": "1.0",
+        "rRev": null,
+        "bRef": {
+          "pId": "e4b55773f5af3b54872da5cb3925481c",
+          "pRev": "8134bfebdc02a860762e792348a58c5cf72d79d3"
+        },
+        "prev": "8134bfebdc02a860762e792348a58c5cf72d79d3",
+        "name": "libD",
+        "channel": "stable",
+        "pRefShort": {
+          "user": "mycompany",
+          "version": "1.0",
+          "channel": "stable",
+          "name": "libD"
+        }
+      }
+    },
+    {
+      "position": 1,
+      "id": "1",
+      "pRef": {
+        "user": "mycompany",
+        "PId": "3c116b1419db8510703215324e10e569",
+        "version": "1.0",
+        "rRev": null,
+        "bRef": {
+          "pId": "3c116b1419db8510703215324e10e569",
+          "pRev": "6249a7e216d1a7f2ff0d40edc2ed072019176d99"
+        },
+        "prev": "6249a7e216d1a7f2ff0d40edc2ed072019176d99",
+        "name": "App2",
+        "channel": "stable",
+        "pRefShort": {
+          "user": "mycompany",
+          "version": "1.0",
+          "channel": "stable",
+          "name": "App2"
+        }
+      }
+    }
+  ],
+  [
+    {
+      "position": 2,
+      "id": "1",
+      "pRef": {
+        "user": "mycompany",
+        "PId": "0218ff21ca6ce217dbd7ad0129305878",
+        "version": "1.0",
+        "rRev": null,
+        "bRef": {
+          "pId": "0218ff21ca6ce217dbd7ad0129305878",
+          "pRev": "2261a7577d2f5d730b88e6d0a1094fd6a40a1e98"
+        },
+        "prev": "2261a7577d2f5d730b88e6d0a1094fd6a40a1e98",
+        "name": "App",
+        "channel": "stable",
+        "pRefShort": {
+          "user": "mycompany",
+          "version": "1.0",
+          "channel": "stable",
+          "name": "App"
+        }
+      }
+    }
+  ]
+]

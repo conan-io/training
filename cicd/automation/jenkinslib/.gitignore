@@ -1,0 +1,17 @@
+# Build
+.gradle
+build
+out
+
+# Intellij files
+.idea
+*.iml
+
+# Eclipse
+/.classpath
+/.project
+/.settings*
+/target/
+
+# Mac OS X files
+.DS_Store

@@ -1,0 +1,63 @@
+package conan.ci.step
+
+@Library('demo_jenkins_library') _
+
+pipeline {
+    agent any
+    stages {
+        stage('test_native_windows') {
+            environment{
+                DEMO_COMMAND_RUNNER = "native"
+                DEMO_RUN_AGENT_OS = "windows" // auto-detected if not supplied
+            }
+            steps {
+                demoRun(command: "cd")
+            }
+        }
+        stage('test_native_linux') {
+            environment{
+                DEMO_COMMAND_RUNNER = "native"
+                DEMO_RUN_AGENT_OS = "linux" // auto-detected if not supplied
+            }
+            steps {
+                demoRun(command: "pwd")
+            }
+        }
+        stage('test_docker_windows') {
+            environment{
+                BUILD_TAG = "JENKINS-LIBA-MASTER_10" // JPU doesn't set this automatically like real jenkins
+                STAGE_NAME = "test_docker_windows" // JPU doesn't set this automatically like real jenkins
+                DEMO_RUN_AGENT_OS = "windows" // auto-detected if not supplied
+                DEMO_COMMAND_RUNNER = "docker" // auto-set when inside withDemoDockerContainer block (not tested here)
+                DEMO_DOCKER_CONTAINER_OS = "windows" // auto-detected if not supplied
+            }
+            steps {
+                demoRun(command: "cd")
+            }
+        }
+        stage('test_docker_cross') {
+            environment{
+                BUILD_TAG = "JENKINS-LIBA-MASTER_10" // JPU doesn't set this automatically like real jenkins
+                STAGE_NAME = "test_docker_cross" // JPU doesn't set this automatically like real jenkins
+                DEMO_RUN_AGENT_OS = "windows" // auto-detected if not supplied
+                DEMO_COMMAND_RUNNER = "docker" // auto-set when inside withDemoDockerContainer block (not tested here)
+                DEMO_DOCKER_CONTAINER_OS = "linux" // auto-detected if not supplied
+            }
+            steps {
+                demoRun(command: "pwd")
+            }
+        }
+        stage('test_docker_linux') {
+            environment{
+                BUILD_TAG = "JENKINS-LIBA-MASTER_10" // JPU doesn't set this automatically like real jenkins
+                STAGE_NAME = "test_docker_linux" // JPU doesn't set this automatically like real jenkins
+                DEMO_RUN_AGENT_OS = "linux" // auto-detected if not supplied
+                DEMO_COMMAND_RUNNER = "docker" // auto-set when inside withDemoDockerContainer block (not tested here)
+                DEMO_DOCKER_CONTAINER_OS = "linux" // auto-detected if not supplied
+            }
+            steps {
+                demoRun(command: "pwd")
+            }
+        }
+    }
+}
