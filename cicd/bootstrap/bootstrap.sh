@@ -26,11 +26,12 @@ cp -RT "${JENKINSLIB_SRC}" "${JENKINSLIB}"
 
 initialize_repo(){
     echo "--- creating GIT repository on server: ${1}"
-    curl --user "${DEMO_GIT_CREDS_USR}:${DEMO_GIT_CREDS_PSW}" -X POST -d '{"name":"'$1'"}' "${DEMO_GIT_CREDS_USR}/api/v3/user/repos"
+    echo curl --user "${TRAINING_GIT_CREDS_USR}:${TRAINING_GIT_CREDS_PSW}" -X POST -d '{"name":"'$1'"}' "${TRAINING_GIT_URL}/api/v3/user/repos"
+    curl --user "${TRAINING_GIT_CREDS_USR}:${TRAINING_GIT_CREDS_PSW}" -X POST -d '{"name":"'$1'"}' "${TRAINING_GIT_URL}/api/v3/user/repos"
     
     echo "--- creating webhook pointing to jenkins for GIT repository: ${1}"
-    curl --user "${DEMO_GIT_CREDS_USR}:${DEMO_GIT_CREDS_PSW}" \
-    -X POST "${TRAINING_GIT_URL}/api/v3/repos/${DEMO_GIT_CREDS_USR}/${1}/hooks" \
+    curl --user "${TRAINING_GIT_CREDS_USR}:${TRAINING_GIT_CREDS_PSW}" \
+    -X POST "${TRAINING_GIT_URL}/api/v3/repos/${TRAINING_GIT_CREDS_USR}/${1}/hooks" \
     -d '{"name":"jenkins","config":{"url":"${TRAINING_JENKINS_URL}/github-webhook/"},"events":["push", "pull_request"]}'
     
     pushd $1
@@ -40,14 +41,14 @@ initialize_repo(){
     git add . 
     git commit -m "initial commit"
     echo "--- pushing GIT repository: ${1}"
-    git remote add origin "${TRAINING_GIT_URL}/git/${DEMO_GIT_CREDS_USR}/${1}.git"
+    git remote add origin "${TRAINING_GIT_URL}/git/${TRAINING_GIT_CREDS_USR}/${1}.git"
     git push origin --mirror -f
     popd
 }
 
 cd ~
-initialize_repo $SCRIPTS
-initialize_repo $JENKINSLIB
+initialize_repo $(basename $SCRIPTS)
+initialize_repo $(basename $JENKINSLIB)
 
 cd ${WORKSPACE}
 for repo in $(ls $WORKSPACE); do

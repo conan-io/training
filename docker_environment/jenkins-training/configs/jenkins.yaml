@@ -67,7 +67,7 @@ unclassified:
       name: "gitbucket"
   globalLibraries:
     libraries:
-      - name: "jenkins_shared_library"
+      - name: "jenkinslib"
         defaultVersion: "develop"
         retriever:
           modernSCM:
