@@ -1,69 +1,27 @@
 package conan.ci.arg
 
-import conan.ci.credentials.GitCredentials
-
 class GitArgs {
-    def currentBuild
-    def env
 
-    GitArgs(def currentBuild) {
-        this.currentBuild = currentBuild
-        this.env = currentBuild.env
-    }
-
-    String getCloneCommand(String destinationDir = "") {
-        List<String> cliArgs = ["git clone"]
-        if (urlCmd()) {
-            cliArgs.add(urlCmd())
-        }
-        cliArgs.add(destinationDirCmd(destinationDir))
-        cliArgs.addAll(argsCmd())
-        return cliArgs.join(" ")
-    }
-
-    String getGitUrl() {
-        return env["CHANGE_URL"] ?: env["GIT_URL"] ?: ""
-    }
-
-    String urlCmd() {
-        if (gitUrl == "") {
-            throw new Exception("DEMO_GIT_URL must be set")
-        } else {
-            String gitCredentialVars = gitCredentialVars()
-            if (gitCredentialVars) {
-                return gitUrl.replace("://", "://${gitCredentialVars}@")
-            } else {
-                return gitUrl
-            }
-        }
-    }
-
-    String getDestinationDir() {
-        return env["DEMO_GIT_DESTINATION_DIR"] ?: ""
-    }
-
-    String destinationDirCmd(String destDir = "") {
-        if (destinationDir == "") {
-            return destDir
-        } else {
-            return destinationDir
-        }
-    }
-
-    String gitCredentialVars() {
-        GitCredentials gitCredentials = new GitCredentials(env)
-        return gitCredentials.gitCredentials
-    }
-
-    String getArgs() {
-        return env["DEMO_GIT_ARGS"] ?: ""
-    }
-
-    List<String> argsCmd() {
-        if (args == "") {
-            return []
-        } else {
-            return args.split(',')?.collect { "${it}".toString() }
-        }
+    static List<Argument> get(def currentBuild) {
+        return [
+                new Argument<String>(
+                        name: "gitBranch",
+                        group: "git",
+                        envVarName: "GIT_BRANCH",
+                        description: "Branch which current job is building under.",
+                ),
+                new Argument<String>(
+                        name: "gitCommit",
+                        group: "git",
+                        envVarName: "GIT_COMMIT",
+                        description: "The commit which triggered this build, or the most recent if not triggered.",
+                ),
+                new Argument<String>(
+                        name: "gitUrl",
+                        group: "git",
+                        envVarName: "GIT_URL",
+                        description: "The URL of the git repository associated with this job.",
+                ),
+        ]
     }
 }

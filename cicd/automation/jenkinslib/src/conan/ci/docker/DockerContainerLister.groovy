@@ -1,16 +1,18 @@
 package conan.ci.docker
 
-
+import conan.ci.arg.archive.DockerBinding
 import conan.ci.runner.NativeCommandRunner
+import org.jenkinsci.plugins.workflow.cps.CpsScript
+
 class DockerContainerLister {
-    def currentBuild
-    DockerContainerLister(def currentBuild) {
+    CpsScript currentBuild
+    DockerContainerLister(CpsScript currentBuild) {
         this.currentBuild = currentBuild
     }
 
     List<String> list() {
-        conan.ci.arg.DockerArgs dockerArgs = new conan.ci.arg.DockerArgs(currentBuild)
-        def commandRunner = new NativeCommandRunner(currentBuild)
+        DockerBinding dockerArgs = new DockerBinding(currentBuild)
+        def commandRunner = NativeCommandRunner.construct(currentBuild)
         def command = dockerArgs.getPsCommand()
         String stdout = commandRunner.run(command)
         List<String> containers

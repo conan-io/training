@@ -2,13 +2,14 @@ package conan.ci.jenkins
 
 import com.cloudbees.groovy.cps.NonCPS
 import hudson.model.Cause
+import org.jenkinsci.plugins.workflow.cps.CpsScript
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 class CauseWrapper {
 
-    def currentBuild
+    CpsScript currentBuild
 
-    CauseWrapper(def currentBuild){
+    CauseWrapper(CpsScript currentBuild){
         this.currentBuild = currentBuild
     }
 

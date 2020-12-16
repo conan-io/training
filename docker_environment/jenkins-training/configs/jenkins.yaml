@@ -4,40 +4,28 @@ jenkins:
   globalNodeProperties:
   - envVars:
       env:
-      - key: TRAINING_DOCKER_NETWORK_NAME
-        value: ${TRAINING_DOCKER_NETWORK_NAME}
-  - envVars:
-      env:
       - key: TRAINING_CONAN_USER
         value: ci
-  - envVars:
-      env:
       - key: TRAINING_CONAN_CHANNEL
         value: stable
-  - envVars:
-      env:
       - key: TRAINING_CONAN_CONFIG_URL
         value: http://gitbucket/git/root/settings.git
-  - envVars:
-      env:
       - key: TRAINING_LOCKS_URL
         value: http://gitbucket/git/root/locks.git
-  - envVars:
-      env:
-      - key: TRAINING_CI_SCRIPTS_URL
-        value: http://gitbucket/git/root/ci_scripts.git
-  - envVars:
-      env:
+      - key: TRAINING_SCRIPTS_URL
+        value: http://gitbucket/git/root/scripts.git
       - key: TRAINING_ARTIFACTORY_URL
         value: http://artifactory:8082/artifactory
-  - envVars:
-      env:
       - key: TRAINING_CONAN_REMOTE_PROD
         value: name=conan-develop;cred=TRAINING_ART_CREDS
-  - envVars:
-      env:
       - key: TRAINING_CONAN_REMOTE_TEMP
         value: name=conan-temp;cred=TRAINING_ART_CREDS
+      - key: TRAINING_DOCKER_DEFAULT_IMAGE
+        value: conanio/gcc7
+      - key: TRAINING_DOCKER_USER
+        value: conan
+      - key: TRAINING_DOCKER_NETWORK_NAME
+        value: ${TRAINING_DOCKER_NETWORK_NAME}
       
 credentials:
   system:

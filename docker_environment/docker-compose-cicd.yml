@@ -1,0 +1,42 @@
+version: "3.5"
+
+services:
+    gitbucket-training:
+        container_name: gitbucket-training${COURSE_SUFFIX}
+        build:
+            dockerfile: Dockerfile
+            context: ./gitbucket-training
+        networks:
+            primary:
+                aliases: 
+                    - gitbucket
+        ports:
+            - "80:80"
+            
+    jenkins-training:
+        depends_on:
+            - gitbucket-training
+        container_name: jenkins-training${COURSE_SUFFIX}
+        build:
+            dockerfile: Dockerfile
+            context: ./jenkins-training
+        env_file:
+            - .creds.env
+        volumes:
+           - type: bind
+             source: /var/run/docker.sock
+             target: /var/run/docker.sock
+           - type: bind
+             source: ./jenkins-training/configs
+             target: /home/jenkins/configs
+        networks:
+            primary:
+                aliases: 
+                    - jenkins
+        ports:
+            - "8080:8080"
+        environment:
+            - TRAINING_DOCKER_NETWORK_NAME=${COMPOSE_PROJECT_NAME}_primary
+        
+networks:
+    primary:

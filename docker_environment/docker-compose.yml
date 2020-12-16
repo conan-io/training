@@ -2,19 +2,23 @@ version: "3.5"
 
 services:
     conan-training:
-        container_name: conan-training
+        container_name: conan-training${COURSE_SUFFIX}
         build:
             dockerfile: Dockerfile
             context: ./conan-training
+        env_file:
+            - .creds.env
         networks:
             - primary
         command: tail -f /dev/null
 
     jfrog-artifactory-training:
-        container_name: jfrog-artifactory-training
+        container_name: jfrog-artifactory-training${COURSE_SUFFIX}
         build:
             dockerfile: Dockerfile
             context: ./artifactory-training
+        env_file:
+            - .creds.env
         networks:
             primary:
                 aliases: 
@@ -22,41 +26,5 @@ services:
         ports:
             - "8082:8082"
         restart: always
-
-    gitbucket-training:
-        container_name: gitbucket-training
-        build:
-            dockerfile: Dockerfile
-            context: ./gitbucket-training
-        networks:
-            primary:
-                aliases: 
-                    - gitbucket
-        ports:
-            - "80:80"
-
-    jenkins-training:
-        depends_on:
-            - gitbucket-training
-        container_name: jenkins-training
-        build:
-            dockerfile: Dockerfile
-            context: ./jenkins-training
-        volumes:
-           - type: bind
-             source: /var/run/docker.sock
-             target: /var/run/docker.sock
-        networks:
-            primary:
-                aliases: 
-                    - jenkins
-        ports:
-            - "8080:8080"
-        environment:
-                - TRAINING_GIT_CREDS_USR=root
-                - TRAINING_GIT_CREDS_PSW=root
-                - TRAINING_ART_CREDS_USR=admin
-                - TRAINING_ART_CREDS_PSW=password
-                - TRAINING_DOCKER_NETWORK_NAME=${COMPOSE_PROJECT_NAME}_primary
 networks:
     primary:

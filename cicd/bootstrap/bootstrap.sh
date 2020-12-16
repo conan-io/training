@@ -26,13 +26,13 @@ cp -RT "${JENKINSLIB_SRC}" "${JENKINSLIB}"
 
 initialize_repo(){
     echo "--- creating GIT repository on server: ${1}"
-    echo curl --user "${TRAINING_GIT_CREDS_USR}:${TRAINING_GIT_CREDS_PSW}" -X POST -d '{"name":"'$1'"}' "${TRAINING_GIT_URL}/api/v3/user/repos"
     curl --user "${TRAINING_GIT_CREDS_USR}:${TRAINING_GIT_CREDS_PSW}" -X POST -d '{"name":"'$1'"}' "${TRAINING_GIT_URL}/api/v3/user/repos"
     
     echo "--- creating webhook pointing to jenkins for GIT repository: ${1}"
+    
     curl --user "${TRAINING_GIT_CREDS_USR}:${TRAINING_GIT_CREDS_PSW}" \
     -X POST "${TRAINING_GIT_URL}/api/v3/repos/${TRAINING_GIT_CREDS_USR}/${1}/hooks" \
-    -d '{"name":"jenkins","config":{"url":"${TRAINING_JENKINS_URL}/github-webhook/"},"events":["push", "pull_request"]}'
+    -d '{"name":"jenkins","config":{"url":"'"${TRAINING_JENKINS_URL}/github-webhook/"'"},"events":["push", "pull_request"]}'
     
     pushd $1
     echo "--- creating GIT repo locally: ${1}"
@@ -43,6 +43,7 @@ initialize_repo(){
     echo "--- pushing GIT repository: ${1}"
     git remote add origin "${TRAINING_GIT_URL}/git/${TRAINING_GIT_CREDS_USR}/${1}.git"
     git push origin --mirror -f
+    git checkout -b conan_from_upstream
     popd
 }
 

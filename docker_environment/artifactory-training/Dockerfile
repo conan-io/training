@@ -17,7 +17,4 @@ RUN rm /opt/jfrog/artifactory/var
 
 USER artifactory
 
-ENV DEMO_ART_CREDS_USR=admin
-ENV DEMO_ART_CREDS_PSW=password
-
 RUN /scripts/bootstrap-artifactory-config.sh

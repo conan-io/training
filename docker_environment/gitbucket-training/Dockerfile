@@ -4,8 +4,6 @@ RUN apt-get -qq update \
     && apt-get -qq install -y --no-install-recommends \
        git
 
-ENV DEMO_GIT_CREDS_USR=root
-ENV DEMO_GIT_CREDS_PSW=root
 ENV GITBUCKET_HOME=/gitbucket-data
 ENV GITBUCKET_BASE_URL=http://gitbucket
 ENV GITBUCKET_PORT=80

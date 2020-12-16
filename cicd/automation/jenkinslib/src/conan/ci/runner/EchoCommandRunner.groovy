@@ -1,27 +1,31 @@
 package conan.ci.runner
 
+import org.jenkinsci.plugins.workflow.cps.CpsScript
+
 
 class EchoCommandRunner implements ICommandRunner {
-    def currentBuild
+    CpsScript currentBuild
 
-    EchoCommandRunner(def currentBuild) {
-        this.currentBuild = currentBuild
+    static EchoCommandRunner construct(CpsScript currentBuild) {
+        def it = new EchoCommandRunner()
+        it.currentBuild = currentBuild
+        return it
     }
 
     @Override
-    def run(String commandToRun, Boolean returnStdOut = false) {
-        runInCurrentDirectory(commandToRun, returnStdOut)
+    def run(String commandToRun, Boolean returnStdout = false) {
+        runInCurrentDirectory(commandToRun, returnStdout)
     }
 
     @Override
-    def run(String commandToRun, String workingDirectory, Boolean returnStdOut = false) {
-        runInCurrentDirectory(commandToRun, returnStdOut)
+    def run(String commandToRun, String workingDirectory, Boolean returnStdout = false) {
+        runInCurrentDirectory(commandToRun, returnStdout)
     }
 
-    private def runInCurrentDirectory(String commandToRun, Boolean returnStdOut) {
+    private def runInCurrentDirectory(String commandToRun, Boolean returnStdout) {
         String message = "Command: ${commandToRun}, WorkingDirectory: ."
         currentBuild.echo(message)
-        if(returnStdOut){
+        if(returnStdout){
             return message
         }
     }

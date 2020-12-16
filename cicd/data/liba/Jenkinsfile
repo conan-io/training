@@ -1,62 +1,53 @@
+library('jenkinslib') _
+
 pipeline {
-    agent any
-    environment {
-        DEMO_GIT_CREDS = credentials("DEMO_GIT_CREDS")
-        DEMO_ART_CREDS = credentials("DEMO_ART_CREDS")
-        LOCKS_REPO = 'http://gitbucket/git/root/locks.git'
-        LOCKS_BRANCH = 'develop'
-        CI_SCRIPTS_REPO = 'http://gitbucket/git/root/ci_scripts.git'
-        CI_SCRIPTS_BRANCH = 'develop'
-    }
+    agent { label 'master' }
     parameters {
-        string(name: 'lock_branch', defaultValue: '', description: 'Branch in Lockfile Repository to use.')
+        string(name: 'LOCK_BRANCH', defaultValue: 'develop', description: 'Branch in Lockfile Repository to use.')
     }
+    environment {
+        TRAINING_GIT_CREDS = credentials("TRAINING_GIT_CREDS")
+        TRAINING_ART_CREDS = credentials("TRAINING_ART_CREDS")
+    }
+    options { checkoutToSubdirectory("workspace")} 
     stages {
-        stage('package_pipeline') {
-            when { 
-                triggeredBy 'SCMTrigger' 
-                not {
-                    branch pattern: "PR-\\d+"
-                    branch pattern: "develop"
-                    
-                }
+        stage('Package Pipeline') {
+            when {
+                not { changeRequest() }
+                not { branch pattern: "develop" }
+                not { triggeredBy 'UpstreamCause' }
             }
-            stages {
-                stage('package_pipeline') {
-                    steps{
-                        sh printenv
-                        sh git clone $CI_SCRIPTS_REPO -b $CI_SCRIPTS_BRANCH
-                        sh ./ci_scripts/package_pipeline_init.sh
-                        // sh ./ci_scripts/package_pipeline_run.sh
-                    }
-                }
+            steps{
+                conanPackagePipeline()
             }
         }
-        // stage('product_pipeline'){
-            // when { 
-                // triggeredBy 'SCMTrigger' 
-                // branch pattern: "PR-*"
-            // }
-            // steps {
-                // withCleanWorkspace{
-                    // withDemoDockerContainer{
-                        // conanBuildFromLockfilesInDocker()
-                    // }
-                // }
-            // }        
-        // }
-        // stage('promotion_pipeline'){
-            // when { 
-                // triggeredBy 'SCMTrigger' 
-                // branch pattern: "develop"
-            // }
-            // steps {
-                // withCleanWorkspace{
-                    // withDemoDockerContainer{
-                        // conanBuildFromLockfilesInDocker()
-                    // }
-                // }
-            // }        
-        // }
+        stage('Product Pipeline'){
+            when {
+                changeRequest()
+                not { branch pattern: "develop" }
+            }
+            steps{
+                conanProductPipeline()
+            }
+        }
+        stage('From Upstream'){
+            when { 
+                triggeredBy 'UpstreamCause' 
+                branch pattern: 'conan_from_upstream'
+            }
+            steps{
+                conanFromUpstream()
+            }
+        }
+        stage('Promotion Pipeline'){
+            when {
+                triggeredBy 'SCMTrigger'
+                branch pattern: "develop"
+                not { changeRequest() }
+            }
+            steps{
+                conanPromotionPipeline()
+            }
+        }
     }
 }

@@ -2,11 +2,13 @@ import json
 import argparse
 import os
 import shutil
+import subprocess
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    'package_ref', 
-    help='package reference to search for')
+    '--conanfile_dir', 
+    default='.',
+    help='directory to look for conanfile')
 parser.add_argument(
     'src_dir',
     help='source directory to search')
@@ -16,14 +18,31 @@ parser.add_argument(
             
 args = parser.parse_args()
 
+name = subprocess.check_output(
+    "conan inspect {} --raw name".format(args.conanfile_dir), 
+    universal_newlines=True, 
+    shell=True)
+    
+version = subprocess.check_output(
+    "conan inspect {} --raw version".format(args.conanfile_dir), 
+    universal_newlines=True, 
+    shell=True)
+
+name_and_version = "{}/{}".format(name, version)
+dst_root = os.path.join(args.dst_dir, name_and_version)
+
+max_depth = 6 # Only list lockfiles within the current package (skip lockfiles in deeper subdirs)
+
 for src_root, dirs, files in os.walk(args.src_dir):
-    dst_root = src_root.replace(args.src_dir, args.dst_dir)
-    for _file in files:
-        if _file == "conan.lock":
-            file_full = os.path.join(src_root, _file)
-            with open(file_full, 'r') as file:
-                lockfile = json.load(file)
+    if src_root[len(args.src_dir):].count(os.sep) < max_depth:
+    dst_full = src_root.replace(args.src_dir, dst_root)
+    if not os.path.isdir(dst_full):
+        for _file in files:
+            if _file == "conan.lock":
+                file_full = os.path.join(src_root, _file)
+                with open(file_full, 'r') as file:
+                    lockfile = json.load(file)
                 for node in lockfile["graph_lock"]["nodes"].values():
-                    if args.package_ref in node["ref"]:
-                        print("copying: %s -> %s" % (src_root, dst_root))
-                        shutil.copytree(src_root, dst_root)
+                    if name_and_version in node["ref"]:
+                        print("copying: %s -> %s" % (src_root, dst_full))
+                        shutil.copytree(src_root, dst_full)

@@ -1,404 +1,159 @@
 package conan.ci.arg
 
-import conan.ci.conan.Remote
-import conan.ci.constant.DemoConstant
-import conan.ci.credentials.GitCredentials
-
 class ConanArgs {
-    def currentBuild
-    def env
 
-    ConanArgs(def currentBuild) {
-        this.currentBuild = currentBuild
-        this.env = currentBuild.env
+    static List<Argument> get() {
+        return [
+                new Argument<String>(
+                        name: "conanfileDir",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_CONANFILE_DIR",
+                        description: "Path to conanfile relative to container working directory.",
+                ),
+                new Argument<String>(
+                        name: "conanRemoteUploadName",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_REMOTE_UPLOAD_NAME",
+                        description: "The name from the list of remotes which will be used in conan upload command.",
+                ),
+                new Argument<String>(
+                        name: "conanUploadPattern",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_UPLOAD_PATTERN",
+                        description: "The default channel that will be used for calculating Conan references.",
+                ),
+                new Argument<String>(
+                        name: "conanLocksUrl",
+                        group: "conan",
+                        envVarName: "TRAINING_LOCKS_URL",
+                        description: "URL of GIT repo which will hold lockfiles.",
+                ),
+                new Argument<String>(
+                        name: "conanChannel",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_CHANNEL",
+                        description: "The default channel that will be used for calculating Conan references.",
+                ),
+                new Argument<String>(
+                        name: "conanUser",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_USER",
+                        description: "The default user that will be used for calculating Conan references.",
+                ),
+                new Argument<String>(
+                        name: "conanConfigUrl",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_CONFIG_URL",
+                        description: "URL of GIT repo which jobs will install Conan configurations from.",
+                ),
+                new Argument<String>(
+                        name: "conanRemoteDevelop",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_REMOTE_DEVELOP",
+                        description: "The primary repository for Conan artifacts.",
+                ),
+                new Argument<String>(
+                        name: "conanRemoteTemp",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_REMOTE_TEMP",
+                        description: "The temporary repository for Conan artifacts being actively built and tested.",
+                ),
+                new Argument<List<String>>(
+                        name: "conanSettings",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_SETTINGS",
+                        deserializer: { String s -> s.split(",") },
+                        serializer: { List<String> l -> l.collect { String s -> "--settings ${s}" }.join(" ") },
+                        description: "Settings to be passed to conan create and install commands.",
+                ),
+                new Argument<List<String>>(
+                        name: "conanSettingsHost",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_SETTINGS_HOST",
+                        deserializer: { String s -> s.split(",") },
+                        serializer: { List<String> l -> l.collect { String s -> "--settings:host ${s}" }.join(" ") },
+                        description: "Settings to be passed to conan create and install commands.",
+                ),
+                new Argument<List<String>>(
+                        name: "conanSettingsBuild",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_SETTINGS_BUILD",
+                        deserializer: { String s -> s.split(",") },
+                        serializer: { List<String> l -> l.collect { String s -> "--settings:build ${s}" }.join(" ") },
+                        description: "Settings to be passed to conan create and install commands.",
+                ),
+                new Argument<List<String>>(
+                        name: "conanOptions",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_OPTIONS",
+                        deserializer: { String s -> s.split(",") },
+                        serializer: { List<String> l -> l.collect { String s -> "--options ${s}" }.join(" ") },
+                        description: "Options to be passed to conan create and install commands.",
+                ),
+                new Argument<List<String>>(
+                        name: "conanOptionsHost",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_OPTIONS_HOST",
+                        deserializer: { String s -> s.split(",") },
+                        serializer: { List<String> l -> l.collect { String s -> "--options:host ${s}" }.join(" ") },
+                        description: "Options to be passed to conan create and install commands.",
+                ),
+                new Argument<List<String>>(
+                        name: "conanOptionsBuild",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_OPTIONS_BUILD",
+                        deserializer: { String s -> s.split(",") },
+                        serializer: { List<String> l -> l.collect { String s -> "--options:build ${s}" }.join(" ") },
+                        description: "Options to be passed to conan create and install commands.",
+                ),
+                new Argument<List<String>>(
+                        name: "conanEnvVars",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_ENV_VARS",
+                        deserializer: { String s -> s.split(",") },
+                        serializer: { List<String> l -> l.collect { String s -> "--env ${s}" }.join(" ") },
+                        description: "Env Vars to be passed to conan create and install commands.",
+                ),
+                new Argument<List<String>>(
+                        name: "conanEnvVarsHost",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_ENV_VARS_HOST",
+                        deserializer: { String s -> s.split(",") },
+                        serializer: { List<String> l -> l.collect { String s -> "--env:host ${s}" }.join(" ") },
+                        description: "Env Vars to be passed to conan create and install commands.",
+                ),
+                new Argument<List<String>>(
+                        name: "conanEnvVarsBuild",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_ENV_VARS_BUILD",
+                        deserializer: { String s -> s.split(",") },
+                        serializer: { List<String> l -> l.collect { String s -> "--env:build ${s}" }.join(" ") },
+                        description: "Env Vars to be passed to conan create and install commands.",
+                ),
+                new Argument<List<String>>(
+                        name: "conanProfiles",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_PROFILES",
+                        deserializer: { String s -> s.split(",") },
+                        serializer: { List<String> l -> l.collect { String s -> "--profile ${s}" }.join(" ") },
+                        description: "Profiles to be passed to conan create and install commands.",
+                ),
+                new Argument<List<String>>(
+                        name: "conanProfilesHost",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_PROFILES_HOST",
+                        deserializer: { String s -> s.split(",") },
+                        serializer: { List<String> l -> l.collect { String s -> "--profile:host ${s}" }.join(" ") },
+                        description: "Profiles to be passed to conan create and install commands.",
+                ),
+                new Argument<List<String>>(
+                        name: "conanProfilesBuild",
+                        group: "conan",
+                        envVarName: "TRAINING_CONAN_PROFILES_BUILD",
+                        deserializer: { String s -> s.split(",") },
+                        serializer: { List<String> l -> l.collect { String s -> "--profile:build ${s}" }.join(" ") },
+                        description: "Profiles to be passed to conan create and install commands.",
+                ),
+        ]
     }
-
-    String getInspectAttributeCommand(String attribute, String conanfileDir = "") {
-        List<String> cliArgs = ["conan inspect"]
-        cliArgs.add("--raw ${attribute}")
-        cliArgs.add(conanfileDirCmd(conanfileDir))
-        return cliArgs.join(" ")
-    }
-
-    String getConfigInstallCommand() {
-        List<String> cliArgs = ["conan config install"]
-        if (urlCmd()) {
-            cliArgs.add(urlCmd())
-        }
-        if (sourceFolderCmd()) {
-            cliArgs.add(sourceFolderCmd())
-        }
-        if (targetFolderCmd()) {
-            cliArgs.add(targetFolderCmd())
-        }
-        if (typeCmd()) {
-            cliArgs.add(typeCmd())
-        }
-        if (verifySslCmd()) {
-            cliArgs.add(verifySslCmd())
-        }
-        cliArgs.addAll(gitArgs())
-        return cliArgs.join(" ")
-    }
-
-    String getCreateCommand(String conanfileDir = "") {
-        List<String> cliArgs = ["conan create"]
-        cliArgs.add(conanfileDirCmd(conanfileDir))
-        if (userChannelCmd()) {
-            cliArgs.add(userChannelCmd())
-        }
-        cliArgs.addAll(profilesCmd())
-        cliArgs.addAll(settingsCmd())
-        cliArgs.addAll(optionsCmd())
-        cliArgs.addAll(envsCmd())
-        cliArgs.addAll(createFlagsCmd())
-        if (lockfileCmd()) {
-            cliArgs.add(lockfileCmd())
-        }
-        return cliArgs.join(" ")
-    }
-
-    String getInstallCommand(String conanfileDir = "") {
-        List<String> cliArgs = ["conan install"]
-        cliArgs.add(conanfileDirCmd(conanfileDir))
-        if (userChannelCmd()) {
-            cliArgs.add(userChannelCmd())
-        }
-        cliArgs.addAll(profilesCmd())
-        cliArgs.addAll(settingsCmd())
-        cliArgs.addAll(optionsCmd())
-        cliArgs.addAll(envsCmd())
-        cliArgs.addAll(createFlagsCmd())
-        cliArgs.add(lockfileCmd())
-        return cliArgs.join(" ")
-    }
-
-    String getGraphLockCommand(String conanfileDirOrReference = "") {
-        List<String> cliArgs = ["conan graph lock"]
-        cliArgs.add(conanfileDirCmd(conanfileDirOrReference))
-        cliArgs.addAll(profilesCmd())
-        cliArgs.addAll(settingsCmd())
-        cliArgs.addAll(optionsCmd())
-        cliArgs.addAll(envsCmd())
-        cliArgs.addAll(createFlagsCmd())
-        return cliArgs.join(" ")
-    }
-
-    String getGraphBuildOrderCommand(String buildOrderFile = "", String lockfile = "") {
-        List<String> cliArgs = ["conan graph build-order --build missing"]
-        cliArgs.add(buildOrderFileCmd(buildOrderFile))
-        cliArgs.add(lockfile ?: this.lockfile)
-        return cliArgs.join(" ")
-    }
-
-    String getUploadCommand(String uploadPattern = "*") {
-        List<String> cliArgs = ["conan upload"]
-        if (uploadPattern) {
-            cliArgs.add(uploadPatternCmd(uploadPattern))
-        }
-        if (conanRemoteUpload) {
-            cliArgs.add(conanRemoteUploadCmd())
-        } else {
-            throw new Exception("DEMO_CONAN_REMOTE_UPLOAD must be set")
-        }
-        cliArgs.add("--all --force --confirm")
-        return cliArgs.join(" ")
-    }
-
-    String getInfoCommand(String conanfileDir = "") {
-        List<String> cliArgs = ["conan info"]
-        cliArgs.add(conanfileDirCmd(conanfileDir))
-        cliArgs.add("--json ${DemoConstant.CONAN_INFO_FILENAME}")
-        return cliArgs.join(" ")
-    }
-
-    List<String> getUserCommands() {
-        List<Remote> conanRemotes = conanRemotes
-        return conanRemotes.collect { Remote remote -> getUserCommand(remote) }
-    }
-
-    String getUserCommand(Remote remote) {
-        List<String> cliArgs = ["conan user"]
-        cliArgs.addAll(remote.getUserCommandArgs())
-        return cliArgs.join(" ")
-    }
-
-    List<String> getRemoteAddCommands() {
-        List<Remote> conanRemotes = conanRemotes
-        return conanRemotes.collect { Remote remote -> getRemoteAddCommand(remote) }
-    }
-
-    String getRemoteAddCommand(Remote remote) {
-        List<String> cliArgs = ["conan remote add"]
-        cliArgs.addAll(remote.remoteAddCommandArgs)
-        return cliArgs.join(" ")
-    }
-
-    String getConanfileDir() {
-        return env["DEMO_CONAN_CONANFILE_DIR"] ?: "."
-    }
-
-    String conanfileDirCmd(String conanfileDir = "") {
-        if (conanfileDir == "") {
-            return this.conanfileDir
-        } else {
-            return conanfileDir
-        }
-    }
-
-    String getUploadPattern() {
-        return env["DEMO_CONAN_UPLOAD_PATTERN"] ?: ""
-    }
-
-    String uploadPatternCmd(String uploadPattern = "") {
-        if (uploadPattern == "") {
-            return this.uploadPattern
-        } else {
-            return uploadPattern
-        }
-    }
-
-    String getConanUser() {
-        return env["DEMO_CONAN_USER"] ?: ""
-    }
-
-    String conanUserCmd() {
-        return conanUser
-    }
-
-    String getConanChannel() {
-        return env["DEMO_CONAN_CHANNEL"] ?: ""
-    }
-
-    String conanChannelCmd() {
-        return conanChannel
-    }
-
-    String userChannelCmd() {
-        if (conanUserCmd() && conanChannelCmd()) {
-            return "${conanUserCmd()}/${conanChannelCmd()}"
-        } else {
-            return ""
-        }
-    }
-
-    String getBuildOrderFile() {
-        return env["DEMO_CONAN_BUILDORDER_FILE"] ?: DemoConstant.CONAN_BUILDORDER_FILENAME
-    }
-
-    String buildOrderFileCmd(String buildOrderFile = "") {
-        if (buildOrderFile == "") {
-            if (this.buildOrderFile == "") {
-                return this.buildOrderFile
-            } else {
-                return "--json ${this.buildOrderFile}"
-            }
-        } else {
-            return "--json ${buildOrderFile}"
-        }
-    }
-
-    String getLockfile() {
-        return env["DEMO_CONAN_LOCKFILE"] ?: ""
-    }
-
-    String lockfileCmd(String lockfile = "") {
-        if (lockfile == "") {
-            if (this.lockfile == "") {
-                return this.lockfile
-            } else {
-                return "--lockfile ${this.lockfile}"
-            }
-        } else {
-            return "--lockfile ${lockfile}"
-        }
-    }
-
-    String getCreateFlags() {
-        return env["DEMO_CONAN_CREATE_FLAGS"] ?: ""
-    }
-
-    List<String> createFlagsCmd() {
-        if (createFlags == "") {
-            return []
-        } else {
-            return createFlags.split(',')?.collect { "${it}".toString() }
-        }
-    }
-
-    String getSourceFolder() {
-        return env["DEMO_CONAN_CONFIG_SOURCE_FOLDER"] ?: ""
-    }
-
-    String sourceFolderCmd() {
-        if (sourceFolder == "") {
-            return sourceFolder
-        } else {
-            return "--target-folder ${sourceFolder}"
-        }
-    }
-
-    String getTargetFolder() {
-        return env["DEMO_CONAN_CONFIG_TARGET_FOLDER"] ?: ""
-    }
-
-    String targetFolderCmd() {
-        if (targetFolder == "") {
-            return targetFolder
-        } else {
-            return "--target-folder ${targetFolder}"
-        }
-    }
-
-    String getType() {
-        return env["DEMO_CONAN_CONFIG_TYPE"] ?: ""
-    }
-
-    String typeCmd() {
-        if (type == "") {
-            return type
-        } else {
-            return "--type ${type}"
-        }
-    }
-
-    String getVerifySsl() {
-        return env["DEMO_CONAN_CONFIG_VERIFY_SSL"] ?: ""
-    }
-
-    String verifySslCmd() {
-        if (verifySsl) {
-            return "--verify-ssl"
-        } else {
-            return ""
-        }
-    }
-
-    String getGitArgs() {
-        return env["DEMO_CONAN_CONFIG_ARGS"] ?: ""
-    }
-
-    List<String> gitArgs() {
-        if (gitArgs == "") {
-            return []
-        } else {
-            return gitArgs.split(',')?.collect { "${it}".toString() }
-        }
-    }
-
-    String getUrl() {
-        return env["DEMO_CONAN_CONFIG_URL"] ?: ""
-    }
-
-    String getUseCreds() {
-        return env["DEMO_CONAN_CONFIG_USE_CREDS"] ?: "True"
-    }
-
-    String urlCmd() {
-        if (url == "") {
-            throw new Exception("DEMO_CONAN_CONFIG_URL must be set")
-        } else {
-            if (useCreds) {
-                return url.replace("://", "://${gitCredentialVars()}@")
-            } else {
-                return url
-            }
-        }
-    }
-
-    String getProfiles() {
-        return env["DEMO_CONAN_PROFILES"] ?: ""
-    }
-
-    List<String> profilesCmd() {
-        if (profiles == "") {
-            return []
-        } else {
-            return profiles.split(',')?.collect { "--profile ${it}".toString() }
-        }
-    }
-
-    String getOptions() {
-        return env["DEMO_CONAN_OPTIONS"] ?: ""
-    }
-
-    List<String> optionsCmd() {
-        if (options == "") {
-            return []
-        } else {
-            return options.split(',').collect { "--option ${it}".toString() }
-        }
-    }
-
-    String getSettings() {
-        return env["DEMO_CONAN_SETTINGS"] ?: ""
-    }
-
-    List<String> settingsCmd() {
-        if (settings == "") {
-            return []
-        } else {
-            return settings.split(',').collect { "--setting ${it}".toString() }
-        }
-    }
-
-    String getEnvs() {
-        return env["DEMO_CONAN_ENV_VARS"] ?: ""
-    }
-
-    List<String> envsCmd() {
-        if (envs == "") {
-            return []
-        } else {
-            return envs.split(',').collect { "--env ${it}".toString() }
-        }
-
-    }
-
-    String gitCredentialVars() {
-        GitCredentials gitCredentials = new GitCredentials(env)
-        return gitCredentials.gitCredentials
-    }
-
-    String getConanRemotesStrings() {
-        // DEMO_CONAN_REMOTES is A comma separated list of remotes
-        // Each "remote" defined with key=value pair, separated by semicolon
-        // Example...   name=bincrafters;url=url;index=0;credentialName=cred,verifySsl=True,<another_remote....>
-        return env["DEMO_CONAN_REMOTES"] ?: ""
-    }
-
-    List<Remote> getConanRemotes() {
-        if (conanRemotesStrings == "") {
-            return []
-        } else {
-            List<Remote> remotes = []
-            conanRemotesStrings
-                    .split(',')
-                    .eachWithIndex { String remoteStringDefinition, Integer index ->
-                        remotes.add(new Remote(currentBuild, remoteStringDefinition, index.toString()))
-                    }
-            return remotes
-        }
-    }
-
-    String getConanRemoteUpload() {
-        // Just a string of the name of the remote to upload to
-        return env["DEMO_CONAN_REMOTE_UPLOAD"] ?: ""
-    }
-
-    String conanRemoteUploadCmd() {
-        return "-r ${conanRemoteUpload}"
-    }
-
-    String getConanRemoteTemp() {
-        // Just a string of the name of the "temp" remote to use for testing new revisions
-        return env["DEMO_CONAN_REMOTE_TEMP"] ?: ""
-    }
-
-    String getConanRemoteProd() {
-        // Just a string of the name of the "local" remote to use for resolving stable packages
-        return env["DEMO_CONAN_REMOTE_PROD"] ?: ""
-    }
-
-
 }

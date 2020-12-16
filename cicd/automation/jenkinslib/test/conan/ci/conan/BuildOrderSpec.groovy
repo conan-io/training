@@ -9,7 +9,7 @@ package conan.ci.conan
 //
 //        List<File> buildOrderFilePaths = []
 //        rootDir.eachFileRecurse { File f ->
-//            if (f.name == DemoConstant.CONAN_BUILDORDER_FILENAME) {
+//            if (f.name == TrainingConstant.CONAN_BUILDORDER_FILENAME) {
 //                buildOrderFilePaths.add(f)
 //            }
 //        }
@@ -29,7 +29,7 @@ package conan.ci.conan
 //
 //        List<File> buildOrderFilePaths = []
 //        rootDir.eachFileRecurse { File f ->
-//            if (f.name == DemoConstant.CONAN_BUILDORDER_FILENAME) {
+//            if (f.name == TrainingConstant.CONAN_BUILDORDER_FILENAME) {
 //                buildOrderFilePaths.add(f)
 //            }
 //        }
@@ -51,7 +51,7 @@ package conan.ci.conan
 //        when:
 //        File rootDir = new File('test/resources/build-order-files')
 //
-//        File bof = new File(rootDir, DemoConstant.CONAN_COMBINED_BUILDORDER_FILENAME)
+//        File bof = new File(rootDir, TrainingConstant.CONAN_COMBINED_BUILDORDER_FILENAME)
 //        JSONArray jsonArray = new JsonSlurper().parse(bof) as JSONArray
 //
 //        print(jsonArray.toString())

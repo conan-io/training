@@ -1,26 +1,42 @@
 package conan.ci.runner
 
+import conan.ci.docker.DockerClient
+import org.jenkinsci.plugins.workflow.cps.CpsScript
+
 class DockerCommandRunner implements ICommandRunner {
-    def currentBuild
+    CpsScript currentBuild
+    DockerClient dockerClient
+    String containerId
+    NativeCommandRunner nativeCommandRunner
 
-    DockerCommandRunner(def currentBuild) {
-        this.currentBuild = currentBuild
+    static DockerCommandRunner construct(CpsScript currentBuild, DockerClient dockerClient, String containerId) {
+        def it = new DockerCommandRunner()
+        it.currentBuild = currentBuild
+        it.dockerClient = dockerClient
+        it.containerId = containerId
+        it.nativeCommandRunner = NativeCommandRunnerFactory.construct(currentBuild).get()
+        return it
     }
 
     @Override
-    def run(String commandToRun, Boolean returnStdOut = true) {
-        String detectedWorkingDir = new conan.ci.docker.DockerContainerInspector(currentBuild).detectWorkingDirectory()
-        conan.ci.arg.DirArgs runArgs = new conan.ci.arg.DirArgs(currentBuild, ["workingDir": detectedWorkingDir])
-        run(commandToRun, runArgs.fullWorkingDir, returnStdOut)
+    def run(String commandToRun, Boolean returnStdout = true) {
+        String workingDir = dockerClient.workdir
+        run(commandToRun, workingDir, returnStdout)
     }
 
     @Override
-    def run(String commandToRun, String workingDirectory, Boolean returnStdOut = true) {
-        NativeCommandRunner nativeCommandRunner = new NativeCommandRunner(currentBuild)
-        String detectedShell = new conan.ci.docker.DockerContainerInspector(currentBuild).detectContainerShell()
-        conan.ci.arg.DockerArgs dockerArgs = new conan.ci.arg.DockerArgs(currentBuild)
-        String containerUser = dockerArgs.getContainerUser()
-        String command = dockerArgs.getExecCommand(commandToRun, workingDirectory, containerUser, detectedShell)
-        return nativeCommandRunner.run(command, returnStdOut)
+    def run(String commandToRun, String workDir, Boolean returnStdout = true) {
+        String workDirAbs = (workDir.contains(dockerClient.workdir))
+                ? workDir
+                : new File(dockerClient.workdir, workDir).toString()
+
+        String execCommand = "docker exec " +
+                "--workdir ${workDirAbs} " +
+                "${dockerClient.args.asMap['dockerUser']} " +
+                "${dockerClient.args.asMap['dockerEnvVars']} " +
+                "${containerId} " +
+                "${dockerClient.wrapCommandForShell(commandToRun)}"
+        return nativeCommandRunner.run(execCommand, returnStdout)
     }
+
 }

@@ -1,6 +1,7 @@
 package conan.ci.jenkins
 
 import hudson.model.Cause
+import org.jenkinsci.plugins.workflow.cps.CpsScript
 import org.jenkinsci.plugins.workflow.job.WorkflowRun
 
 class WorkflowRunWrapper {
@@ -8,7 +9,7 @@ class WorkflowRunWrapper {
     CauseWrapper causeEvaluator
     boolean hasSameUpstreamCause
 
-    WorkflowRunWrapper(def currentBuild, WorkflowRun workflowRun) {
+    WorkflowRunWrapper(CpsScript currentBuild, WorkflowRun workflowRun) {
         this.workflowRun = workflowRun
         this.causeEvaluator = new CauseWrapper(currentBuild)
 

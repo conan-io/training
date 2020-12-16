@@ -22,9 +22,9 @@ class Stage {
             branches["${it}"] = {
                 def queueSlot = null
                 while (true) {
-                    queueSlot = latch.pollFirst();
+                    queueSlot = latch.pollFirst()
                     if (queueSlot != null) {
-                        break;
+                        break
                     }
                 }
                 try {
