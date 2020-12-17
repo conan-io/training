@@ -51,7 +51,8 @@ for src_root, dirs, files in os.walk(args.src_dir):
                             if name_and_version == pref_short:
                                 lockfile_dir = "/".join(src_root.split("/")[4:])
                                 dst_dir_suffix = "/".join(src_root.split("/")[2:4])
-                                os.makedirs(os.path.join(args.dst_dir, lockfile_dir))
+                                if not os.path.isdir(os.path.join(args.dst_dir, lockfile_dir)):
+                                    os.makedirs(os.path.join(args.dst_dir, lockfile_dir))
                                 dst_full = os.path.join(args.dst_dir, lockfile_dir, dst_dir_suffix)
                                 shutil.rmtree(dst_full, ignore_errors=True)
                                 print("copying: %s -> %s" % (src_root, dst_full))
