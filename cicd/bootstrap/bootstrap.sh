@@ -37,13 +37,13 @@ initialize_repo(){
     pushd $1
     echo "--- creating GIT repo locally: ${1}"
     git init 
+    git checkout -b conan_from_upstream
     git checkout -b develop
     git add . 
     git commit -m "initial commit"
     echo "--- pushing GIT repository: ${1}"
     git remote add origin "${TRAINING_GIT_URL}/git/${TRAINING_GIT_CREDS_USR}/${1}.git"
     git push origin --mirror -f
-    git checkout -b conan_from_upstream
     popd
 }
 
