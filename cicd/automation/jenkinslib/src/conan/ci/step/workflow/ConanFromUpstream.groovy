@@ -8,10 +8,10 @@ import conan.ci.jenkins.Stage
 import conan.ci.runner.DockerCommandRunner
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
-class ConanProductPipelineFromUpstream extends ConanPipeline {
+class ConanFromUpstream extends ConanPipeline {
 
-    static ConanProductPipelineFromUpstream construct(CpsScript currentBuild, Map config) {
-        def it = new ConanProductPipelineFromUpstream()
+    static ConanFromUpstream construct(CpsScript currentBuild, Map config) {
+        def it = new ConanFromUpstream()
         it.currentBuild = currentBuild
         it.jenkinsAgent = JenkinsAgentFactory.construct(currentBuild).get(config)
         it.dockerClientFactory = DockerClientFactory.construct(currentBuild)

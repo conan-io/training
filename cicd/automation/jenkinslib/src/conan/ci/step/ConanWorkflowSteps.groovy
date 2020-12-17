@@ -2,7 +2,7 @@ package conan.ci.step
 
 import conan.ci.step.workflow.ConanPackagePipeline
 import conan.ci.step.workflow.ConanProductPipeline
-import conan.ci.step.workflow.ConanProductPipelineFromUpstream
+import conan.ci.step.workflow.ConanFromUpstream
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
 class ConanWorkflowSteps {
@@ -54,7 +54,7 @@ class ConanWorkflowSteps {
         ]
         Map mergedConfig = defaultConfig
         if(config) mergedConfig.putAll(config)
-        ConanProductPipelineFromUpstream.construct(currentBuild, mergedConfig).run()
+        ConanFromUpstream.construct(currentBuild, mergedConfig).run()
     }
 
     static void conanPromotionPipeline(CpsScript currentBuild, Map config=null) {
@@ -71,7 +71,7 @@ class ConanWorkflowSteps {
         ]
         Map mergedConfig = defaultConfig
         if(config) mergedConfig.putAll(config)
-        ConanProductPipelineFromUpstream.construct(currentBuild, mergedConfig).run()
+        ConanFromUpstream.construct(currentBuild, mergedConfig).run()
     }
 
 }
