@@ -15,7 +15,7 @@ pipeline {
             when {
                 not { changeRequest() }
                 not { branch pattern: "develop" }
-                not { triggeredBy "UpstreamCause" }
+                not { branch pattern: "conan_from_upstream" }
             }
             steps{
                 conanPackagePipeline()
