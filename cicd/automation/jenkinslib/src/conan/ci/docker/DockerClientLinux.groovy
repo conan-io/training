@@ -2,7 +2,6 @@ package conan.ci.docker
 
 import conan.ci.arg.ArgumentList
 import conan.ci.arg.DockerArgs
-import conan.ci.constant.TrainingConstant
 import conan.ci.runner.DockerCommandRunner
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 

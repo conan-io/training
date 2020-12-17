@@ -53,5 +53,6 @@ for src_root, dirs, files in os.walk(args.src_dir):
                                 dst_dir_suffix = "/".join(src_root.split("/")[2:4])
                                 os.makedirs(os.path.join(args.dst_dir, lockfile_dir))
                                 dst_full = os.path.join(args.dst_dir, lockfile_dir, dst_dir_suffix)
+                                shutil.rmtree(dst_full, ignore_errors=True)
                                 print("copying: %s -> %s" % (src_root, dst_full))
                                 shutil.copytree(src_root, dst_full)

@@ -3,7 +3,7 @@ package conan.ci.util
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
 class DemoLogger {
-
+    //TODO: re-implement demologger for new pipelines
     static void info(CpsScript currentBuild, String message) {
         String level = currentBuild.env["DEMO_LOG_LEVEL"] ?: ""
         if (level == "INFO"){

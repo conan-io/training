@@ -69,6 +69,7 @@ class ConanProductPipeline extends ConanPipeline {
     }
 
     void commitLockfileChanges(DockerCommandRunner dcr, String message) {
+        dcr.run("git pull", "locks") // Support diamond deps 
         dcr.run("git add .", "locks")
         String gitLocksStatus = dcr.run("git status", "locks")
         currentBuild.echo(gitLocksStatus)

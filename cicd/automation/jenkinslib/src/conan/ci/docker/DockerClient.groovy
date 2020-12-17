@@ -1,14 +1,12 @@
 package conan.ci.docker
 
 import conan.ci.arg.ArgumentList
-import conan.ci.jenkins.JenkinsAgent
 import conan.ci.runner.DockerCommandRunner
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
 abstract class DockerClient {
     CpsScript currentBuild
     Map config
-    JenkinsAgent jenkinsAgent
     ArgumentList args
     String workdir
     String shell

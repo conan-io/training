@@ -31,18 +31,15 @@ version = subprocess.check_output(
 name_and_version = "{}/{}".format(name, version)
 dst_root = os.path.join(args.dst_dir, name_and_version)
 
-max_depth = 6 # Only list lockfiles within the current package (skip lockfiles in deeper subdirs)
-
 for src_root, dirs, files in os.walk(args.src_dir):
-    if src_root[len(args.src_dir):].count(os.sep) < max_depth:
-        dst_full = src_root.replace(args.src_dir, dst_root)
-        if not os.path.isdir(dst_full):
-            for _file in files:
-                if _file == "conan.lock":
-                    file_full = os.path.join(src_root, _file)
-                    with open(file_full, 'r') as file:
-                        lockfile = json.load(file)
-                    for node in lockfile["graph_lock"]["nodes"].values():
-                        if name_and_version in node["ref"]:
-                            print("copying: %s -> %s" % (src_root, dst_full))
-                            shutil.copytree(src_root, dst_full)
+    dst_full = src_root.replace(args.src_dir, dst_root)
+    if not os.path.isdir(dst_full):
+        for _file in files:
+            if _file == "conan.lock":
+                file_full = os.path.join(src_root, _file)
+                with open(file_full, 'r') as file:
+                    lockfile = json.load(file)
+                for node in lockfile["graph_lock"]["nodes"].values():
+                    if name_and_version in node["ref"]:
+                        print("copying: %s -> %s" % (src_root, dst_full))
+                        shutil.copytree(src_root, dst_full)
