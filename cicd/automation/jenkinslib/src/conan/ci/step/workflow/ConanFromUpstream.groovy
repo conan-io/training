@@ -42,8 +42,7 @@ class ConanFromUpstream extends ConanPipeline {
         dcr.run("git clone ${args.asMap['scriptsUrl']} scripts")
         dcr.run("git clone ${args.asMap['conanConfigUrl']} configs")
         dcr.run("git clone ${args.asMap['conanLocksUrl']} locks")
-        dcr.run("git clone ${args.asMap['gitUrl']} -b ${args.asMap['gitBranch']} workspace")
-        dcr.run("git checkout ${args.asMap['gitCommit']}", "workspace")
+        dcr.run("git clone ${args.asMap['gitUrl']} -b develop workspace")
         dcr.run("git checkout ${args.asMap['lockBranch']}", "locks")
     }
 
@@ -60,9 +59,13 @@ class ConanFromUpstream extends ConanPipeline {
     }
 
     void commitLockfileChanges(DockerCommandRunner dcr, String message) {
+        dcr.run("git pull", "locks") // Support diamond deps
         dcr.run("git add .", "locks")
         String gitLocksStatus = dcr.run("git status", "locks")
         currentBuild.echo(gitLocksStatus)
+        //TODO: add try catch/loop which pulls/rebases/commits until it works
+        // With diamonds, members will be pushing to same branch but guaranteed NOT to conflict
+        // Nonetheless, you still can't push until you've pulled the latest commits.
         if (!gitLocksStatus.contains("nothing to commit, working tree clean")) {
             dcr.run("git commit -m \"${message} for branch ${args.asMap['lockBranch']}\"", "locks")
             dcr.run("git push -u origin ${args.asMap['lockBranch']}", "locks")

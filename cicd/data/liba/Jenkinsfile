@@ -1,7 +1,6 @@
 library("jenkinslib") _
 
 pipeline {
-    agent { label "master" }
     parameters {
         string(name: "LOCK_BRANCH", defaultValue: "develop", description: "Branch in Lockfile Repository to use.")
     }
@@ -9,13 +8,14 @@ pipeline {
         TRAINING_GIT_CREDS = credentials("TRAINING_GIT_CREDS")
         TRAINING_ART_CREDS = credentials("TRAINING_ART_CREDS")
     }
+    agent { label "master" }
     options { checkoutToSubdirectory("workspace")} 
     stages {
         stage("Package Pipeline") {
             when {
                 not { changeRequest() }
-                not { branch pattern: "develop" }
                 not { branch pattern: "conan_from_upstream" }
+                not { branch pattern: "develop" }
             }
             steps{
                 conanPackagePipeline()
@@ -24,7 +24,6 @@ pipeline {
         stage("Product Pipeline"){
             when {
                 changeRequest()
-                not { branch pattern: "develop" }
             }
             steps{
                 conanProductPipeline()
@@ -41,7 +40,6 @@ pipeline {
         }
         stage("Promotion Pipeline"){
             when {
-                triggeredBy "SCMTrigger"
                 branch pattern: "develop"
                 not { changeRequest() }
             }

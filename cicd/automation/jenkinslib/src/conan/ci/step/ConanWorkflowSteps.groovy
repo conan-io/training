@@ -32,7 +32,6 @@ class ConanWorkflowSteps {
                         "TRAINING_ART_CREDS_USR",
                         "TRAINING_ART_CREDS_PSW",
                         "GIT_BRANCH",
-                        "CHANGE_BRANCH",
                 ],
         ]
         Map mergedConfig = defaultConfig
@@ -49,7 +48,6 @@ class ConanWorkflowSteps {
                         "TRAINING_ART_CREDS_USR",
                         "TRAINING_ART_CREDS_PSW",
                         "GIT_BRANCH",
-                        "CHANGE_BRANCH",
                 ],
         ]
         Map mergedConfig = defaultConfig
@@ -66,7 +64,6 @@ class ConanWorkflowSteps {
                         "TRAINING_ART_CREDS_USR",
                         "TRAINING_ART_CREDS_PSW",
                         "GIT_BRANCH",
-                        "CHANGE_BRANCH",
                 ],
         ]
         Map mergedConfig = defaultConfig
