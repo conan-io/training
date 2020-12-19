@@ -10,6 +10,10 @@ services:
             - .creds.env
         networks:
             - primary
+        volumes:
+           - type: bind
+             source: ../
+             target: /home/conan/training
         command: tail -f /dev/null
 
     jfrog-artifactory-training:
