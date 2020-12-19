@@ -14,4 +14,4 @@ localRepositories: #Local repositories configuration
         type: conan #The package type
 '
 # we create the repositories here for the ci/cd training
-# but it also 
+# this also bypasses the first-run screen

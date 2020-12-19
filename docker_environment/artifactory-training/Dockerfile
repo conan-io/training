@@ -12,9 +12,9 @@ RUN sed -i "s/\r//g" /scripts/*
 
 RUN chown -hR artifactory:artifactory /scripts
 
-# Remove symlink from base image which mapped var to a VOLUME-backed directory
-RUN rm /opt/jfrog/artifactory/var
-
 USER artifactory
+
+ENV TRAINING_ART_CREDS_USR=admin
+ENV TRAINING_ART_CREDS_PSW=password
 
 RUN /scripts/bootstrap-artifactory-config.sh
