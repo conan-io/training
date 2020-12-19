@@ -59,15 +59,14 @@ class ConanFromUpstream extends ConanPipeline {
     }
 
     void commitLockfileChanges(DockerCommandRunner dcr, String message) {
-        dcr.run("git pull", "locks") // Support diamond deps
         dcr.run("git add .", "locks")
         String gitLocksStatus = dcr.run("git status", "locks")
         currentBuild.echo(gitLocksStatus)
-        //TODO: add try catch/loop which pulls/rebases/commits until it works
-        // With diamonds, members will be pushing to same branch but guaranteed NOT to conflict
-        // Nonetheless, you still can't push until you've pulled the latest commits.
-        if (!gitLocksStatus.contains("nothing to commit, working tree clean")) {
-            dcr.run("git commit -m \"${message} for branch ${args.asMap['lockBranch']}\"", "locks")
+        currentBuild.retry(5){
+            dcr.run("git pull", "locks")
+            if (!gitLocksStatus.contains("nothing to commit, working tree clean")) {
+                dcr.run("git commit -m \"${message} for branch ${args.asMap['lockBranch']}\"", "locks")
+            }
             dcr.run("git push -u origin ${args.asMap['lockBranch']}", "locks")
         }
     }
