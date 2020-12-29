@@ -35,7 +35,7 @@ initialize_repo(){
     popd
 }
 
-cd ~/training
+cd ~/training/cicd/automation
 initialize_repo $(basename $SCRIPTS)
 initialize_repo $(basename $JENKINSLIB)
 
