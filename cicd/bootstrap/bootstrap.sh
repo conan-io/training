@@ -28,6 +28,7 @@ initialize_repo(){
     git add . 
     git commit -m "initial commit"
     echo "--- pushing GIT repository: ${1}"
+    git remote remove origin
     git remote add origin "${TRAINING_GIT_URL}/git/${TRAINING_GIT_CREDS_USR}/${1}.git"
     git push origin --mirror -f
     git checkout -b conan_from_upstream
@@ -40,7 +41,7 @@ initialize_repo $(basename $SCRIPTS)
 initialize_repo $(basename $JENKINSLIB)
 
 cd ~/training/cicd/data
-for repo in $(ls $WORKSPACE); do
-    initialize_repo $repo $WORKSPACE
+for repo in $(ls); do
+    initialize_repo $repo
 done
 

@@ -27,13 +27,6 @@ services:
             primary:
                 aliases: 
                     - artifactory
-        volumes:
-           - type: bind
-             source: ./opt/jfrog/artifactory/var
-             target: /opt/jfrog/artifactory/var
-           - type: bind
-             source: ./scripts
-             target: /scripts
         ports:
             - "8082:8082"
         restart: always
