@@ -19,12 +19,12 @@ initialize_repo(){
     -d '{"name":"jenkins","config":{"url":"'"${TRAINING_JENKINS_URL}/github-webhook/"'"},"events":["create", "push", "pull_request"]}'
     pushd $1
     echo "--- creating GIT repo locally: ${1}"
+    rm -rf .git
     git init 
     git checkout -b develop
     git add . 
     git commit -m "initial commit"
     echo "--- pushing GIT repository: ${1}"
-    git remote remove origin
     git remote add origin "${TRAINING_GIT_URL}/git/${TRAINING_GIT_CREDS_USR}/${1}.git"
     git push origin --mirror -f
     git checkout -b conan_from_upstream
