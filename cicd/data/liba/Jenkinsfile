@@ -9,7 +9,10 @@ pipeline {
         TRAINING_ART_CREDS = credentials("TRAINING_ART_CREDS")
     }
     agent { label "master" }
-    options { checkoutToSubdirectory("workspace")} 
+    options { 
+        checkoutToSubdirectory("workspace")
+        disableConcurrentBuilds()
+    } 
     stages {
         stage("Package Pipeline") {
             when {
