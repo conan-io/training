@@ -8,10 +8,6 @@ TRAINING_JENKINS_URL=${TRAINING_JENKINS_URL:-http://jenkins:8080}
 git config --global user.email "you@example.com"
 git config --global user.name "Your Name"
 
-JENKINSLIB=~/training/cicd/automation/jenkinslib
-SCRIPTS=~/training/cicd/automation/scripts
-DATA=~/training/cicd/data
-
 initialize_repo(){
     echo "--- creating GIT repository on server: ${1}"
     curl --user "${TRAINING_GIT_CREDS_USR}:${TRAINING_GIT_CREDS_PSW}" -X POST -d '{"name":"'$1'"}' "${TRAINING_GIT_URL}/api/v3/user/repos"
@@ -36,12 +32,18 @@ initialize_repo(){
     popd
 }
 
-cd ~/training/cicd/automation
-initialize_repo $(basename $SCRIPTS)
-initialize_repo $(basename $JENKINSLIB)
 
-cd ~/training/cicd/data
+AUTOMATION=~/training/cicd/automation
+DATA=~/training/cicd/data
+WORKSPACE=~/workspace
+
+cd $AUTOMATION
+initialize_repo scripts
+initialize_repo jenkinslib
+
+cd $DATA
 for repo in $(ls); do
     initialize_repo $repo
 done
 
+ln -s $AUTOMATION/scripts ~/scripts
