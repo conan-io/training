@@ -1,4 +1,4 @@
-FROM gitbucket/gitbucket:4.35.0
+FROM gitbucket/gitbucket:4.35.2
 
 RUN apt-get -qq update \
     && apt-get -qq install -y --no-install-recommends \
