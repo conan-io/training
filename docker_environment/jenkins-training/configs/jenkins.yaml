@@ -21,7 +21,7 @@ jenkins:
       - key: TRAINING_CONAN_REMOTE_TEMP
         value: name=conan-temp;cred=TRAINING_ART_CREDS
       - key: TRAINING_DOCKER_DEFAULT_IMAGE
-        value: conanio/gcc7
+        value: conanio/gcc7:1.31.2
       - key: TRAINING_DOCKER_USER
         value: conan
       - key: TRAINING_DOCKER_NETWORK_NAME
