@@ -19,6 +19,8 @@ parser.add_argument(
             
 args = parser.parse_args()
 
+source_branch_name = None
+
 if os.path.isfile(args.source_branch_name_file):
     # This condition exists for promotion pipeline, where branch name written in file
     with open(args.source_branch_name_file, 'r') as file:
