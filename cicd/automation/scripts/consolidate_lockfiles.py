@@ -30,8 +30,8 @@ for lockfile_name in lockfile_names:
     shutil.copy(lockfiles[0], consolidated_lockfile)
     shutil.copy(os.path.join(first_lock_dir,"ci_build_env_tag.txt"), lockfile_dir)
     for lockfile in lockfiles:
+        print("updating {} with info from {}".format(consolidated_lockfile, lockfile))
         subprocess.check_output(
             "conan lock update {} {}".format(consolidated_lockfile, lockfile), 
             universal_newlines=True, 
             shell=True)
-        

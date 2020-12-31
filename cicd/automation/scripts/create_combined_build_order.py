@@ -59,3 +59,6 @@ for pref, position in po_dict.items():
 output_file = os.path.join(args.lockfile_base_dir, "combined_build_order.json")
 with open(output_file, 'w') as file:
     json.dump(combined_order, file, indent=4)
+
+with open(output_file, 'r') as file:
+    print(file.read())
