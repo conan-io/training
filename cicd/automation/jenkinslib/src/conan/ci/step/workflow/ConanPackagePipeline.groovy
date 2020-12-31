@@ -28,10 +28,10 @@ class ConanPackagePipeline extends ConanPipeline {
         dockerClient.withRun("Start Container") { DockerCommandRunner dcr ->
             dockerClient.configureGit(dcr)
             cloneGitRepos(dcr)
-            currentBuild.stage("Evaluate Lockfiles"){
+            currentBuild.stage("Evaluate Lockfiles") {
                 evaluateLockfiles(dcr)
             }
-            currentBuild.stage("Launch Builds"){
+            currentBuild.stage("Launch Builds") {
                 launchBuildContainers(dcr)
             }
         }
@@ -44,7 +44,7 @@ class ConanPackagePipeline extends ConanPipeline {
         dcr.run("git clone ${args.asMap['gitUrl']} -b ${args.asMap['gitBranch']} workspace")
         dcr.run("git checkout ${args.asMap['gitCommit']}", "workspace")
         dcr.run("python scripts/calculate_lock_branch_name.py --conanfile_dir=workspace")
-        String lockBranch = dcr.run(dcr.dockerClient.readFile('lock_branch_name.txt'))
+        String lockBranch = dcr.run(dcr.dockerClient.readFileCommand('lock_branch_name.txt'), true)
         //TODO: Replace the following command with cross-platform alternative
         dcr.run("git checkout ${lockBranch} 2>/dev/null || git checkout -B ${lockBranch}", "locks")
     }
@@ -57,10 +57,10 @@ class ConanPackagePipeline extends ConanPipeline {
 
     void commitLockfileChanges(DockerCommandRunner dcr, String message) {
         dcr.run("git add .", "locks")
-        String gitLocksStatus = dcr.run("git status", "locks")
+        String gitLocksStatus = dcr.run("git status", "locks", true)
         currentBuild.echo(gitLocksStatus)
         if (!gitLocksStatus.contains("nothing to commit, working tree clean")) {
-            String lockBranch = dcr.run(dcr.dockerClient.readFile('lock_branch_name.txt'))
+            String lockBranch = dcr.run(dcr.dockerClient.readFileCommand('lock_branch_name.txt'), true)
             dcr.run("git commit -m \"${message} for branch ${lockBranch}\"", "locks")
             dcr.run("git push -u origin ${lockBranch}", "locks")
         }
@@ -68,13 +68,13 @@ class ConanPackagePipeline extends ConanPipeline {
 
     void launchBuildContainers(DockerCommandRunner dcr) {
         dcr.run("python scripts/list_lockfile_names.py locks/dev")
-        String lockNamesStr = dcr.run(dcr.dockerClient.readFile('lockfile_names.txt'))
+        String lockNamesStr = dcr.run(dcr.dockerClient.readFileCommand('lockfile_names.txt'), true)
         List<String> stages = lockNamesStr.trim().split("\n")
-        String pkgName = dcr.run("conan inspect workspace --raw name")
-        String pkgVersion = dcr.run("conan inspect workspace --raw version")
+        String pkgName = dcr.run("conan inspect workspace --raw name", true)
+        String pkgVersion = dcr.run("conan inspect workspace --raw version", true)
         Stage.parallelLimitedBranches(currentBuild, stages, 100) { String stageName ->
             String dockerImageNameFile = "locks/dev/${pkgName}/${pkgVersion}/${stageName}/ci_build_env_tag.txt"
-            String dockerImageName = dcr.run(dcr.dockerClient.readFile(dockerImageNameFile))
+            String dockerImageName = dcr.run(dcr.dockerClient.readFileCommand(dockerImageNameFile), true)
             currentBuild.stage(stageName) {
                 launchBuildContainer(stageName, dockerImageName)
             }
@@ -96,8 +96,8 @@ class ConanPackagePipeline extends ConanPipeline {
         String user = args.asMap['conanUser']
         String channel = args.asMap['conanChannel']
         String lockfilePkgRef = "${lockPkgName}/${lockPkgVersion}@${user}/${channel}"
-        String pkgName = dcr.run("conan inspect workspace --raw name")
-        String pkgVersion = dcr.run("conan inspect workspace --raw version")
+        String pkgName = dcr.run("conan inspect workspace --raw name", true)
+        String pkgVersion = dcr.run("conan inspect workspace --raw version", true)
         String targetPkgNameVersion = "${pkgName}/${pkgVersion}"
         dcr.run("conan install ${lockfilePkgRef} --lockfile locks/dev/${targetPkgNameVersion}/${lockfileDir}")
 

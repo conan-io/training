@@ -3,11 +3,12 @@ package conan.ci.step
 import conan.ci.step.workflow.ConanPackagePipeline
 import conan.ci.step.workflow.ConanProductPipeline
 import conan.ci.step.workflow.ConanFromUpstream
+import conan.ci.step.workflow.ConanPromotionPipeline
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
 class ConanWorkflowSteps {
 
-    static void conanPackagePipeline(CpsScript currentBuild, Map config=null) {
+    static void conanPackagePipeline(CpsScript currentBuild, Map config = null) {
         Map defaultConfig = [
                 "conanRemoteUploadName": "conan-temp",
                 "dockerEnvVars"        : [
@@ -19,11 +20,11 @@ class ConanWorkflowSteps {
                 ],
         ]
         Map mergedConfig = defaultConfig
-        if(config) mergedConfig.putAll(config)
+        if (config) mergedConfig.putAll(config)
         ConanPackagePipeline.construct(currentBuild, mergedConfig).run()
     }
 
-    static void conanProductPipeline(CpsScript currentBuild, Map config=null) {
+    static void conanProductPipeline(CpsScript currentBuild, Map config = null) {
         Map defaultConfig = [
                 "conanRemoteUploadName": "conan-temp",
                 "dockerEnvVars"        : [
@@ -32,15 +33,14 @@ class ConanWorkflowSteps {
                         "TRAINING_ART_CREDS_USR",
                         "TRAINING_ART_CREDS_PSW",
                         "GIT_BRANCH",
-                        "CHANGE_BRANCH",
                 ],
         ]
         Map mergedConfig = defaultConfig
-        if(config) mergedConfig.putAll(config)
+        if (config) mergedConfig.putAll(config)
         ConanProductPipeline.construct(currentBuild, mergedConfig).run()
     }
 
-    static void conanFromUpstream(CpsScript currentBuild, Map config=null) {
+    static void conanFromUpstream(CpsScript currentBuild, Map config = null) {
         Map defaultConfig = [
                 "conanRemoteUploadName": "conan-temp",
                 "dockerEnvVars"        : [
@@ -49,15 +49,15 @@ class ConanWorkflowSteps {
                         "TRAINING_ART_CREDS_USR",
                         "TRAINING_ART_CREDS_PSW",
                         "GIT_BRANCH",
-                        "CHANGE_BRANCH",
+                        "PACKAGE_NAME_AND_VERSION",
                 ],
         ]
         Map mergedConfig = defaultConfig
-        if(config) mergedConfig.putAll(config)
+        if (config) mergedConfig.putAll(config)
         ConanFromUpstream.construct(currentBuild, mergedConfig).run()
     }
 
-    static void conanPromotionPipeline(CpsScript currentBuild, Map config=null) {
+    static void conanPromotionPipeline(CpsScript currentBuild, Map config = null) {
         Map defaultConfig = [
                 "conanRemoteUploadName": "conan-develop",
                 "dockerEnvVars"        : [
@@ -69,8 +69,8 @@ class ConanWorkflowSteps {
                 ],
         ]
         Map mergedConfig = defaultConfig
-        if(config) mergedConfig.putAll(config)
-        ConanFromUpstream.construct(currentBuild, mergedConfig).run()
+        if (config) mergedConfig.putAll(config)
+        ConanPromotionPipeline.construct(currentBuild, mergedConfig).run()
     }
 
 }

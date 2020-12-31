@@ -24,12 +24,12 @@ class DockerClientWindows extends DockerClient {
     }
 
     @Override
-    String readFile(String path){
+    String readFileCommand(String path){
         return "type ${path}"
     }
 
     @Override
-    void configureGitAuth(DockerCommandRunner dcr){
+    void configureGitAuthCommand(DockerCommandRunner dcr){
         dcr.run('git config --global unset credential.helper')
     }
 }

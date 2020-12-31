@@ -20,7 +20,8 @@ for root, dirs, files in os.walk(args.search_dir):
             if _file == "conan.lock":
                 file_full = os.path.join(root, _file)
                 lockfile_dir = "/".join(file_full.split("/")[4:7])
-                lockfile_dir_list.append(lockfile_dir)
+                if lockfile_dir not in lockfile_dir_list:
+                    lockfile_dir_list.append(lockfile_dir)
 
 with open(args.output_file, 'w') as file:
     file.write('\n'.join(lockfile_dir_list))

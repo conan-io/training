@@ -32,6 +32,12 @@ abstract class ConanPipeline {
                         envVarName: "LOCK_BRANCH",
                         description: "Branch value from job parameter, used when job is triggered by upstream.",
                 ),
+                new Argument<String>(
+                        name: "packageNameAndVersion",
+                        group: "pipeline",
+                        envVarName: "PACKAGE_NAME_AND_VERSION",
+                        description: "Package name/version to be built from lockfile when triggered by an upstream job.",
+                ),
         ]
     }
 

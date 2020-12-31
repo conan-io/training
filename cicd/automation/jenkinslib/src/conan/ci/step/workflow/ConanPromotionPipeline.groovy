@@ -29,13 +29,17 @@ class ConanPromotionPipeline extends ConanPipeline {
         dockerClient.withRun("Start Container") { DockerCommandRunner dcr ->
             dockerClient.configureGit(dcr)
             cloneGitRepos(dcr)
-            currentBuild.stage("Evaluate Lockfiles"){
+            currentBuild.stage("Evaluate Lockfiles") {
                 evaluateLockfiles(dcr)
             }
-            currentBuild.stage("Launch Promotions"){
+            currentBuild.stage("Promote Packages") {
                 launchPromotionContainers(dcr)
             }
-            commitLockfileChanges(dcr, "promote dev locks to prod")
+            currentBuild.stage("Promote Lockfiles") {
+                commitLockfileChanges(dcr, "promote dev locks to prod")
+                deleteDevLockfiles(dcr)
+                pushLockfileChanges(dcr)
+            }
         }
     }
 
@@ -45,26 +49,25 @@ class ConanPromotionPipeline extends ConanPipeline {
         dcr.run("git clone ${args.asMap['conanLocksUrl']} locks")
         dcr.run("git clone ${args.asMap['gitUrl']} workspace")
         dcr.run("git checkout ${args.asMap['gitCommit']}", "workspace")
+        dcr.run("python scripts/find_source_branch.py --git_dir=workspace")
         dcr.run("python scripts/calculate_lock_branch_name.py --conanfile_dir=workspace")
-        String lockBranch = dcr.run(dcr.dockerClient.readFile('lock_branch_name.txt'))
+        String lockBranch = dcr.run(dcr.dockerClient.readFileCommand('lock_branch_name.txt'), true)
         //TODO: Replace the following command with cross-platform alternative
         dcr.run("git checkout ${lockBranch} 2>/dev/null || git checkout -B ${lockBranch}", "locks")
     }
 
     void evaluateLockfiles(DockerCommandRunner dcr) {
-        dcr.run("python scripts/list_product_lockfiles_in_dev.py locks/prod locks/dev")
-        commitLockfileChanges(dcr, "initialize locks")
+        dcr.run("python scripts/list_product_lockfiles_in_dev.py locks/dev")
     }
 
     void launchPromotionContainers(DockerCommandRunner dcr) {
-        dcr.run("python scripts/copy_dev_lockfiles_to_prod.py locks/prod locks/dev")
-        String lockNamesStr = dcr.run(dcr.dockerClient.readFile('lockfile_names.txt'))
+        String lockNamesStr = dcr.run(dcr.dockerClient.readFileCommand('lockfile_names.txt'), true)
         List<String> stages = lockNamesStr.trim().split("\n")
-        String pkgName = dcr.run("conan inspect workspace --raw name")
-        String pkgVersion = dcr.run("conan inspect workspace --raw version")
+        String pkgName = dcr.run("conan inspect workspace --raw name", true)
+        String pkgVersion = dcr.run("conan inspect workspace --raw version", true)
         Stage.parallelLimitedBranches(currentBuild, stages, 100) { String stageName ->
             String dockerImageNameFile = "locks/dev/${pkgName}/${pkgVersion}/${stageName}/ci_build_env_tag.txt"
-            String dockerImageName = dcr.run(dcr.dockerClient.readFile(dockerImageNameFile))
+            String dockerImageName = dcr.run(dcr.dockerClient.readFileCommand(dockerImageNameFile), true)
             currentBuild.stage(stageName) {
                 launchPromotionContainer(stageName, dockerImageName)
             }
@@ -77,32 +80,39 @@ class ConanPromotionPipeline extends ConanPipeline {
             dockerClient.configureGit(dcr)
             cloneGitRepos(dcr)
             configureConan(dcr)
-            performConanBuild(dcr, stageName)
+            performConanInstall(dcr, stageName)
         }
     }
 
-    void performConanBuild(DockerCommandRunner dcr, String lockfileDir) {
+    void performConanInstall(DockerCommandRunner dcr, String lockfileDir) {
         String user = args.asMap['conanUser']
         String channel = args.asMap['conanChannel']
-        def name, ver, _ = lockfileDir.split("/")
+        def (name, ver, _) = lockfileDir.split("/")
         String nameAndVersion = "${name}/${ver}"
         String targetPkgRef = "${name}/${ver}@${user}/${channel}"
         dcr.run("conan install ${targetPkgRef}" +
                 " --lockfile locks/dev/${nameAndVersion}/${lockfileDir}/conan.lock")
 
-        dcr.run("conan upload '*' --all -r ${args.asMap['conanRemoteUploadName']} --confirm")
+        dcr.run("conan upload \"*\" --all -r ${args.asMap['conanRemoteUploadName']} --confirm")
     }
 
     void commitLockfileChanges(DockerCommandRunner dcr, String message) {
-        dcr.run("python scripts/copy_dev_lockfiles_to_prod.py  locks/prod locks/dev")
+        String lockBranch = dcr.run(dcr.dockerClient.readFileCommand('lock_branch_name.txt'), true)
+        dcr.run("git checkout develop", "locks")
+        dcr.run("git merge ${lockBranch}", "locks")
+        dcr.run("python scripts/copy_dev_lockfiles_to_prod.py locks/dev locks/prod")
         dcr.run("git add .", "locks")
-        String gitLocksStatus = dcr.run("git status", "locks")
-        currentBuild.echo(gitLocksStatus)
-        if (!gitLocksStatus.contains("nothing to commit, working tree clean")) {
-            String lockBranch = dcr.run(dcr.dockerClient.readFile('lock_branch_name.txt'))
-            dcr.run("git commit -m \"${message} for branch ${lockBranch}\"", "locks")
-            dcr.run("git push -u origin ${lockBranch}", "locks")
-        }
+        dcr.run("git commit -m \"${message} for branch ${lockBranch}\"", "locks")
     }
 
+    void deleteDevLockfiles(DockerCommandRunner dcr) {
+        String lockBranch = dcr.run(dcr.dockerClient.readFileCommand('lock_branch_name.txt'), true)
+        dcr.run("python scripts/remove_lockfiles_dir.py locks/dev")
+        dcr.run("git add .", "locks")
+        dcr.run("git commit -m \"Remove lockfiles from branch ${lockBranch}\"", "locks")
+    }
+
+    void pushLockfileChanges(DockerCommandRunner dcr) {
+        dcr.run("git push -u origin develop", "locks")
+    }
 }

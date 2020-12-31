@@ -19,13 +19,13 @@ class DockerCommandRunner implements ICommandRunner {
     }
 
     @Override
-    def run(String commandToRun, Boolean returnStdout = true) {
+    def run(String commandToRun, Boolean returnStdout = false) {
         String workingDir = dockerClient.workdir
         run(commandToRun, workingDir, returnStdout)
     }
 
     @Override
-    def run(String commandToRun, String workDir, Boolean returnStdout = true) {
+    def run(String commandToRun, String workDir, Boolean returnStdout = false) {
         String workDirAbs = (workDir.contains(dockerClient.workdir))
                 ? workDir
                 : new File(dockerClient.workdir, workDir).toString()

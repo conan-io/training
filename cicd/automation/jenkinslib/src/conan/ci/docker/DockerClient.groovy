@@ -14,9 +14,9 @@ abstract class DockerClient {
     String os
     String runCommand
 
-    abstract String readFile(String path)
+    abstract String readFileCommand(String path)
 
-    abstract void configureGitAuth(DockerCommandRunner dcr)
+    abstract void configureGitAuthCommand(DockerCommandRunner dcr)
 
     String wrapCommandForShell(String commandToRun) {
         if (args.asMap['dockerRunCommandRaw']) {
@@ -30,7 +30,7 @@ abstract class DockerClient {
         dcr.run('git config --global user.email "conanan@training.ci"')
         dcr.run('git config --global user.name "Conan Training CI"')
         dcr.run('git config --global push.default simple')
-        configureGitAuth(dcr)
+        configureGitAuthCommand(dcr)
     }
 
     void withRun(String stageName, Closure body) {

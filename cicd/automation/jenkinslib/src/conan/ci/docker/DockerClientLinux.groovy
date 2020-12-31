@@ -23,12 +23,12 @@ class DockerClientLinux extends DockerClient {
     }
 
     @Override
-    String readFile(String path) {
+    String readFileCommand(String path) {
         return "cat ${path}"
     }
 
     @Override
-    void configureGitAuth(DockerCommandRunner dcr) {
+    void configureGitAuthCommand(DockerCommandRunner dcr) {
         dcr.run('git config --global credential.helper ' +
                 '"!f() { ' +
                 'echo username=\\$TRAINING_GIT_CREDS_USR; ' +

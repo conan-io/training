@@ -42,25 +42,23 @@ class ConanFromUpstream extends ConanPipeline {
         dcr.run("git clone ${args.asMap['scriptsUrl']} scripts")
         dcr.run("git clone ${args.asMap['conanConfigUrl']} configs")
         dcr.run("git clone ${args.asMap['conanLocksUrl']} locks")
-        dcr.run("git clone ${args.asMap['gitUrl']} -b develop workspace")
         dcr.run("git checkout ${args.asMap['lockBranch']}", "locks")
     }
 
     void evaluateLockfiles(DockerCommandRunner dcr) {
-        String pkgName = dcr.run("conan inspect workspace --raw name")
-        String pkgVersion = dcr.run("conan inspect workspace --raw version")
+        String packageNameAndVersion = "${args.asMap['packageNameAndVersion']}"
         dcr.run("python scripts/list_lockfile_names.py locks/dev")
         dcr.run("python scripts/copy_direct_upstream_lockfiles.py" +
-                " --conanfile_dir=workspace locks/dev locks/dev/${pkgName}/${pkgVersion}")
+                " locks/dev locks/dev/${packageNameAndVersion}")
         dcr.run("python scripts/consolidate_lockfiles.py" +
-                " --lockfile_base_dir=locks/dev/${pkgName}/${pkgVersion} " +
+                " --lockfile_base_dir=locks/dev/${packageNameAndVersion} " +
                 " --lockfile_names_file=lockfile_names.txt")
-        commitLockfileChanges(dcr, "copy and consolidate lockfiles for ${pkgName}/${pkgVersion}")
+        commitLockfileChanges(dcr, "copy and consolidate lockfiles for ${packageNameAndVersion}")
     }
 
     void commitLockfileChanges(DockerCommandRunner dcr, String message) {
         dcr.run("git add .", "locks")
-        String gitLocksStatus = dcr.run("git status", "locks")
+        String gitLocksStatus = dcr.run("git status", "locks", true)
         currentBuild.echo(gitLocksStatus)
         currentBuild.retry(5){
             dcr.run("git pull", "locks")
@@ -72,14 +70,13 @@ class ConanFromUpstream extends ConanPipeline {
     }
 
     void launchBuilds(DockerCommandRunner dcr) {
+        String packageNameAndVersion = "${args.asMap['packageNameAndVersion']}"
         dcr.run("python scripts/list_lockfile_names.py locks/dev")
-        String lockNamesStr = dcr.run(dcr.dockerClient.readFile('lockfile_names.txt'))
+        String lockNamesStr = dcr.run(dcr.dockerClient.readFileCommand('lockfile_names.txt'), true)
         List<String> stages = lockNamesStr.trim().split("\n")
-        String pkgName = dcr.run("conan inspect workspace --raw name")
-        String pkgVersion = dcr.run("conan inspect workspace --raw version")
         Stage.parallelLimitedBranches(currentBuild, stages, 100) { String stageName ->
-            String dockerImageNameFile = "locks/dev/${pkgName}/${pkgVersion}/${stageName}/ci_build_env_tag.txt"
-            String dockerImageName = dcr.run(dcr.dockerClient.readFile(dockerImageNameFile))
+            String dockerImageNameFile = "locks/dev/${packageNameAndVersion}/${stageName}/ci_build_env_tag.txt"
+            String dockerImageName = dcr.run(dcr.dockerClient.readFileCommand(dockerImageNameFile), true)
             currentBuild.stage(stageName) {
                 launchBuild(stageName, dockerImageName)
             }
@@ -99,10 +96,9 @@ class ConanFromUpstream extends ConanPipeline {
     void performConanBuild(DockerCommandRunner dcr, String lockfileDir) {
         String user = args.asMap['conanUser']
         String channel = args.asMap['conanChannel']
-        String pkgName = dcr.run("conan inspect workspace --raw name")
-        String pkgVersion = dcr.run("conan inspect workspace --raw version")
-        String targetPkgNameVersion = "${pkgName}/${pkgVersion}"
-        String targetPkgRef = "${pkgName}/${pkgVersion}@${user}/${channel}"
+        String packageNameAndVersion = "${args.asMap['packageNameAndVersion']}"
+        String targetPkgNameVersion = "${packageNameAndVersion}"
+        String targetPkgRef = "${packageNameAndVersion}@${user}/${channel}"
         dcr.run("conan install ${targetPkgRef}" +
                 " --build ${targetPkgRef}" +
                 " --lockfile locks/dev/${targetPkgNameVersion}/${lockfileDir}/conan.lock" +

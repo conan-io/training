@@ -49,4 +49,3 @@ for repo in $(ls); do
 done
 
 ln -s $AUTOMATION/scripts ~/scripts
-

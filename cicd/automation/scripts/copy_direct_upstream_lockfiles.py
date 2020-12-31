@@ -9,10 +9,6 @@ import subprocess
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '--conanfile_dir', 
-    default='.',
-    help='directory to look for conanfile')
-parser.add_argument(
     'src_dir',
     help='source directory to search')
 parser.add_argument(
@@ -21,17 +17,7 @@ parser.add_argument(
             
 args = parser.parse_args()
 
-name = subprocess.check_output(
-    "conan inspect {} --raw name".format(args.conanfile_dir), 
-    universal_newlines=True, 
-    shell=True)
-    
-version = subprocess.check_output(
-    "conan inspect {} --raw version".format(args.conanfile_dir), 
-    universal_newlines=True, 
-    shell=True)
-
-name_and_version = "{}/{}".format(name, version)
+name_and_version = os.getenv("PACKAGE_NAME_AND_VERSION")
 
 max_depth = 6 # Only list lockfiles within the current package (skip lockfiles in deeper subdirs)
 
