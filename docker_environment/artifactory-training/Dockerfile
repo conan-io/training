@@ -1,4 +1,4 @@
-FROM docker.bintray.io/jfrog/artifactory-cpp-ce:7.6.2
+FROM jfrog-docker-reg2.bintray.io/jfrog/artifactory-cpp-ce:7.11.5
 
 COPY scripts/* /scripts/
 
