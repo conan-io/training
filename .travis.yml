@@ -1,7 +1,6 @@
 sudo: false
 language: python
-dist: trusty
-
+dist: xenial
 jobs:
   fast_finish: true
   include:
