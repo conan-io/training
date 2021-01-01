@@ -1,6 +1,6 @@
 sudo: false
 language: python
-dist: bionic
+dist: trusty
 jobs:
   fast_finish: true
   include:
@@ -9,7 +9,7 @@ jobs:
       name: Python 3.5
       python: 3.5
       env: TOXENV=py35-conan
-      dist: xenial
+      dist: bionic
 
 install:
   - pip install --upgrade pip
