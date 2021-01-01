@@ -1,6 +1,6 @@
 sudo: false
 language: python
-dist: xenial
+dist: bionic
 jobs:
   fast_finish: true
   include:
