@@ -60,11 +60,11 @@ class ConanFromUpstream extends ConanPipeline {
         dcr.run("git add .", "locks")
         String gitLocksStatus = dcr.run("git status", "locks", true)
         currentBuild.echo(gitLocksStatus)
+        if (!gitLocksStatus.contains("nothing to commit, working tree clean")) {
+            dcr.run("git commit -m \"${message} for branch ${args.asMap['lockBranch']}\"", "locks")
+        }
         currentBuild.retry(5){
             dcr.run("git pull", "locks")
-            if (!gitLocksStatus.contains("nothing to commit, working tree clean")) {
-                dcr.run("git commit -m \"${message} for branch ${args.asMap['lockBranch']}\"", "locks")
-            }
             dcr.run("git push -u origin ${args.asMap['lockBranch']}", "locks")
         }
     }

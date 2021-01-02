@@ -97,17 +97,17 @@ class ConanPromotionPipeline extends ConanPipeline {
     void commitLockfileChanges(DockerCommandRunner dcr, String message) {
         String lockBranch = dcr.run(dcr.dockerClient.readFileCommand('lock_branch_name.txt'), true)
         dcr.run("git checkout develop", "locks")
+        dcr.run("git merge ${lockBranch}", "locks")
+        dcr.run("python scripts/copy_dev_lockfiles_to_prod.py locks/dev locks/prod")
+        dcr.run("python scripts/remove_lockfiles_dir.py locks/dev")
+        dcr.run("git add .", "locks")
+        String gitLocksStatus = dcr.run("git status", "locks", true)
+        currentBuild.echo(gitLocksStatus)
+        if (!gitLocksStatus.contains("nothing to commit, working tree clean")) {
+            dcr.run("git commit -m \"${message} for branch ${lockBranch}\"", "locks")
+        }
         currentBuild.retry(5){
             dcr.run("git pull", "locks")
-            dcr.run("git merge ${lockBranch}", "locks")
-            dcr.run("python scripts/copy_dev_lockfiles_to_prod.py locks/dev locks/prod")
-            dcr.run("python scripts/remove_lockfiles_dir.py locks/dev")
-            dcr.run("git add .", "locks")
-            String gitLocksStatus = dcr.run("git status", "locks", true)
-            currentBuild.echo(gitLocksStatus)
-            if (!gitLocksStatus.contains("nothing to commit, working tree clean")) {
-                dcr.run("git commit -m \"${message} for branch ${lockBranch}\"", "locks")
-            }
             dcr.run("git push -u origin develop", "locks")
         }
     }
