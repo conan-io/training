@@ -4,8 +4,8 @@ pipeline {
     // Parameters are used only used when job is triggered by an upstream job.
     // They are ignored otherwise, so just leave default values when  triggering jobs manually.
     parameters {
-        string(name: "LOCK_BRANCH", defaultValue: "auto", description: "Branch in Lockfile Repository to use.")
-        string(name: "PACKAGE_NAME_AND_VERSION", defaultValue: "auto", description: "Package name/version to be built from lockfile when triggered by an upstream job.")
+        string(name: "LOCK_BRANCH", defaultValue: "auto", description: "Ignore : only used when triggered by upstream : Branch in lockfile repository to use.")
+        string(name: "PACKAGE_NAME_AND_VERSION", defaultValue: "auto", description: "Ignore : only used when triggered by upstream : Package name/version to be built from lockfile when triggered by an upstream job.")
     }
     environment {
         TRAINING_GIT_CREDS = credentials("TRAINING_GIT_CREDS")
