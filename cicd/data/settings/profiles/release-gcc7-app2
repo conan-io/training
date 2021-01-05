@@ -14,4 +14,4 @@ libc:shared=False
 libd:shared=False
 [build_requires]
 [env]
-product=app1
+product=app2
