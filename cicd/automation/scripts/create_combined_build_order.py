@@ -3,8 +3,19 @@ import json
 import argparse
 import subprocess
 
-# Script takes multiple build order files and
-# correctly reconciles them to a single build order
+# This script takes multiple build order files and correctly reconciles them to a single build order.
+# It is used by the first part of the "product pipeline", to trigger the downstream builds. 
+#
+# This script is necessary because build-order.json files are only relevant to a single lockfile.
+# CI jobs inherently deal with "groups of lockfiles" (and thus, groups of build-orders) in each run. 
+# When triggering downstream jobs, we must trigger all the downstreams for all the lockfiles. 
+# They key challenge is that build-orders can be different for different platforms.
+# For example, we might end up with the following two build orders at the end of a job:
+# For Windows:  liba -> libb -> libc -> libd
+# For Linux  :  liba -> libd
+# If we trigger libb and libd, right away, we will have a failure in the windows build of libd. 
+# We cannot trigger libd until libb and libc have both been built. 
+# This script solves that problem. 
 
 parser = argparse.ArgumentParser()
 

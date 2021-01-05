@@ -3,6 +3,19 @@ import argparse
 import os
 import subprocess
 
+# This script one of several methods to derive the branch name in the lockfile repository
+# This script is used in package, product, and promotion pipelines
+#
+# In the package pipeline, the lockfile branch name is derived from conanfile and git
+# In the first part of the product pipeline, it is the same as above.
+# In the "from_upstream" part of the product pipeline, the source branch is passed as a CI job parameter.
+#      Note: from_upstream does not use this script, it just takes the value from CI directly.
+# In promotion pipeline, deriving the lockfile branch name is fairly tricky. 
+# The "find_source_branch.py" script must be run prior to this script. 
+#      Note: See that script for an explanation of how it works. 
+# That script writes a text file with the the original feature branch name of the package repo. 
+# This script then reads that file and combines it with conan inspect to derive the lock branch name.
+
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '--conanfile_dir', 
@@ -31,6 +44,7 @@ start_dir = os.getcwd()
 os.chdir(args.conanfile_dir)
 
 if source_branch_name is None:
+    # This condition exists for package pipeline where source branch is current branch
     source_branch_name = os.getenv('GIT_BRANCH') or subprocess.check_output(
                                                     "git rev-parse --abbrev-ref HEAD"
                                                     , universal_newlines=True, shell=True).strip()

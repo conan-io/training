@@ -6,6 +6,7 @@ import conan.ci.docker.DockerClientFactory
 import conan.ci.jenkins.JenkinsAgentFactory
 import conan.ci.jenkins.Stage
 import conan.ci.runner.DockerCommandRunner
+import groovy.json.JsonBuilder
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
 class ConanFromUpstream extends ConanPipeline {
@@ -31,9 +32,10 @@ class ConanFromUpstream extends ConanPipeline {
             configureConan(dcr)
             currentBuild.stage("Evaluate Lockfiles") {
                 evaluateLockfiles(dcr)
+                createPackageIdMap(dcr)
             }
             currentBuild.stage("Launch Builds") {
-                launchBuilds(dcr)
+                launchBuildContainers(dcr)
             }
         }
     }
@@ -56,6 +58,11 @@ class ConanFromUpstream extends ConanPipeline {
         commitLockfileChanges(dcr, "copy and consolidate lockfiles for ${packageNameAndVersion}")
     }
 
+    void createPackageIdMap(DockerCommandRunner dcr) {
+        dcr.run("python scripts/create_package_id_map.py" +
+                " --conanfile_dir=workspace locks/dev")
+    }
+
     void commitLockfileChanges(DockerCommandRunner dcr, String message) {
         dcr.run("git add .", "locks")
         String gitLocksStatus = dcr.run("git status", "locks", true)
@@ -69,46 +76,70 @@ class ConanFromUpstream extends ConanPipeline {
         }
     }
 
-    void launchBuilds(DockerCommandRunner dcr) {
+    void launchBuildContainers(DockerCommandRunner dcr) {
+        String packageIdMapStr = dcr.run(dcr.dockerClient.readFileCommand('package_id_map.txt'), true)
+        Map<String, List<String>> packageIdMap = packageIdMapStr.split("\n").collectEntries { String line ->
+            def (String packageId, String lockfileDirsStr) = line.split(":")
+            [(packageId): lockfileDirsStr.split(',').toList()]
+        }
+        List<String> stages = packageIdMap.keySet() as List
+        currentBuild.echo("Preparing build stages based on the following packageIdMap: \n" +
+                new JsonBuilder(packageIdMap).toPrettyString()
+        )
         String packageNameAndVersion = "${args.asMap['packageNameAndVersion']}"
-        dcr.run("python scripts/list_lockfile_names.py locks/dev")
-        String lockNamesStr = dcr.run(dcr.dockerClient.readFileCommand('lockfile_names.txt'), true)
-        List<String> stages = lockNamesStr.trim().split("\n")
         Stage.parallelLimitedBranches(currentBuild, stages, 100) { String stageName ->
-            String dockerImageNameFile = "locks/dev/${packageNameAndVersion}/${stageName}/ci_build_env_tag.txt"
+            String firstLockFileDir = packageIdMap[stageName].head()
+            String dockerImageNameFile = "locks/dev/${packageNameAndVersion}/${firstLockFileDir}/ci_build_env_tag.txt"
             String dockerImageName = dcr.run(dcr.dockerClient.readFileCommand(dockerImageNameFile), true)
             currentBuild.stage(stageName) {
-                launchBuild(stageName, dockerImageName)
+                currentBuild.echo(
+                        "The lockfiles in these directories will all be updated in the build of this packageId: \n" +
+                                "packageId : " + stageName + "\n" +
+                                "lockfileDirs : \n" +
+                                packageIdMap[stageName].join("\n")
+                )
+                launchBuildContainer(stageName, packageIdMap[stageName], dockerImageName)
             }
         }
     }
 
-    void launchBuild(String stageName, String dockerImageName) {
+    void launchBuildContainer(String stageName, List<String> lockfileDirs, String dockerImageName) {
         DockerClient dockerClient = dockerClientFactory.get(config, dockerImageName)
         dockerClient.withRun(stageName) { DockerCommandRunner dcr ->
             dockerClient.configureGit(dcr)
             cloneGitRepos(dcr)
             configureConan(dcr)
-            performConanBuild(dcr, stageName)
+            performConanBuild(dcr, lockfileDirs)
         }
     }
 
-    void performConanBuild(DockerCommandRunner dcr, String lockfileDir) {
+    void performConanBuild(DockerCommandRunner dcr, List<String> lockfileDirs) {
         String user = args.asMap['conanUser']
         String channel = args.asMap['conanChannel']
-        String packageNameAndVersion = "${args.asMap['packageNameAndVersion']}"
-        String targetPkgNameVersion = "${packageNameAndVersion}"
-        String targetPkgRef = "${packageNameAndVersion}@${user}/${channel}"
-        dcr.run("conan install ${targetPkgRef}" +
-                " --build ${targetPkgRef}" +
-                " --lockfile locks/dev/${targetPkgNameVersion}/${lockfileDir}/conan.lock" +
-                " --lockfile-out=locks/dev/${targetPkgNameVersion}/${lockfileDir}/conan-new.lock")
+        String targetPkgNameAndVersion = "${args.asMap['packageNameAndVersion']}"
+        String targetPkgName = "${targetPkgNameAndVersion}".split("/").head()
 
-        dcr.run("conan lock build-order" +
-                " locks/dev/${targetPkgNameVersion}/${lockfileDir}/conan-new.lock" +
-                " --json=locks/dev/${targetPkgNameVersion}/${lockfileDir}/build-order.json")
+        lockfileDirs.each { String lockfileDir ->
+            def (String lockfilePkgName, String lockfilePkgVersion, _) = lockfileDir.split("/")
+            String lockfilePkgRef = "${lockfilePkgName}/${lockfilePkgVersion}@${user}/${channel}"
+            String targetPkgRef = "${targetPkgNameAndVersion}@${user}/${channel}"
+            dcr.run("conan lock create --reference ${lockfilePkgRef}" +
+                    " --build ${targetPkgName}" +
+                    " --lockfile locks/dev/${targetPkgNameAndVersion}/${lockfileDir}/conan.lock" +
+                    " --lockfile-out=locks/dev/${targetPkgNameAndVersion}/${lockfileDir}/conan-temp1.lock")
 
-        dcr.run("conan upload ${targetPkgNameVersion}@* --all -r ${args.asMap['conanRemoteUploadName']} --confirm")
+            dcr.run("conan install ${targetPkgRef}" +
+                    " --build ${targetPkgName}" +
+                    " --lockfile locks/dev/${targetPkgNameAndVersion}/${lockfileDir}/conan-temp1.lock" +
+                    " --lockfile-out=locks/dev/${targetPkgNameAndVersion}/${lockfileDir}/conan-new.lock")
+
+            dcr.run("conan lock build-order" +
+                    " locks/dev/${targetPkgNameAndVersion}/${lockfileDir}/conan-new.lock" +
+                    " --json=locks/dev/${targetPkgNameAndVersion}/${lockfileDir}/build-order.json")
+        }
+
+
+        dcr.run("conan upload ${targetPkgNameAndVersion}@* --all -r ${args.asMap['conanRemoteUploadName']} --confirm")
 
         commitLockfileChanges(dcr, "update locks for downstream build of product pipeline")
     }

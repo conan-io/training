@@ -4,6 +4,12 @@ import os
 import shutil
 import subprocess
 
+# This script is used at the start of the package pipeline. 
+# It's purpose is to copy all the lockfiles which contain the current package reference.
+# It copies them from the prod lockfiles directory to the dev lockfiles directory.
+# It copies them into a dedicated subdirectory for this job: dev/pkg_name/pkg_version/...
+# It maintains the original folder structure, and copies all neighboring metadata files. 
+
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '--conanfile_dir', 

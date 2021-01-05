@@ -1,6 +1,9 @@
 import argparse
 import os
 
+# This script is not used in any CI pipeline
+# It exists purely for the interactive training workflow. 
+
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '--workspace_path', 

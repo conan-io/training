@@ -4,6 +4,10 @@ import os
 import shutil
 import subprocess
 
+# To support when diamond dependency CI jobs are "joined" 
+# We need to use "conan lock update" command to consolidate 
+# changes from multiple lockfiles into a single lockfile
+
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '--lockfile_names_file',
@@ -26,12 +30,13 @@ for lockfile_name in lockfile_names:
             for _file in files:
                 if _file == "conan-new.lock":
                     lockfiles.append(os.path.join(src_root, _file))
-    first_lock_dir = os.path.dirname(lockfiles[0])
-    shutil.copy(lockfiles[0], consolidated_lockfile)
-    shutil.copy(os.path.join(first_lock_dir,"ci_build_env_tag.txt"), lockfile_dir)
-    for lockfile in lockfiles:
-        print("updating {} with info from {}".format(consolidated_lockfile, lockfile))
-        subprocess.check_output(
-            "conan lock update {} {}".format(consolidated_lockfile, lockfile), 
-            universal_newlines=True, 
-            shell=True)
+    if lockfiles:
+        first_lock_dir = os.path.dirname(lockfiles[0])
+        shutil.copy(lockfiles[0], consolidated_lockfile)
+        shutil.copy(os.path.join(first_lock_dir,"ci_build_env_tag.txt"), lockfile_dir)
+        for lockfile in lockfiles:
+            print("updating {} with info from {}".format(consolidated_lockfile, lockfile))
+            subprocess.check_output(
+                "conan lock update {} {}".format(consolidated_lockfile, lockfile), 
+                universal_newlines=True, 
+                shell=True)

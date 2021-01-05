@@ -3,6 +3,21 @@ import argparse
 import os
 import subprocess
 
+
+# This script uses the current commit hash to identify the original feature branch name
+# This script is designed specifically to be used in the promotion pipeline. 
+# 
+# When a PR is merged into develop, there is no CI mechanism to get the original feature branch name.
+# Our promotion process depends on knowing the feature branch name at that time.
+# Fortunately, it's actually fairly simple with GIT to identify the original feature branch name. 
+# We use git log to go back through some number of commits (100 for our demo)
+# For each commit, we go through all the branches that have that commit in their history
+# Once we find a commit in a branch which isn't develop, PR-*, or HEAD, we break. 
+# That is the name of the feature branch which preceded the PR.
+#
+# When complete, this script writes a text file with the original feature branch name. 
+# That file is used by "calculate_lock_branch_name.py"
+
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '--git_dir', 

@@ -1,6 +1,10 @@
 import argparse
 import os
 
+# This script is used in both stages of the product pipeline
+# It walks the provided search_dir to find all lockfile names processed in earlier stages.
+# It writes the unique list of lockfiles to a text file which is read by other scripts later on.
+
 parser = argparse.ArgumentParser()
 parser.add_argument(
     'search_dir',

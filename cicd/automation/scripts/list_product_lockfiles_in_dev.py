@@ -2,7 +2,13 @@ import os
 import argparse
 import shutil
 
-# searches dev lockfile directories and find those that exist in prod
+# This script is used in the promotion pipeline. 
+# It walks the provided dev_dir to find all lockfile names processed in earlier stages.
+# It finds the ones which represent "fully completed product lockfiles". 
+# These are easily recognizable by their paths, because the job folder matches the lockfile folder.
+# Example:  app1/1.0/app1/1.0/gcc-7/conan-new.lock
+# Notice that app1/1.0 appears twice in a row. 
+# We write such paths to the text file below, and that will be used later in the pipeline. 
 
 parser = argparse.ArgumentParser()
 parser.add_argument(

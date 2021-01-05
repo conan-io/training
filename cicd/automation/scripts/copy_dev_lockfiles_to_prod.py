@@ -2,8 +2,11 @@ import os
 import argparse
 import shutil
 
-# reads list of lockfile names to be copied from a text file
-# copies each lockfile from dev to prod
+# This script is used in the promotion pipeline. 
+# This script requires "list_product_lockfiles_in_dev.py" to be run first. 
+#
+# This script reads list of lockfile names to be copied from a text file
+# It then copies each lockfile from dev to prod. 
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
