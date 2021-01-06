@@ -21,15 +21,19 @@ args = parser.parse_args()
 with open(args.lockfile_names_file, 'r') as file:
     lockfile_names = file.read().split("\n")
 
+
+max_depth = 6 # Only list lockfiles within the current package (skip lockfiles in deeper subdirs)
+
 for lockfile_name in lockfile_names:
     lockfile_dir = os.path.join(args.lockfile_base_dir, lockfile_name)
     consolidated_lockfile = os.path.join(lockfile_dir, "conan.lock")
     lockfiles = []
     for src_root, dirs, files in os.walk(lockfile_dir):
-        if not src_root == lockfile_dir:
-            for _file in files:
-                if _file == "conan-new.lock":
-                    lockfiles.append(os.path.join(src_root, _file))
+        if src_root[len(args.lockfile_base_dir):].count(os.sep) < max_depth:
+            if not src_root == lockfile_dir:
+                for _file in files:
+                    if _file == "conan-new.lock":
+                        lockfiles.append(os.path.join(src_root, _file))
     if lockfiles:
         first_lock_dir = os.path.dirname(lockfiles[0])
         shutil.copy(lockfiles[0], consolidated_lockfile)
