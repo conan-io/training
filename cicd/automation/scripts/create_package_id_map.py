@@ -42,7 +42,7 @@ name_and_version = os.getenv("PACKAGE_NAME_AND_VERSION")
 start_dir = os.getcwd()
 
 # This condition exists for package pipeline:
-if name_and_version == "auto" or name_and_version is "":
+if name_and_version == "auto" or name_and_version is "" or name_and_version is None:
     os.chdir(args.conanfile_dir)
     name = subprocess.check_output(
         "conan inspect . --raw name", 
