@@ -26,9 +26,9 @@ initialize_repo(){
     git commit -m "initial commit"
     echo "--- pushing GIT repository: ${1}"
     git remote add origin "${TRAINING_GIT_URL}/git/${TRAINING_GIT_CREDS_USR}/${1}.git"
-    git push -u origin --mirror -f # Push once with just develop so it becomes default branch in gitbucket
+    git push origin --set-upstream --mirror -f # Push once with just develop so it becomes default branch in gitbucket
     git branch conan_from_upstream
-    git push origin --mirror -f # Push second time to create conan_from_upstream as non-default branch
+    git push origin --set-upstream --mirror -f # Push second time to create conan_from_upstream as non-default branch
     popd
 }
 
