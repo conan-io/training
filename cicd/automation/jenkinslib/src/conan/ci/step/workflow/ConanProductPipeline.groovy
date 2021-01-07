@@ -70,9 +70,12 @@ class ConanProductPipeline extends ConanPipeline {
         dcr.run("git add .", "locks")
         String gitLocksStatus = dcr.run("git status", "locks", true)
         currentBuild.echo(gitLocksStatus)
+        String lockBranch = dcr.run(dcr.dockerClient.readFileCommand('lock_branch_name.txt'), true)
         if (!gitLocksStatus.contains("nothing to commit, working tree clean")) {
-            String lockBranch = dcr.run(dcr.dockerClient.readFileCommand('lock_branch_name.txt'), true)
             dcr.run("git commit -m \"${message} for branch ${lockBranch}\"", "locks")
+        }
+        currentBuild.retry(5) {
+            dcr.run("git pull", "locks")
             dcr.run("git push -u origin ${lockBranch}", "locks")
         }
     }

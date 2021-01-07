@@ -12,15 +12,13 @@ import subprocess
 # It copies them to a subdirectory under a new sub-directory of "dev" created just for "this job".
 # The rest of the job will only look at and use these copies in this subdirectory.
 #
-# This scripts works in the "from_upstream" stage of the product pipeline.
+
 # The PACKAGE_NAME_AND_VERSION parameter actually defines the current jobs name and version. 
 # There was surprisingly no other reliable way to deduce both automatically without parameter.
 # This is because we re-build using "conan install --build", NOT "conan create" from git checkout.
 # In other stages, we deduce this with conan inspect on the conanfile.py which was checked out.
-# Also, it relies on the upstream jobs generating and committing build-order.json
-# For each build-order.json, we look at the package reference in position 0.
-# If this package is there, then we know that build-order is from a lockfile of a direct upstream
-
+# Also, it uses the combined-build-order.json created in the root upstream package directory.
+# It uses this to determine the current packages direct upstreams and only copy lockfiles from those.
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -34,26 +32,44 @@ args = parser.parse_args()
 
 name_and_version = os.getenv("PACKAGE_NAME_AND_VERSION")
 
-max_depth = 6 # Only list lockfiles within the current package (skip lockfiles in deeper subdirs)
-
 shutil.rmtree(args.dst_dir, ignore_errors=True)
+os.makedirs(args.dst_dir)
+
 for src_root, dirs, files in os.walk(args.src_dir):
-    if src_root[len(args.src_dir):].count(os.sep) < max_depth:
-        for _file in files:
+    for _file in files:
+        if _file == "combined_build_order.json":
             src_path_joined = os.path.join(src_root, _file)
-            if _file == "build-order.json":
-                with open(src_path_joined, 'r') as file:
-                    build_order = json.load(file)
-                for position, level in enumerate(build_order):
-                    if position == 0: # Only evalute the "first" position
-                        for pref, prev, _context, _id in level:
-                            pref_short = pref.split('@')[0]
-                            if name_and_version == pref_short:
-                                lockfile_dir = "/".join(src_root.split("/")[4:])
-                                dst_dir_suffix = "/".join(src_root.split("/")[2:4])
-                                if not os.path.isdir(os.path.join(args.dst_dir, lockfile_dir)):
-                                    os.makedirs(os.path.join(args.dst_dir, lockfile_dir))
-                                dst_full = os.path.join(args.dst_dir, lockfile_dir, dst_dir_suffix)
-                                shutil.rmtree(dst_full, ignore_errors=True)
-                                print("copying: %s -> %s" % (src_root, dst_full))
-                                shutil.copytree(src_root, dst_full)
+            with open(src_path_joined, 'r') as file:
+                build_order = json.load(file)
+                root_upstream = src_root.replace(args.src_dir + "/","")
+                   
+for level, prefs in build_order.items():
+    for pref in prefs:
+        pref_short = pref.split("@")[0]
+        if pref_short == name_and_version:
+            int_level = int(level)
+            if int_level == 0:
+                direct_upstreams = [root_upstream]
+            else:
+                previous_level = int_level-1
+                direct_upstreams = build_order[str(previous_level)]
+
+
+max_depth = 4 # Only list lockfiles within the current package (skip lockfiles in deeper subdirs)
+for direct_upstream in direct_upstreams:
+    upstream_short = direct_upstream.split("@")[0]
+    upstream_root = os.path.join(args.src_dir, upstream_short)
+   
+    for src_root, dirs, files in os.walk(upstream_root):
+        if src_root[len(upstream_root):].count(os.sep) < max_depth:
+            for _file in files:
+                if _file == "conan.lock":
+                    file_full = os.path.join(src_root, _file)
+                    lockfile_dir = "/".join(src_root.split("/")[4:])
+                    with open(file_full, 'r') as file:
+                        lockfile = json.load(file)
+                    for node in lockfile["graph_lock"]["nodes"].values():
+                        if name_and_version in node["ref"]:
+                            dst_full = os.path.join(args.dst_dir, lockfile_dir, upstream_short)
+                            print("copying: %s -> %s" % (src_root, dst_full))
+                            shutil.copytree(src_root, dst_full)
