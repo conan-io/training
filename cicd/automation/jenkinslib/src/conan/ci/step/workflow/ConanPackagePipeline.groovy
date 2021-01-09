@@ -32,6 +32,7 @@ class ConanPackagePipeline extends ConanPipeline {
             currentBuild.stage("Evaluate Lockfiles") {
                 evaluateLockfiles(dcr)
                 createPackageIdMap(dcr)
+                commitLockfileChanges(dcr, "initialize locks")
             }
             currentBuild.stage("Launch Builds") {
                 launchBuildContainers(dcr)
@@ -54,7 +55,6 @@ class ConanPackagePipeline extends ConanPipeline {
     void evaluateLockfiles(DockerCommandRunner dcr) {
         dcr.run("python scripts/copy_lockfiles_containing_package.py" +
                 " --conanfile_dir=workspace locks/prod locks/dev")
-        commitLockfileChanges(dcr, "initialize locks")
     }
 
     void createPackageIdMap(DockerCommandRunner dcr) {
