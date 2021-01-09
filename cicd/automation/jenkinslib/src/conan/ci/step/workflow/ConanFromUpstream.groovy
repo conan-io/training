@@ -33,6 +33,7 @@ class ConanFromUpstream extends ConanPipeline {
             currentBuild.stage("Evaluate Lockfiles") {
                 evaluateLockfiles(dcr)
                 createPackageIdMap(dcr)
+                commitLockfileChanges(dcr, "copy and consolidate lockfiles for ${args.asMap['packageNameAndVersion']}")
             }
             currentBuild.stage("Launch Builds") {
                 launchBuildContainers(dcr)
@@ -55,7 +56,6 @@ class ConanFromUpstream extends ConanPipeline {
         dcr.run("python scripts/consolidate_lockfiles.py" +
                 " --lockfile_base_dir=locks/dev/${packageNameAndVersion} " +
                 " --lockfile_names_file=lockfile_names.txt")
-        commitLockfileChanges(dcr, "copy and consolidate lockfiles for ${packageNameAndVersion}")
     }
 
     void createPackageIdMap(DockerCommandRunner dcr) {

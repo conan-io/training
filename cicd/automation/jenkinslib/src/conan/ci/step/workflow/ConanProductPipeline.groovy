@@ -31,6 +31,7 @@ class ConanProductPipeline extends ConanPipeline {
             cloneGitRepos(dcr)
             configureConan(dcr)
             currentBuild.stage("Calculate BuildOrder") {
+                checkoutLockBranch(dcr)
                 calculateBuildOrder(dcr)
                 commitLockfileChanges(dcr, "add build order files from product pipeline")
             }
@@ -46,11 +47,14 @@ class ConanProductPipeline extends ConanPipeline {
         dcr.run("git clone ${args.asMap['conanLocksUrl']} locks")
         dcr.run("git clone ${args.asMap['gitUrl']} workspace")
         dcr.run("git checkout ${args.asMap['gitCommit']}", "workspace")
+    }
+
+
+    void checkoutLockBranch(DockerCommandRunner dcr) {
         dcr.run("python scripts/find_source_branch.py --git_dir=workspace")
         dcr.run("python scripts/calculate_lock_branch_name.py --conanfile_dir=workspace")
         String lockBranch = dcr.run(dcr.dockerClient.readFileCommand('lock_branch_name.txt'), true)
-        //TODO: Replace the following command with cross-platform alternative
-        dcr.run("git checkout ${lockBranch} 2>/dev/null || git checkout -B ${lockBranch}", "locks")
+        dcr.run("git checkout ${lockBranch}", "locks")
     }
 
     void calculateBuildOrder(DockerCommandRunner dcr) {
@@ -66,7 +70,6 @@ class ConanProductPipeline extends ConanPipeline {
     }
 
     void commitLockfileChanges(DockerCommandRunner dcr, String message) {
-        dcr.run("git pull", "locks") // Support diamond deps 
         dcr.run("git add .", "locks")
         String gitLocksStatus = dcr.run("git status", "locks", true)
         currentBuild.echo(gitLocksStatus)
@@ -87,8 +90,7 @@ class ConanProductPipeline extends ConanPipeline {
                 "locks/dev/${pkgName}/${pkgVersion}/combined_build_order.json"), true)
 
         def cboJson = currentBuild.readJSON(text: cbo)
-        cboJson.each { String level, List<String> pkgRefs ->
-            List<String> pkgNameAndVersions = pkgRefs.collect { it.split("@")[0] }
+        cboJson.each { String level, List<String> pkgNameAndVersions ->
             Stage.parallelLimitedBranches(currentBuild, pkgNameAndVersions, 100) { String pkgNameAndVersion ->
                 triggerDownstreamJob(dcr, pkgNameAndVersion)
             }

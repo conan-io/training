@@ -56,7 +56,8 @@ for build_order in build_orders:
     for position, level in enumerate(build_order):
         for occurence in level:
             for pref, prev, _context, _id in level:
-                po_dict.setdefault(pref, []).append(position)
+                pref_short = pref.split("@")[0]
+                po_dict.setdefault(pref_short, []).append(position)
 
 #Choose worst of all indexes for each pref
 for pref, positions in po_dict.items():

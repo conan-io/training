@@ -30,6 +30,7 @@ class ConanPackagePipeline extends ConanPipeline {
             dockerClient.configureGit(dcr)
             cloneGitRepos(dcr)
             currentBuild.stage("Evaluate Lockfiles") {
+                checkoutLockBranch(dcr)
                 evaluateLockfiles(dcr)
                 createPackageIdMap(dcr)
                 commitLockfileChanges(dcr, "initialize locks")
@@ -46,10 +47,18 @@ class ConanPackagePipeline extends ConanPipeline {
         dcr.run("git clone ${args.asMap['conanLocksUrl']} locks")
         dcr.run("git clone ${args.asMap['gitUrl']} -b ${args.asMap['gitBranch']} workspace")
         dcr.run("git checkout ${args.asMap['gitCommit']}", "workspace")
+    }
+
+    void checkoutLockBranch(DockerCommandRunner dcr) {
         dcr.run("python scripts/calculate_lock_branch_name.py --conanfile_dir=workspace")
         String lockBranch = dcr.run(dcr.dockerClient.readFileCommand('lock_branch_name.txt'), true)
-        //TODO: Replace the following command with cross-platform alternative
-        dcr.run("git checkout ${lockBranch} 2>/dev/null || git checkout -B ${lockBranch}", "locks")
+        String lockBranchExists = dcr.run("git branch --all --list *${lockBranch}", "locks", true)
+        if(lockBranchExists.trim()){
+            dcr.run("git checkout ${lockBranch}", "locks")
+        }else{
+            dcr.run("git checkout -b ${lockBranch}", "locks")
+            dcr.run("git push -u origin ${lockBranch}", "locks")
+        }
     }
 
     void evaluateLockfiles(DockerCommandRunner dcr) {
@@ -109,6 +118,7 @@ class ConanPackagePipeline extends ConanPipeline {
         dockerClient.withRun(stageName) { DockerCommandRunner dcr ->
             dockerClient.configureGit(dcr)
             cloneGitRepos(dcr)
+            checkoutLockBranch(dcr)
             configureConan(dcr)
             performConanBuild(dcr, lockfileDirs)
         }
