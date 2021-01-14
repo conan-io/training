@@ -1,4 +1,4 @@
-package conan.ci.step.workflow
+package conan.ci.pipeline
 
 import conan.ci.arg.Argument
 import conan.ci.arg.ArgumentList
@@ -7,12 +7,16 @@ import conan.ci.jenkins.JenkinsAgent
 import conan.ci.runner.DockerCommandRunner
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
-abstract class ConanPipeline {
+class PipelineBase {
     CpsScript currentBuild
     JenkinsAgent jenkinsAgent
     DockerClientFactory dockerClientFactory
     Map config
     ArgumentList args
+
+    void printClass(String className) {
+        currentBuild.echo("Starting class: ${className}")
+    }
 
     void printArgs() {
         currentBuild.echo(args.toString())

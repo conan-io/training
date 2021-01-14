@@ -60,23 +60,25 @@ if name_and_version == "auto" or name_and_version is "" or name_and_version is N
 package_ids = {}
 max_depth = 3 # Only list lockfiles within the current package (skip lockfiles in deeper subdirs)
 
-os.chdir(os.path.join(args.src_dir, name_and_version))
-for src_root, dirs, files in os.walk("."):
-    if src_root[len(args.src_dir):].count(os.sep) < max_depth:
-        for _file in files:
-            if _file == "conan.lock":
-                file_full = os.path.join(src_root, _file)
-                lockfile_dir = src_root.replace("./", "")
-                with open(file_full, 'r') as file:
-                    lockfile = json.load(file)
-                for node in lockfile["graph_lock"]["nodes"].values():
-                    if name_and_version in node["ref"]:
-                        if node["package_id"] not in package_ids.keys():
-                            package_ids[node["package_id"]] = [lockfile_dir]
-                        else:
-                            package_ids[node["package_id"]].append(lockfile_dir)
+pkg_root = os.path.join(args.src_dir, name_and_version)
+if os.path.isdir(pkg_root):
+    os.chdir(pkg_root)
+    for src_root, dirs, files in os.walk("."):
+        if src_root[len(args.src_dir):].count(os.sep) < max_depth:
+            for _file in files:
+                if _file == "conan.lock":
+                    file_full = os.path.join(src_root, _file)
+                    lockfile_dir = src_root.replace("./", "")
+                    with open(file_full, 'r') as file:
+                        lockfile = json.load(file)
+                    for node in lockfile["graph_lock"]["nodes"].values():
+                        if name_and_version in node["ref"]:
+                            if node["package_id"] not in package_ids.keys():
+                                package_ids[node["package_id"]] = [lockfile_dir]
+                            else:
+                                package_ids[node["package_id"]].append(lockfile_dir)
 
-os.chdir(start_dir)
+    os.chdir(start_dir)
 
 with open(args.output_file, 'w') as file:
     file.write('\n'.join([k + ":" + ','.join(v) for k,v in package_ids.items()]))

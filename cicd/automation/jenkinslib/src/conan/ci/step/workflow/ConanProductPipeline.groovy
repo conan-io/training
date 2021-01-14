@@ -5,48 +5,51 @@ import conan.ci.docker.DockerClient
 import conan.ci.docker.DockerClientFactory
 import conan.ci.jenkins.JenkinsAgentFactory
 import conan.ci.jenkins.Stage
+import conan.ci.pipeline.PipelineBase
 import conan.ci.runner.DockerCommandRunner
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
-class ConanProductPipeline extends ConanPipeline {
+class ConanProductPipeline {
 
+    PipelineBase base
     static ConanProductPipeline construct(CpsScript currentBuild, Map config) {
         def it = new ConanProductPipeline()
-        it.currentBuild = currentBuild
-        it.jenkinsAgent = JenkinsAgentFactory.construct(currentBuild).get(config)
-        it.dockerClientFactory = DockerClientFactory.construct(currentBuild)
-        it.args = ArgumentList.construct(currentBuild, it.pipelineArgs())
-        it.args.addAll(ConanArgs.get() + DockerArgs.get() + GitArgs.get() + ArtifactoryArgs.get())
-        it.args.parseArgs(config)
-        it.config = config
-        it.printArgs()
+        it.base = new PipelineBase()
+        it.base.currentBuild = currentBuild
+        it.base.jenkinsAgent = JenkinsAgentFactory.construct(currentBuild).get(config)
+        it.base.dockerClientFactory = DockerClientFactory.construct(currentBuild)
+        it.base.args = ArgumentList.construct(currentBuild, it.base.pipelineArgs())
+        it.base.args.addAll(ConanArgs.get() + DockerArgs.get() + GitArgs.get() + ArtifactoryArgs.get())
+        it.base.args.parseArgs(config)
+        it.base.config = config
+        it.base.printClass(it.class.simpleName)
+        it.base.printArgs()
         return it
     }
 
     void run() {
-        //detect successive commits and rebuild package under product
-        DockerClient dockerClient = dockerClientFactory.get(config, args.asMap['dockerDefaultImage'])
+        DockerClient dockerClient = base.dockerClientFactory.get(base.config, base.args.asMap['dockerDefaultImage'])
         dockerClient.withRun("Start Container") { DockerCommandRunner dcr ->
             dockerClient.configureGit(dcr)
             cloneGitRepos(dcr)
-            configureConan(dcr)
-            currentBuild.stage("Calculate BuildOrder") {
+            base.configureConan(dcr)
+            base.currentBuild.stage("Calculate BuildOrder") {
                 checkoutLockBranch(dcr)
                 calculateBuildOrder(dcr)
                 commitLockfileChanges(dcr, "add build order files from product pipeline")
             }
-            currentBuild.stage("Trigger Downstreams") {
+            base.currentBuild.stage("Trigger Downstreams") {
                 triggerDownstreamJobs(dcr)
             }
         }
     }
 
     void cloneGitRepos(DockerCommandRunner dcr) {
-        dcr.run("git clone ${args.asMap['scriptsUrl']} scripts")
-        dcr.run("git clone ${args.asMap['conanConfigUrl']} configs")
-        dcr.run("git clone ${args.asMap['conanLocksUrl']} locks")
-        dcr.run("git clone ${args.asMap['gitUrl']} workspace")
-        dcr.run("git checkout ${args.asMap['gitCommit']}", "workspace")
+        dcr.run("git clone ${base.args.asMap['scriptsUrl']} scripts")
+        dcr.run("git clone ${base.args.asMap['conanConfigUrl']} configs")
+        dcr.run("git clone ${base.args.asMap['conanLocksUrl']} locks")
+        dcr.run("git clone ${base.args.asMap['gitUrl']} workspace")
+        dcr.run("git checkout ${base.args.asMap['gitCommit']}", "workspace")
     }
 
 
@@ -65,19 +68,19 @@ class ConanProductPipeline extends ConanPipeline {
         String cbo = dcr.run(dcr.dockerClient.readFileCommand(
                 "locks/dev/${pkgName}/${pkgVersion}/combined_build_order.json"), true)
 
-        currentBuild.echo("Combined Build Order : ${cbo}")
+        base.currentBuild.echo("Combined Build Order : ${cbo}")
 
     }
 
     void commitLockfileChanges(DockerCommandRunner dcr, String message) {
         dcr.run("git add .", "locks")
         String gitLocksStatus = dcr.run("git status", "locks", true)
-        currentBuild.echo(gitLocksStatus)
+        base.currentBuild.echo(gitLocksStatus)
         String lockBranch = dcr.run(dcr.dockerClient.readFileCommand('lock_branch_name.txt'), true)
         if (!gitLocksStatus.contains("nothing to commit, working tree clean")) {
             dcr.run("git commit -m \"${message} for branch ${lockBranch}\"", "locks")
         }
-        currentBuild.retry(5) {
+        base.currentBuild.retry(5) {
             dcr.run("git pull", "locks")
             dcr.run("git push -u origin ${lockBranch}", "locks")
         }
@@ -89,9 +92,9 @@ class ConanProductPipeline extends ConanPipeline {
         String cbo = dcr.run(dcr.dockerClient.readFileCommand(
                 "locks/dev/${pkgName}/${pkgVersion}/combined_build_order.json"), true)
 
-        def cboJson = currentBuild.readJSON(text: cbo)
+        def cboJson = base.currentBuild.readJSON(text: cbo)
         cboJson.each { String level, List<String> pkgNameAndVersions ->
-            Stage.parallelLimitedBranches(currentBuild, pkgNameAndVersions, 100) { String pkgNameAndVersion ->
+            Stage.parallelLimitedBranches(base.currentBuild, pkgNameAndVersions, 100) { String pkgNameAndVersion ->
                 triggerDownstreamJob(dcr, pkgNameAndVersion)
             }
         }
@@ -101,7 +104,7 @@ class ConanProductPipeline extends ConanPipeline {
         String lockBranch = dcr.run(dcr.dockerClient.readFileCommand('lock_branch_name.txt'), true)
         String pkgName = pkgNameAndVersion.split("/")[0]
         String targetBranch = "conan_from_upstream"
-        currentBuild.build(
+        base.currentBuild.build(
                 job: "gitbucket/${pkgName}/${targetBranch}" as String,
                 parameters: [
                         [$class: 'StringParameterValue', name: 'LOCK_BRANCH', value: lockBranch],

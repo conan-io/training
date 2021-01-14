@@ -19,9 +19,9 @@ pipeline {
     stages {
         stage("Package Pipeline") {
             when {
-                not { branch pattern: "PR-*" }
                 not { branch pattern: "conan_from_upstream" }
                 not { branch pattern: "develop" }
+                expression { conanHasSourceChanged() }
             }
             steps{
                 conanPackagePipeline()

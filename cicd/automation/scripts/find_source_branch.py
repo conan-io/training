@@ -51,6 +51,8 @@ for commit in recent_commits:
     for branch in containing_branches:
         if branch == "":
             continue
+        if branch == "conan_from_upstream":
+            continue
         if branch == "develop":
             continue
         if branch.startswith("PR-"):
@@ -63,6 +65,8 @@ for commit in recent_commits:
         break
     if source_branch is not None:
         break
+    else:
+        source_branch = current_branch
         
 os.chdir(start_dir)
 
