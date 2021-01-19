@@ -59,6 +59,13 @@ class ConanBuildOrderHasSteps {
         String pkgName = dcr.run("conan inspect workspace --raw name", true)
         String pkgVersion = dcr.run("conan inspect workspace --raw version", true)
         dcr.run("python ~/scripts/list_lockfile_names.py locks/dev/${pkgName}/${pkgVersion}")
+        //TODO: Implement modified or new version of script which identifies the "latest" build order
+        // to achieve "only re-run those downstream builds which are not completed".
+        // Load original build order, and iterate through it.  For each level and node:
+        // Look for file named "job_status.txt" in the lockfile root for that node (eg. locks/dev/libb)
+        // Read it if exists. If it contains "completed successfully", then remove the node from the build order.
+        // The levels and nodes that remain are the new build order, so put them in a new file and use that.
+        // This all requires that each job write the exit status o the  file in a new "always" block in the pipeline.
         dcr.run("python ~/scripts/create_combined_build_order.py locks/dev/${pkgName}/${pkgVersion}")
     }
 
