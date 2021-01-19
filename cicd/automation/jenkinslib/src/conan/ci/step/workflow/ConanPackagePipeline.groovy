@@ -54,8 +54,8 @@ class ConanPackagePipeline {
     }
 
     void checkoutLockBranch(DockerCommandRunner dcr) {
-        dcr.run("python scripts/find_source_branch.py --git_dir=workspace")
-        dcr.run("python scripts/calculate_lock_branch_name.py --conanfile_dir=workspace")
+        dcr.run("python ~/scripts/find_source_branch.py --git_dir=workspace")
+        dcr.run("python ~/scripts/calculate_lock_branch_name.py --conanfile_dir=workspace")
         String lockBranch = dcr.run(dcr.dockerClient.readFileCommand('lock_branch_name.txt'), true)
         String lockBranchExists = dcr.run("git branch --all --list *${lockBranch}", "locks", true)
         if(lockBranchExists.trim()){
@@ -67,12 +67,12 @@ class ConanPackagePipeline {
     }
 
     void evaluateLockfiles(DockerCommandRunner dcr) {
-        dcr.run("python scripts/copy_lockfiles_containing_package.py" +
+        dcr.run("python ~/scripts/copy_lockfiles_containing_package.py" +
                 " --conanfile_dir=workspace locks/prod locks/dev")
     }
 
     void createPackageIdMap(DockerCommandRunner dcr) {
-        dcr.run("python scripts/create_package_id_map.py" +
+        dcr.run("python ~/scripts/create_package_id_map.py" +
                 " --conanfile_dir=workspace locks/dev")
     }
 
@@ -114,69 +114,43 @@ class ConanPackagePipeline {
                                 "lockfileDirs : \n" +
                                 packageIdMap[stageName].join("\n")
                 )
-                launchBuildContainer(stageName, packageIdMap[stageName], dockerImageName)
+                launchBuildContainer(stageName, dockerImageName)
             }
         }
     }
 
-    void launchBuildContainer(String stageName, List<String> lockfileDirs, String dockerImageName) {
+    void launchBuildContainer(String stageName, String dockerImageName) {
         DockerClient dockerClient = base.dockerClientFactory.get(base.config, dockerImageName)
         dockerClient.withRun(stageName) { DockerCommandRunner dcr ->
             dockerClient.configureGit(dcr)
             cloneGitRepos(dcr)
             checkoutLockBranch(dcr)
             base.configureConan(dcr)
-            //TODO: convert the function below into a python script or 2
-            performConanBuild(dcr, lockfileDirs)
+            performConanBuild(dcr, stageName)
         }
     }
 
-    void performConanBuild(DockerCommandRunner dcr, List<String> lockfileDirs) {
-
-        String user = base.args.asMap['conanUser']
-        String channel = base.args.asMap['conanChannel']
+    void performConanBuild(DockerCommandRunner dcr, String packageId) {
         String targetPkgName = dcr.run("conan inspect workspace --raw name", true)
         String targetPkgVersion = dcr.run("conan inspect workspace --raw version", true)
         String targetPkgNameVersion = "${targetPkgName}/${targetPkgVersion}"
 
-        // First we have to install each product into the local cache before any calls to conan create
-        // Conan create produces produces a new revision in the cache, making conan refuse subsequent lockfile installs
-        lockfileDirs.each { String lockfileDir ->
-            def (String lockfilePkgName, String lockfilePkgVersion, _) = lockfileDir.split("/")
-            String lockfilePkgRef = "${lockfilePkgName}/${lockfilePkgVersion}@${user}/${channel}"
-            dcr.run("conan install ${lockfilePkgRef} --lockfile locks/dev/${targetPkgNameVersion}/${lockfileDir}")
-        }
+        // re-generate the package_id_map.txt file inside the container
+        dcr.run("python ~/scripts/create_package_id_map.py" +
+                " --conanfile_dir=workspace locks/dev")
 
-        // Now, we loop over each lockfile and produce a conan-new.lock
-        lockfileDirs.each { String lockfileDir ->
-            def (String lockfilePkgName, String lockfilePkgVersion, _) = lockfileDir.split("/")
-            String lockfilePkgRef = "${lockfilePkgName}/${lockfilePkgVersion}@${user}/${channel}"
+        // install all the packages from all lockfiles to establish the cache with all locked versions/revisions
+        dcr.run("python ~/scripts/conan_install_all_lockfiles.py" +
+                " --conanfile_dir=workspace ${packageId} locks/dev")
 
-            // Because many lockfiles might share the same package_id for a build, we have special handling
-            // We only perform a full rebuild with "conan create" once (on the first lockfile)
-            // For subsequent lockfiles, we call conan create but with --keep-build and --test-package=None
-            // This bypasses the rebuild but updates the lockfiles with the new revision as if it was rebuilt
-            // This is a workaround in lieu of better first-class feature to achieve this outcome
-            String extraFlags = (lockfileDir == lockfileDirs.head()) ? " --keep-build --test-folder=None" : ""
+        // re-create the target package and update all the lockfiles for that package id
+        dcr.run("python ~/scripts/conan_create_and_update_all_lockfiles.py" +
+                " --conanfile_dir=workspace ${packageId} locks/dev")
 
-            dcr.run("conan lock create workspace/conanfile.py --user ${user} --channel ${channel}" +
-                    " --lockfile=locks/dev/${targetPkgNameVersion}/${lockfileDir}/conan.lock" +
-                    " --lockfile-out=locks/dev/${targetPkgNameVersion}/${lockfileDir}/temp1.lock")
-
-            dcr.run("conan create workspace ${user}/${channel} " +
-                    " --lockfile=locks/dev/${targetPkgNameVersion}/${lockfileDir}/temp1.lock" +
-                    " --lockfile-out=locks/dev/${targetPkgNameVersion}/${lockfileDir}/temp2.lock" +
-                    " --build ${targetPkgName}" + extraFlags)
-
-            dcr.run("conan lock create --reference ${lockfilePkgRef}" +
-                    " --lockfile=locks/dev/${targetPkgNameVersion}/${lockfileDir}/temp2.lock" +
-                    " --lockfile-out=locks/dev/${targetPkgNameVersion}/${lockfileDir}/conan-new.lock")
-        }
-
+        // upload the new build of the target package
         dcr.run("conan upload ${targetPkgNameVersion}@* --all -r ${base.args.asMap['conanRemoteUploadName']} --confirm")
 
-        commitLockfileChanges(dcr, "update locks for package pipeline for package: " +
-                "${targetPkgNameVersion} ${lockfileDirs.join(",")} "
-        )
+        // commit and push the updated lockfiles
+        commitLockfileChanges(dcr, "update locks for package pipeline for packageId: ${packageId}")
     }
 }

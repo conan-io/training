@@ -11,6 +11,7 @@ import subprocess
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '--lockfile_names_file',
+    default="lockfile_names.txt",
     help='text file with a list of lockfile names')
 parser.add_argument(
     '--lockfile_base_dir',
@@ -20,7 +21,6 @@ args = parser.parse_args()
 
 with open(args.lockfile_names_file, 'r') as file:
     lockfile_names = file.read().split("\n")
-
 
 max_depth = 6 # Only list lockfiles within the current package (skip lockfiles in deeper subdirs)
 

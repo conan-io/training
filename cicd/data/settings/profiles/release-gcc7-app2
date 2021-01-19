@@ -9,9 +9,7 @@ os=Linux
 os_build=Linux
 [options]
 liba:shared=False
-libb:shared=False
 libc:shared=False
-libd:shared=False
 [build_requires]
 [env]
 product=app2

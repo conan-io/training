@@ -7,8 +7,8 @@ import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    'search_dir',
-    help='directory to search')
+    'lockfile_base_dir',
+    help='package base directory to start walking for lockfiles')
 parser.add_argument(
     '--output_file',
     default="lockfile_names.txt",
@@ -18,8 +18,8 @@ args = parser.parse_args()
 
 lockfile_dir_list = []
 max_depth = 6 # Only list lockfiles within the current package (skip lockfiles in deeper subdirs)
-for root, dirs, files in os.walk(args.search_dir):
-    if root[len(args.search_dir):].count(os.sep) < max_depth:
+for root, dirs, files in os.walk(args.lockfile_base_dir):
+    if root[len(args.lockfile_base_dir):].count(os.sep) < max_depth:
         for _file in files:
             if _file == "conan.lock":
                 file_full = os.path.join(root, _file)

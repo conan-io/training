@@ -29,7 +29,7 @@ pipeline {
         }
         stage("Product Pipeline"){
             when {
-                branch pattern: "PR-*"
+                expression { conanBuildOrderHasSteps() }
             }
             steps{
                 conanProductPipeline()

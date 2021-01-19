@@ -20,7 +20,6 @@ pipeline {
         stage("Package Pipeline") {
             when {
                 not { branch pattern: "conan_from_upstream" }
-                not { branch pattern: "develop" }
                 expression { conanHasSourceChanged() }
             }
             steps{
@@ -29,7 +28,7 @@ pipeline {
         }
         stage("Product Pipeline"){
             when {
-                branch pattern: "PR-*"
+                expression { conanBuildOrderHasSteps() }
             }
             steps{
                 conanProductPipeline()

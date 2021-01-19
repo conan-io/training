@@ -53,8 +53,6 @@ for commit in recent_commits:
             continue
         if branch == "conan_from_upstream":
             continue
-        if branch == "develop":
-            continue
         if branch.startswith("PR-"):
             continue
         if branch.startswith("HEAD"):

@@ -36,7 +36,7 @@ class ConanProductPipeline {
             base.currentBuild.stage("Calculate BuildOrder") {
                 checkoutLockBranch(dcr)
                 calculateBuildOrder(dcr)
-                commitLockfileChanges(dcr, "add build order files from product pipeline")
+                commitLockfileChanges(dcr, "add build order file from product pipeline")
             }
             base.currentBuild.stage("Trigger Downstreams") {
                 triggerDownstreamJobs(dcr)
@@ -52,10 +52,9 @@ class ConanProductPipeline {
         dcr.run("git checkout ${base.args.asMap['gitCommit']}", "workspace")
     }
 
-
     void checkoutLockBranch(DockerCommandRunner dcr) {
-        dcr.run("python scripts/find_source_branch.py --git_dir=workspace")
-        dcr.run("python scripts/calculate_lock_branch_name.py --conanfile_dir=workspace")
+        dcr.run("python ~/scripts/find_source_branch.py --git_dir=workspace")
+        dcr.run("python ~/scripts/calculate_lock_branch_name.py --conanfile_dir=workspace")
         String lockBranch = dcr.run(dcr.dockerClient.readFileCommand('lock_branch_name.txt'), true)
         dcr.run("git checkout ${lockBranch}", "locks")
     }
@@ -63,13 +62,11 @@ class ConanProductPipeline {
     void calculateBuildOrder(DockerCommandRunner dcr) {
         String pkgName = dcr.run("conan inspect workspace --raw name", true)
         String pkgVersion = dcr.run("conan inspect workspace --raw version", true)
-        dcr.run("python scripts/list_lockfile_names.py locks/dev/${pkgName}/${pkgVersion}")
+        dcr.run("python ~/scripts/list_lockfile_names.py locks/dev/${pkgName}/${pkgVersion}")
         dcr.run("python ~/scripts/create_combined_build_order.py locks/dev/${pkgName}/${pkgVersion}")
         String cbo = dcr.run(dcr.dockerClient.readFileCommand(
                 "locks/dev/${pkgName}/${pkgVersion}/combined_build_order.json"), true)
-
         base.currentBuild.echo("Combined Build Order : ${cbo}")
-
     }
 
     void commitLockfileChanges(DockerCommandRunner dcr, String message) {

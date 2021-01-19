@@ -23,8 +23,8 @@ import subprocess
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    'src_dir',
-    help='source directory to search')
+    'lockfiles_root',
+    help='root directory to search for lockfiles which were modified by direct upstream jobs')
 parser.add_argument(
     '--conanfile_dir', 
     default='.',
@@ -60,11 +60,11 @@ if name_and_version == "auto" or name_and_version is "" or name_and_version is N
 package_ids = {}
 max_depth = 3 # Only list lockfiles within the current package (skip lockfiles in deeper subdirs)
 
-pkg_root = os.path.join(args.src_dir, name_and_version)
+pkg_root = os.path.join(args.lockfiles_root, name_and_version)
 if os.path.isdir(pkg_root):
     os.chdir(pkg_root)
     for src_root, dirs, files in os.walk("."):
-        if src_root[len(args.src_dir):].count(os.sep) < max_depth:
+        if src_root[len(args.lockfiles_root):].count(os.sep) < max_depth:
             for _file in files:
                 if _file == "conan.lock":
                     file_full = os.path.join(src_root, _file)

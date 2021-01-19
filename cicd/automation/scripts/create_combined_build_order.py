@@ -22,6 +22,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
     'lockfile_base_dir',
     help='package base directory to start walking for lockfiles')
+parser.add_argument(
+    '--output_filename',
+    default="combined_build_order.json",
+    help='filename to save the new combined build order json to.')
 
 args = parser.parse_args()
 
@@ -50,7 +54,6 @@ for _file in bofs:
         build_orders.append(json.load(file))  
 
 po_dict = {}
-
 #Create a dict of pref to a list of positions it was found in
 for build_order in build_orders:
     for position, level in enumerate(build_order):
@@ -68,7 +71,7 @@ combined_order = {}
 for pref, position in po_dict.items():
     combined_order.setdefault(position, []).append(pref) 
 
-output_file = os.path.join(args.lockfile_base_dir, "combined_build_order.json")
+output_file = os.path.join(args.lockfile_base_dir, args.output_filename)
 with open(output_file, 'w') as file:
     json.dump(combined_order, file, indent=4)
 

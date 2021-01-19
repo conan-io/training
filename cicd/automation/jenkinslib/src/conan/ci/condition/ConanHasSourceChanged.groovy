@@ -27,7 +27,7 @@ class ConanHasSourceChanged {
     }
 
     boolean run() {
-
+        base.currentBuild.echo("conanHasSourceChanged() condition will now be evaluated.")
         DockerClient dockerClient = base.dockerClientFactory.get(base.config, base.args.asMap['dockerDefaultImage'])
         boolean result = dockerClient.withRun("Start Container") { DockerCommandRunner dcr ->
             dockerClient.configureGit(dcr)
@@ -46,11 +46,11 @@ class ConanHasSourceChanged {
     }
 
     boolean hasSourceChanged(DockerCommandRunner dcr) {
-        String result = dcr.run("python scripts/has_source_changed.py " +
+        String result = dcr.run("python ~/scripts/has_source_changed.py " +
                 " --conanfile_dir=workspace" +
                 " ${base.args.asMap['conanRemoteUploadName']}", true)
         boolean hasSourceChanged = (result.trim() == "True")
-        base.currentBuild.echo("conanHasSourceChanged() is returning value of ${hasSourceChanged}")
+        base.currentBuild.echo("conanHasSourceChanged() condition is returning value of ${hasSourceChanged}")
         return hasSourceChanged
     }
 }

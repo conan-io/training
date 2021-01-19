@@ -76,7 +76,7 @@ jobs:
           }
         }
         triggers {
-          periodic(1)
+          periodic(60)
         }
         configure { 
           def traits = it / navigators / 'org.jenkinsci.plugins.github__branch__source.GitHubSCMNavigator' / traits

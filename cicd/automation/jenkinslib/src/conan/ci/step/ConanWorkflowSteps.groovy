@@ -16,6 +16,8 @@ class ConanWorkflowSteps {
                         "TRAINING_GIT_CREDS_PSW",
                         "TRAINING_ART_CREDS_USR",
                         "TRAINING_ART_CREDS_PSW",
+                        "TRAINING_CONAN_USER",
+                        "TRAINING_CONAN_CHANNEL",
                         "GIT_BRANCH",
                 ],
         ]
@@ -48,6 +50,8 @@ class ConanWorkflowSteps {
                         "TRAINING_GIT_CREDS_PSW",
                         "TRAINING_ART_CREDS_USR",
                         "TRAINING_ART_CREDS_PSW",
+                        "TRAINING_CONAN_USER",
+                        "TRAINING_CONAN_CHANNEL",
                         "GIT_BRANCH",
                         "PACKAGE_NAME_AND_VERSION",
                 ],
@@ -65,6 +69,8 @@ class ConanWorkflowSteps {
                         "TRAINING_GIT_CREDS_PSW",
                         "TRAINING_ART_CREDS_USR",
                         "TRAINING_ART_CREDS_PSW",
+                        "TRAINING_CONAN_USER",
+                        "TRAINING_CONAN_CHANNEL",
                         "GIT_BRANCH",
                 ],
         ]

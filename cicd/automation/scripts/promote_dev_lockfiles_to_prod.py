@@ -1,6 +1,7 @@
 import os
 import argparse
 import shutil
+import subprocess
 
 # This script is used in the promotion pipeline. 
 # This script requires "list_product_lockfiles_in_dev.py" to be run first. 
@@ -23,11 +24,18 @@ parser.add_argument(
 args = parser.parse_args()
 
 with open(args.lockfile_names_file, 'r') as file:
-    prod_lockfiles_names = file.read().strip().split("\n")
-
+    prod_lockfiles_names = file.read().splitlines()
+    
+print(str(prod_lockfiles_names))
 for prod_lockfiles_name in prod_lockfiles_names:
     pkg_name_and_ver = "/".join(prod_lockfiles_name.split("/")[:-1])
     dev_lockfile_path = os.path.join(args.dev_dir, pkg_name_and_ver, prod_lockfiles_name, "conan-new.lock")
+    
+    cmd = "conan lock clean-modified {}".format(dev_lockfile_path)
+    print("Running command: " + cmd)
+    output = subprocess.check_output(cmd, universal_newlines=True, shell=True)
+    print(output)
+    
     prod_lockfile_path = os.path.join(args.prod_dir, prod_lockfiles_name, "conan.lock")
     print("copying {} -> {}".format(dev_lockfile_path, prod_lockfile_path))
     shutil.copyfile(dev_lockfile_path, prod_lockfile_path)
