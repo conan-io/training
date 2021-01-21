@@ -22,7 +22,7 @@ parser.add_argument(
     
 parser.add_argument(
     '--package_id_map_file',
-    default="package_id_map.txt",
+    default="package_id_map.json",
     help='file containing mapping of package_id to list of lockfiles.')
 
 args = parser.parse_args()
@@ -31,12 +31,8 @@ name_and_version = os.getenv('PACKAGE_NAME_AND_VERSION')
 user = os.getenv('TRAINING_CONAN_USER')
 channel = os.getenv('TRAINING_CONAN_CHANNEL')
 
-package_id_map = {}
 with open(args.package_id_map_file, 'r') as file:
-    package_id_lines = file.readlines()
-    for package_id_line in package_id_lines:
-        line_split = package_id_line.split(":")
-        package_id_map[line_split[0]] = line_split[1].split(",")
+    package_id_map = json.load(file)
 
 target_lockfile_dirs = package_id_map[args.package_id]
 target_pkg_name, target_pkg_version = name_and_version.split("/")
@@ -80,16 +76,15 @@ output = subprocess.check_output(cmd, universal_newlines=True, shell=True)
 print(output)
 
 
+lockfile_to_update_from = os.path.join(first_lockfile_dir_full, "temp2.lock")    
+with open(lockfile_to_update_from, 'r') as json_file:
+    lock_to_update_from = json.load(json_file)
+
 # Now we go through each lockfile and patch them with the new package_id 
 for lockfile_dir in target_lockfile_dirs:
-
-    lockfile_to_update_from = os.path.join(first_lockfile_dir_full, "temp2.lock")
     lockfile_to_be_updated = os.path.join(package_locks_root, lockfile_dir, "conan.lock")
     new_lockfile = os.path.join(package_locks_root, lockfile_dir, "conan-new.lock")
-    
-    with open(lockfile_to_update_from, 'r') as json_file:
-        lock_to_update_from = json.load(json_file)
-        
+
     for id, node in lock_to_update_from["graph_lock"]["nodes"].items():
         if node["ref"].startswith(target_pkg_ref):
             updated_node = node

@@ -37,7 +37,10 @@ class ConanPromotionPipeline {
             base.currentBuild.stage("Evaluate Lockfiles") {
                 checkoutLockBranch(dcr)
                 evaluateLockfiles(dcr)
-                createPackageIdMap(dcr)
+            }
+            if(readLockfileDirs(dcr).isEmpty()){
+                base.currentBuild.echo("No lockfiles found containing this package, nothing to do, returning.")
+                return
             }
             base.currentBuild.stage("Promote Packages") {
                 launchPromotionContainers(dcr)
@@ -73,26 +76,20 @@ class ConanPromotionPipeline {
         dcr.run("python ~/scripts/list_product_lockfiles_in_dev.py locks/dev")
     }
 
-    void createPackageIdMap(DockerCommandRunner dcr) {
-        dcr.run("python ~/scripts/create_package_id_map.py" +
-                " --conanfile_dir=workspace locks/dev")
+    List<String> readLockfileDirs(DockerCommandRunner dcr) {
+        String lockfileDirsStr = dcr.run(dcr.dockerClient.readFileCommand('lockfile_names.txt'), true)
+        return lockfileDirsStr.split("\n") as List<String>
     }
 
     void launchPromotionContainers(DockerCommandRunner dcr) {
-        String packageIdMapStr = dcr.run(dcr.dockerClient.readFileCommand('package_id_map.txt'), true)
-        Map<String, List<String>> packageIdMap = packageIdMapStr.split("\n").collectEntries { String line ->
-            def (String packageId, String lockfileDirsStr) = line.split(":")
-            [(packageId): lockfileDirsStr.split(',').toList()]
-        }
-        List<String> stages = packageIdMap.keySet() as List
-        base.currentBuild.echo("Preparing build stages based on the following packageIdMap: \n" +
-                new JsonBuilder(packageIdMap).toPrettyString()
+        List<String> lockfileDirs = readLockfileDirs(dcr)
+        base.currentBuild.echo("Preparing promotion stages based on the following lockfile names: \n" +
+                new JsonBuilder(lockfileDirs).toPrettyString()
         )
         String pkgName = dcr.run("conan inspect workspace --raw name", true)
         String pkgVersion = dcr.run("conan inspect workspace --raw version", true)
-        Stage.parallelLimitedBranches(base.currentBuild, stages, 100) { String stageName ->
-            String firstLockFileDir = packageIdMap[stageName].head()
-            String dockerImageNameFile = "locks/dev/${pkgName}/${pkgVersion}/${firstLockFileDir}/ci_build_env_tag.txt"
+        Stage.parallelLimitedBranches(base.currentBuild, lockfileDirs, 100) { String stageName ->
+            String dockerImageNameFile = "locks/dev/${pkgName}/${pkgVersion}/${stageName}/ci_build_env_tag.txt"
             String dockerImageName = dcr.run(dcr.dockerClient.readFileCommand(dockerImageNameFile), true)
             base.currentBuild.stage(stageName) {
                 launchPromotionContainer(stageName, dockerImageName)
@@ -111,14 +108,10 @@ class ConanPromotionPipeline {
         }
     }
 
-    void performConanInstall(DockerCommandRunner dcr, String packageId) {
-        // re-generate the package_id_map.txt file inside the container
-        dcr.run("python ~/scripts/create_package_id_map.py" +
-                " --conanfile_dir=workspace locks/dev")
-
+    void performConanInstall(DockerCommandRunner dcr, String lockfileDir) {
         // install all the packages from all lockfiles for this packageId for promotion
-        dcr.run("python ~/scripts/conan_install_all_lockfiles.py" +
-                " --conanfile_dir=workspace ${packageId} locks/dev")
+        dcr.run("python ~/scripts/conan_install_lockfile.py" +
+                " --conanfile_dir=workspace ${lockfileDir} locks/dev")
 
         dcr.run("conan upload \"*\" --all -r ${base.args.asMap['conanRemoteUploadName']} --confirm")
     }
@@ -137,7 +130,7 @@ class ConanPromotionPipeline {
             dcr.run("git checkout ${lockBranch}", "locks")
             dcr.run("git merge develop -s ours", "locks")
             dcr.run("git checkout develop", "locks")
-            dcr.run("git merge ${lockBranch}", "locks")
+            dcr.run("git merge ${lockBranch} -m 'merge ${lockBranch} into develop'", "locks")
             dcr.run("git pull", "locks")
             dcr.run("git push -u origin develop", "locks")
         }

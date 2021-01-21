@@ -31,7 +31,7 @@ parser.add_argument(
     help='directory to look for conanfile')
 parser.add_argument(
     '--output_file',
-    default="package_id_map.txt",
+    default="package_id_map.json",
     help='path of file to save list to.')
 
 args = parser.parse_args()
@@ -80,8 +80,9 @@ if os.path.isdir(pkg_root):
 
     os.chdir(start_dir)
 
-with open(args.output_file, 'w') as file:
-    file.write('\n'.join([k + ":" + ','.join(v) for k,v in package_ids.items()]))
+    
+with open(args.output_file, 'w') as json_file:
+    json.dump(package_ids, json_file, indent=2)
 
 with open(args.output_file, 'r') as file:
     print(file.read())

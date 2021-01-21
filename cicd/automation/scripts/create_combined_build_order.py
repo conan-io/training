@@ -71,9 +71,10 @@ combined_order = {}
 for pref, position in po_dict.items():
     combined_order.setdefault(position, []).append(pref) 
 
+os.makedirs(args.lockfile_base_dir, exist_ok=True)
 output_file = os.path.join(args.lockfile_base_dir, args.output_filename)
 with open(output_file, 'w') as file:
-    json.dump(combined_order, file, indent=4)
+    json.dump(combined_order, file, indent=2)
 
 with open(output_file, 'r') as file:
     print(file.read())

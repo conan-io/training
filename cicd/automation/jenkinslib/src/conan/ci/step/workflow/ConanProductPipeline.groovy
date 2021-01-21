@@ -64,9 +64,6 @@ class ConanProductPipeline {
         String pkgVersion = dcr.run("conan inspect workspace --raw version", true)
         dcr.run("python ~/scripts/list_lockfile_names.py locks/dev/${pkgName}/${pkgVersion}")
         dcr.run("python ~/scripts/create_combined_build_order.py locks/dev/${pkgName}/${pkgVersion}")
-        String cbo = dcr.run(dcr.dockerClient.readFileCommand(
-                "locks/dev/${pkgName}/${pkgVersion}/combined_build_order.json"), true)
-        base.currentBuild.echo("Combined Build Order : ${cbo}")
     }
 
     void commitLockfileChanges(DockerCommandRunner dcr, String message) {

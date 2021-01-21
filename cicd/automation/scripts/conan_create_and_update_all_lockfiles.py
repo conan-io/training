@@ -22,17 +22,13 @@ parser.add_argument(
     
 parser.add_argument(
     '--package_id_map_file',
-    default="package_id_map.txt",
+    default="package_id_map.json",
     help='file containing mapping of package_id to list of lockfiles.')
 
 args = parser.parse_args()
 
-package_id_map = {}
 with open(args.package_id_map_file, 'r') as file:
-    package_id_lines = file.readlines()
-    for package_id_line in package_id_lines:
-        line_split = package_id_line.split(":")
-        package_id_map[line_split[0]] = line_split[1].split(",")
+    package_id_map = json.load(file)
 
 target_lockfile_dirs = package_id_map[args.package_id]
 

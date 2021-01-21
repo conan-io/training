@@ -37,8 +37,12 @@ class ConanFromUpstream {
             base.currentBuild.stage("Evaluate Lockfiles") {
                 evaluateLockfiles(dcr)
                 createPackageIdMap(dcr)
-                commitLockfileChanges(dcr, "copy and consolidate lockfiles for ${base.args.asMap['packageNameAndVersion']}")
             }
+            if(readPackageIdMap(dcr).isEmpty()){
+                base.currentBuild.echo("No lockfiles found containing this package, nothing to do, returning.")
+                return
+            }
+            commitLockfileChanges(dcr, "copy and consolidate lockfiles for ${base.args.asMap['packageNameAndVersion']}")
             base.currentBuild.stage("Launch Builds") {
                 launchBuildContainers(dcr)
             }
@@ -67,6 +71,11 @@ class ConanFromUpstream {
                 " --conanfile_dir=workspace locks/dev")
     }
 
+    Map<String, List<String>> readPackageIdMap(DockerCommandRunner dcr) {
+        String packageIdMapStr = dcr.run(dcr.dockerClient.readFileCommand('package_id_map.json'), true)
+        return base.currentBuild.readJSON(text: packageIdMapStr, returnPojo: true) as Map<String, List<String>>
+    }
+
     void commitLockfileChanges(DockerCommandRunner dcr, String message) {
         dcr.run("git add .", "locks")
         String gitLocksStatus = dcr.run("git status", "locks", true)
@@ -81,11 +90,7 @@ class ConanFromUpstream {
     }
 
     void launchBuildContainers(DockerCommandRunner dcr) {
-        String packageIdMapStr = dcr.run(dcr.dockerClient.readFileCommand('package_id_map.txt'), true)
-        Map<String, List<String>> packageIdMap = packageIdMapStr.split("\n").collectEntries { String line ->
-            def (String packageId, String lockfileDirsStr) = line.split(":")
-            [(packageId): lockfileDirsStr.split(',').toList()]
-        }
+        Map<String, List<String>> packageIdMap = readPackageIdMap(dcr)
         List<String> stages = packageIdMap.keySet() as List
         base.currentBuild.echo("Preparing build stages based on the following packageIdMap: \n" +
                 new JsonBuilder(packageIdMap).toPrettyString()
@@ -120,7 +125,7 @@ class ConanFromUpstream {
     void performConanBuild(DockerCommandRunner dcr, String packageId) {
         String nameAndVersion = "${base.args.asMap['packageNameAndVersion']}"
 
-        // re-generate the package_id_map.txt file inside the container
+        // re-generate the package_id_map.json file inside the container
         dcr.run("python ~/scripts/create_package_id_map.py" +
                 " --conanfile_dir=workspace locks/dev")
 
