@@ -16,7 +16,6 @@ class DockerClientFactory {
     }
 
     DockerClient get(Map config, String imageName) {
-        //TODO : Can we put containerId in config instead of passing separately? Explore.
         DockerClient client = queryImageOs(imageName) == "linux"
                 ? DockerClientLinux.construct(currentBuild, config, imageName)
                 : DockerClientWindows.construct(currentBuild, config, imageName)
