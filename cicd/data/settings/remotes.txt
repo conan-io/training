@@ -1,2 +1,0 @@
-conan-temp http://artifactory:8082/artifactory/api/conan/conan-temp True
-conan-develop http://artifactory:8082/artifactory/api/conan/conan-develop True
