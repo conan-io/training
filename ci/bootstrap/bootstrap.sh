@@ -33,8 +33,8 @@ initialize_repo(){
 }
 
 
-AUTOMATION=~/training/cicd/automation
-DATA=~/training/cicd/data
+AUTOMATION=~/training/ci/automation
+DATA=~/training/ci/data
 WORKSPACE=~/workspace
 
 mkdir -p $WORKSPACE
