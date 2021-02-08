@@ -1,9 +1,9 @@
 ##################################################################################### 
 
 # Initialize GIT and artifactory for CI/CD
-~/training/cicd/bootstrap/bootstrap.sh  
+~/training/ci/bootstrap/bootstrap.sh  
 
-cd ~/training/cicd/data
+cd ~/training/ci/data
 conan config install settings
 conan config set general.revisions_enabled=True
 conan config set general.default_package_id_mode=recipe_revision_mode 
@@ -20,7 +20,7 @@ conan create app1 ci/stable -pr release-gcc7-app1 --build=missing
 conan upload '*' --all -r conan-develop --confirm
 
 ##################################################################################### 
-cd ~/training/cicd/data
+cd ~/training/ci/data
 
 # Create lockfiles for each profile and product/application
 conan lock create --reference app1/1.0@ci/stable -pr release-gcc7-app1 \
