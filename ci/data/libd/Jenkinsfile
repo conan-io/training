@@ -1,0 +1,56 @@
+library("jenkinslib") _
+
+pipeline {
+    // Parameters are used only used when job is triggered by an upstream job.
+    // They are ignored otherwise, so just leave default values when  triggering jobs manually.
+    parameters {
+        string(name: "LOCK_BRANCH", defaultValue: "auto", description: "Ignore : only used when triggered by upstream : Branch in lockfile repository to use.")
+        string(name: "PACKAGE_NAME_AND_VERSION", defaultValue: "auto", description: "Ignore : only used when triggered by upstream : Package name/version to be built from lockfile when triggered by an upstream job.")
+    }
+    environment {
+        TRAINING_GIT_CREDS = credentials("TRAINING_GIT_CREDS")
+        TRAINING_ART_CREDS = credentials("TRAINING_ART_CREDS")
+    }
+    agent { label "master" }
+    options { 
+        checkoutToSubdirectory("workspace")
+        disableConcurrentBuilds()
+    } 
+    stages {
+        stage("Package Pipeline") {
+            when {
+                not { branch pattern: "conan_from_upstream" }
+                expression { conanHasSourceChanged() }
+            }
+            steps{
+                conanPackagePipeline()
+            }
+        }
+        stage("Product Pipeline"){
+            when {
+                not { branch pattern: "conan_from_upstream" }
+                expression { conanBuildOrderHasSteps() }
+            }
+            steps{
+                conanProductPipeline()
+            }
+        }
+        stage("From Upstream"){
+            when { 
+                triggeredBy "UpstreamCause" 
+                branch pattern: "conan_from_upstream"
+            }
+            steps{
+                conanFromUpstream()
+            }
+        }
+        stage("Promotion Pipeline"){
+            when {
+                branch pattern: "develop"
+            }
+            steps{
+                conanPromotionPipeline()
+            }
+        }
+    }
+}
