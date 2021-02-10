@@ -28,7 +28,7 @@ pipeline {
         }
         stage("Product Pipeline"){
             when {
-                not { branch pattern: "conan_from_upstream" }
+                anyOf { branch 'develop'; branch pattern:'PR-*' }
                 expression { conanBuildOrderHasSteps() }
             }
             steps{
