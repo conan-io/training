@@ -1,0 +1,13 @@
+[settings]
+os=Linux
+os_build=Linux
+arch=x86_64
+arch_build=x86_64
+compiler=gcc
+compiler.version=7
+compiler.libcxx=libstdc++11
+build_type=Release
+[options]
+[build_requires]
+[env]
+CONAN_CMAKE_TOOLCHAIN_FILE=$PROFILE_DIR/../toolchains/toolchain_linux_gcc7.cmake

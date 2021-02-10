@@ -1,4 +1,4 @@
-FROM conanio/gcc7:1.28.1
+FROM conanio/gcc7:1.31.2
 
 USER root
 
@@ -12,8 +12,7 @@ RUN apt-get -qq update \
 
 USER conan
 
-RUN git clone https://github.com/conan-io/training
 RUN conan profile new default --detect
 RUN conan profile update settings.compiler.libcxx=libstdc++11 default
 
-WORKDIR /home/conan/training
+WORKDIR /home/conan

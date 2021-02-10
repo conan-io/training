@@ -1,0 +1,94 @@
+jenkins:
+  systemMessage: "Training Jenkins Environment"
+  numExecutors: 8
+  globalNodeProperties:
+  - envVars:
+      env:
+      - key: TRAINING_CONAN_USER
+        value: ci
+      - key: TRAINING_CONAN_CHANNEL
+        value: stable
+      - key: TRAINING_CONAN_CONFIG_URL
+        value: http://gitbucket/git/root/settings.git
+      - key: TRAINING_LOCKS_URL
+        value: http://gitbucket/git/root/locks.git
+      - key: TRAINING_SCRIPTS_URL
+        value: http://gitbucket/git/root/scripts.git
+      - key: TRAINING_ARTIFACTORY_URL
+        value: http://artifactory:8082/artifactory
+      - key: TRAINING_CONAN_REMOTE_PROD
+        value: name=conan-develop;cred=TRAINING_ART_CREDS
+      - key: TRAINING_CONAN_REMOTE_TEMP
+        value: name=conan-temp;cred=TRAINING_ART_CREDS
+      - key: TRAINING_DOCKER_DEFAULT_IMAGE
+        value: conanio/gcc7:1.31.2
+      - key: TRAINING_DOCKER_USER
+        value: conan
+      - key: TRAINING_DOCKER_NETWORK_NAME
+        value: ${TRAINING_DOCKER_NETWORK_NAME}
+      
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              id: "TRAINING_GIT_CREDS"
+              username: ${TRAINING_GIT_CREDS_USR}
+              password: ${TRAINING_GIT_CREDS_PSW}
+              description: "Git credentials"
+              scope: GLOBAL
+          - usernamePassword:
+              id: "TRAINING_ART_CREDS"
+              username: ${TRAINING_ART_CREDS_USR}
+              password: ${TRAINING_ART_CREDS_PSW}
+              description: "Artifactory credentials"
+              scope: GLOBAL
+                  
+unclassified:
+  location:
+    adminAddress: "training@conan.local"
+    url: "http://jenkins:8080/"
+  gitHubConfiguration:
+    apiRateLimitChecker: ThrottleForNormalize
+    endpoints:
+    - apiUri: "http://gitbucket/api/v3"
+      name: "gitbucket"
+  globalLibraries:
+    libraries:
+      - name: "jenkinslib"
+        defaultVersion: "develop"
+        retriever:
+          modernSCM:
+            scm:
+              git:
+                remote: "http://gitbucket/git/root/jenkinslib.git"
+                credentialsId: "TRAINING_GIT_CREDS"
+jobs:
+  - script: >
+      organizationFolder('gitbucket') {
+        description("All repos with Jenkinsfiles discovered on gitbucket")
+        displayName("gitbucket")
+        organizations {
+          github {
+            apiUri("http://gitbucket/api/v3")
+            credentialsId('TRAINING_GIT_CREDS')
+            repoOwner('root')
+          }
+        }
+        triggers {
+          periodic(60)
+        }
+        configure { 
+          def traits = it / navigators / 'org.jenkinsci.plugins.github__branch__source.GitHubSCMNavigator' / traits
+          traits << 'org.jenkinsci.plugins.github_branch_source.BranchDiscoveryTrait' {
+              strategyId('1')
+          }
+          traits << 'org.jenkinsci.plugins.github_branch_source.ForkPullRequestDiscoveryTrait' {
+              strategyId('2')
+              trust(class: 'org.jenkinsci.plugins.github_branch_source.ForkPullRequestDiscoveryTrait$TrustEveryone')
+          }
+          traits << 'org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait' {
+              strategyId('2')
+          }
+        }
+      }
