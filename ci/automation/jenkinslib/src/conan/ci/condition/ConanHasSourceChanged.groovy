@@ -29,7 +29,7 @@ class ConanHasSourceChanged {
     boolean run() {
         base.currentBuild.echo("conanHasSourceChanged() condition will now be evaluated.")
         DockerClient dockerClient = base.dockerClientFactory.get(base.config, base.args.asMap['dockerDefaultImage'])
-        boolean result = dockerClient.withRun("Start Container") { DockerCommandRunner dcr ->
+        boolean result = dockerClient.withRun("Has Source Changed?") { DockerCommandRunner dcr ->
             dockerClient.configureGit(dcr)
             cloneGitRepos(dcr)
             base.configureConan(dcr)
