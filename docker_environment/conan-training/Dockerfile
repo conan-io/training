@@ -1,4 +1,4 @@
-FROM conanio/gcc7:1.33.1
+FROM conanio/gcc7:1.40.4
 
 USER root
 
