@@ -7,9 +7,9 @@ jobs:
   include:
 
     - stage: Linux - Conan Current
-      name: Python 3.5
-      python: 3.5
-      env: TOXENV=py35-conan
+      name: Python 3.6
+      python: 3.6
+      env: TOXENV=py36-conan
       dist: xenial
 
 install:
