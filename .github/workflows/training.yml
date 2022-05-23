@@ -5,33 +5,20 @@ on:
   - push
 
 jobs:
-  build_docker_images:
-    name: Validate Docker images
+  validate_training:
+    name: Validate Training changes
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 2
-      - name: Start containers
+      - name: Build images
         run: |
           cd docker_environment/
           docker-compose build
-
-  validate_training:
-    name: Test training changes
-    needs: build_docker_images
-    runs-on: ubuntu-latest
-    container: conan_training_env_conan-training:latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
-      - uses: actions/setup-python@v3
-        with:
-          python-version: 3.6
-      - name: Install dependencies
-        run: pip install tox tox-venv
-      - name: Execute Tox
-        env:
-          TOXENV: py36-conan
-        run: tox -vvv
+      - name: Start docker container
+        run: docker run -d -v ${PWD}:/home/conan/project -name training conan_training_env_conan-training:latest
+      - name: Install tox
+        run: docker exec training pip install tox tox-venv
+      - name: Run tests
+        run: docker exec training tox -vvv project/
