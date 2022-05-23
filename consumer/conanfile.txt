@@ -1,4 +1,5 @@
 [requires]
+hello/0.1@user/testing
 boost/1.72.0
 poco/1.9.4
 

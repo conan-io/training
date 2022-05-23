@@ -5,6 +5,7 @@
 
 #include <string>
 #include <iostream>
+#include "hello.h"
 
 using Poco::Timer;
 using Poco::TimerCallback;
@@ -23,6 +24,7 @@ private:
 
 int main(int argc, char** argv){
     TimerExample example;
+hello();
     Timer timer(250, 500);
     timer.start(TimerCallback<TimerExample>(example, &TimerExample::onTimer));
 
