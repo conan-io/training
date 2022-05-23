@@ -17,7 +17,7 @@ consumer() {
     cd bin
     ./timer
     conan search
-    conan search zlib/1.2.12@
+    conan search zlib/1.2.11@
 }
 
 consumer_debug() {
@@ -32,7 +32,7 @@ consumer_debug() {
     cd bin
     ./timer
     conan search
-    conan search zlib/1.2.12@
+    conan search zlib/1.2.11@
 }
 
 consumer_gcc() {
@@ -153,8 +153,8 @@ configuration_values() {
     conan create . user/testing -o greet:language=Italian
     set -e
     conan inspect greet/0.1@user/testing
-    conan inspect zlib/1.2.12@
-    conan get zlib/1.2.12@
+    conan inspect zlib/1.2.11@
+    conan get zlib/1.2.11@
 
     set +e
     conan create . user/testing -s compiler=unknown
@@ -191,7 +191,7 @@ requires_conflict() {
    set +e
    conan install .
    set -e
-   sed -i "s#\[requires\]#\[requires\]\nzlib/1.2.12#g" conanfile.txt
+   sed -i "s#\[requires\]#\[requires\]\nzlib/1.2.11#g" conanfile.txt
    conan install .
 }
 
