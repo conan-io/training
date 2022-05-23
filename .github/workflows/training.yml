@@ -21,18 +21,17 @@ jobs:
     name: Test training changes
     needs: build_docker_images
     runs-on: ubuntu-latest
-    container:
-      image: conan_training_env_conan-training:latest
-      steps:
-        - uses: actions/checkout@v3
-          with:
-            fetch-depth: 2
-        - uses: actions/setup-python@v3
-          with:
-            python-version: 3.6
-        - name: Install dependencies
-          run: pip install tox tox-venv
-        - name: Execute Tox
-          env:
-            TOXENV: py36-conan
-          run: tox -vvv
+    container: conan_training_env_conan-training:latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v3
+        with:
+          python-version: 3.6
+      - name: Install dependencies
+        run: pip install tox tox-venv
+      - name: Execute Tox
+        env:
+          TOXENV: py36-conan
+        run: tox -vvv
