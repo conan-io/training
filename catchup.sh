@@ -17,7 +17,7 @@ consumer() {
     cd bin
     ./timer
     conan search
-    conan search zlib/1.2.11@
+    conan search zlib/1.2.12@
 }
 
 consumer_debug() {
@@ -32,7 +32,7 @@ consumer_debug() {
     cd bin
     ./timer
     conan search
-    conan search zlib/1.2.11@
+    conan search zlib/1.2.12@
 }
 
 consumer_gcc() {
