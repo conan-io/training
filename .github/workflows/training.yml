@@ -8,6 +8,9 @@ jobs:
     name: Validate Docker images
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
       - name: Start containers
         run: |
           cd docker_environment/
