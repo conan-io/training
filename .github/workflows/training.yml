@@ -17,8 +17,8 @@ jobs:
           cd docker_environment/
           docker-compose build
       - name: Start docker container
-        run: docker run -d -v ${PWD}:/home/conan/project -name training conan_training_env_conan-training:latest
+        run: docker run -d -t -v ${PWD}:/home/conan/project --name training conan_training_env_conan-training:latest
       - name: Install tox
-        run: docker exec training pip install tox tox-venv
+        run: docker exec training pip install -U tox tox-venv
       - name: Run tests
-        run: docker exec training tox -vvv project/
+        run: docker exec -e TOXENV=py37-conan training tox -vvv project/
