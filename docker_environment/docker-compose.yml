@@ -6,6 +6,8 @@ services:
         build:
             dockerfile: Dockerfile
             context: ./conan-training
+            args:
+                CONAN_VERSION: ${CONAN_VERSION}
         networks:
             - conan-training
         command: tail -f /dev/null
@@ -15,6 +17,8 @@ services:
         build:
             dockerfile: Dockerfile
             context: ./artifactory-training
+            args:
+                ARTIFACTORY_VERSION: ${ARTIFACTORY_VERSION}
         networks:
             - conan-training
         ports:

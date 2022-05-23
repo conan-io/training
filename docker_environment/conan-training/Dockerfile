@@ -1,4 +1,6 @@
-FROM conanio/gcc11-ubuntu16.04:1.48.1
+ARG CONAN_VERSION
+
+FROM conanio/gcc11-ubuntu16.04:${CONAN_VERSION}
 
 RUN sudo apt-get -qq update \
     && sudo apt-get -qq install -y --no-install-recommends \
