@@ -1,8 +1,8 @@
 name: Validate training workflow
 
 on:
-  pull_request
-  push
+  - pull_request
+  - push
 
 env:
   PYVER: "3.6"
