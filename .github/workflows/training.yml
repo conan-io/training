@@ -20,6 +20,7 @@ jobs:
   validate_training:
     name: Test training changes
     needs: build_docker_images
+    runs-on: ubuntu-latest
     container:
       image: conan_training_env_conan-training:latest
     steps:

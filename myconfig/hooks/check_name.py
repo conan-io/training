@@ -6,4 +6,5 @@ def pre_export(output, conanfile, conanfile_path, reference, **kwargs):
     if ref.lower() != ref:
         raise Exception("Reference %s should be all lowercase" % ref)
     # use python "in" syntax.... if "something" in ref:
-    #TODO
+    if '-' in ref:
+        raise Exception('Use _ instead of -')
