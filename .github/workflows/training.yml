@@ -2,13 +2,17 @@ name: Validate training workflow
 
 on:
   - pull_request
-  - push
-
-env:
-  PYVER: "3.6"
-  TOXENV: "py36-conan"
 
 jobs:
+  build_docker_images:
+    name: Validate Docker images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start containers
+        run: |
+          cd docker_environment/
+          docker-compose build
+
   validate_training:
     name: Test training changes
     runs-on: ubuntu-latest
