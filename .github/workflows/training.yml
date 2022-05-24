@@ -30,7 +30,7 @@ jobs:
       - name: Copy files to container
         run: docker cp ${GITHUB_WORKSPACE} training:/home/conan/project
       - name: Update file permission
-        run: docker exec training chown -R conan:1001 /home/conan/project
+        run: docker exec training sudo chown -R conan:1001 /home/conan/project
       - name: Install tox
         run: docker exec training pip install -U tox tox-venv
       - name: Run tests
