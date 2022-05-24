@@ -27,6 +27,10 @@ jobs:
         if: always() && steps.cache-docker.outputs.cache-hit != 'true'
       - name: Start docker container
         run: docker run -d -t -v ${GITHUB_WORKSPACE}:/home/conan/project:z --name training conan_training_env_conan-training:latest
+      - name: Copy files to container
+        run: docker cp ${GITHUB_WORKSPACE} training:/home/conan/project
+      - name: Update file permission
+        run: docker exec training chown -R conan:1001 /home/conan/project
       - name: Install tox
         run: docker exec training pip install -U tox tox-venv
       - name: Run tests
