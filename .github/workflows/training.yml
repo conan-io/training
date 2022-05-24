@@ -10,14 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       - name: Build images
         run: |
           cd docker_environment/
           docker-compose build
       - name: Start docker container
-        run: docker run -d -t -v ${GITHUB_WORKSPACE}:/home/conan/project --name training conan_training_env_conan-training:latest
+        run: docker run -d -t -v ${GITHUB_WORKSPACE}:/home/conan/project --privileged --name training conan_training_env_conan-training:latest
       - name: Install tox
         run: docker exec training pip install -U tox tox-venv
       - name: Run tests
