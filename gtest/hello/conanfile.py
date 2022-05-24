@@ -7,7 +7,7 @@ class HelloConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
     exports_sources = "*"
-    build_requires =  "gtest/1.8.1"
+    requires = "gtest/1.8.1"
 
     def build(self):
         cmake = CMake(self)

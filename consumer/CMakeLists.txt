@@ -7,5 +7,5 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
 add_executable(timer timer.cpp)
-target_link_libraries(timer CONAN_PKG::poco CONAN_PKG::hello
+target_link_libraries(timer CONAN_PKG::poco
                             CONAN_PKG::boost)

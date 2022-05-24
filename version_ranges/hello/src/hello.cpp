@@ -3,8 +3,8 @@
 
 void hello(){
     #ifdef NDEBUG
-    std::cout << "Hello World **** 0.2 **** Release!" <<std::endl;
+    std::cout << "Hello World Release!" <<std::endl;
     #else
-    std::cout << "Hello World **** 0.2 **** Debug!" <<std::endl;
+    std::cout << "Hello World Debug!" <<std::endl;
     #endif
 }

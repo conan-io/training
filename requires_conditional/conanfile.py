@@ -11,8 +11,7 @@ class HelloConan(ConanFile):
     default_options = {"zip": True}
 
     def requirements(self):
-        if self.options.zip:
-            self.requires("zlib/1.2.11")
+        self.requires("zlib/1.2.11")
 
     def build(self):
         cmake = CMake(self)

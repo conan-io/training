@@ -22,3 +22,4 @@ jobs:
         run: docker exec training pip install -U tox tox-venv
       - name: Run tests
         run: docker exec -e TOXENV=py37-conan training tox -vvv project/
+
