@@ -23,7 +23,7 @@ jobs:
           cd docker_environment/
           docker-compose build
       - name: Cache built Docker images
-        run: mkdir -p /tmp/docker-save && docker save conan_training_env_conan-training:latest jfrog-artifactory-training:latest -o /tmp/docker-save/snapshot.tar && ls -lh /tmp/docker-save || true
+        run: mkdir -p /tmp/docker-save && docker save conan_training_env_conan-training:latest conan_training_env_jfrog-artifactory-training:latest -o /tmp/docker-save/snapshot.tar && ls -lh /tmp/docker-save || true
         if: always() && steps.cache-docker.outputs.cache-hit != 'true'
       - name: Start docker container
         run: docker run -d -t -v ${GITHUB_WORKSPACE}:/home/conan/project:z --name training conan_training_env_conan-training:latest
