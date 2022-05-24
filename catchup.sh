@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 curdir=$(pwd)
 RED='\033[0;51;30m'
 STD='\033[0;0;39m'
