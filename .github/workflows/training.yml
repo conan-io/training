@@ -1,0 +1,37 @@
+name: Validate training workflow
+
+on:
+  - pull_request
+  - push
+
+jobs:
+  validate_training:
+    name: Validate Training changes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - id: cache-docker
+        uses: actions/cache@v1
+        with:
+          path: /tmp/docker-save
+          key: docker-save-${{ hashFiles('docker_environment/**') }}
+      - name: Load cached docker images
+        run: docker load -i /tmp/docker-save/snapshot.tar || true
+        if: steps.cache-docker.outputs.cache-hit == 'true'
+      - name: Build images
+        run: |
+          cd docker_environment/
+          docker-compose build
+      - name: Cache built Docker images
+        run: mkdir -p /tmp/docker-save && docker save conan_training_env_conan-training:latest conan_training_env_jfrog-artifactory-training:latest -o /tmp/docker-save/snapshot.tar && ls -lh /tmp/docker-save || true
+        if: always() && steps.cache-docker.outputs.cache-hit != 'true'
+      - name: Start docker container
+        run: docker run -d -t -v ${GITHUB_WORKSPACE}:/home/conan/project:z --name training conan_training_env_conan-training:latest
+      - name: Copy files to container
+        run: docker cp ${GITHUB_WORKSPACE} training:/home/conan/project
+      - name: Update file permission
+        run: docker exec training sudo chown -R conan:1001 /home/conan/project
+      - name: Install tox
+        run: docker exec training pip install -U tox tox-venv
+      - name: Run tests
+        run: docker exec -e TOXENV=py37-conan training /bin/bash -c 'cd /home/conan/project/; tox -vvv'

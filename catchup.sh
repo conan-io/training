@@ -17,7 +17,7 @@ consumer() {
     cd bin
     ./timer
     conan search
-    conan search zlib/1.2.11@
+    conan search zlib/1.2.12@
 }
 
 consumer_debug() {
@@ -32,7 +32,7 @@ consumer_debug() {
     cd bin
     ./timer
     conan search
-    conan search zlib/1.2.11@
+    conan search zlib/1.2.12@
 }
 
 consumer_gcc() {
@@ -244,7 +244,7 @@ running_apps() {
    cmake --version
    source activate_run.sh
    cmake --version
-   source deactivate_run.sh 
+   source deactivate_run.sh
    cmake --version
 }
 
@@ -389,7 +389,7 @@ run_option() {
          21) cmake_build_require ;;
          22) running_apps ;;
          23) python_requires ;;
-         24) version_ranges ;;    
+         24) version_ranges ;;
          25) revisions ;;
          26) lockfiles ;;
          27) package_id ;;
