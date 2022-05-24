@@ -10,10 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - id: cache-docker
+      uses: actions/cache@v1
+      with:
+        path: /tmp/docker-save
+        key: docker-save-${{ hashFiles('docker_environment/**') }}
+      - name: Load cached docker images
+        run: docker load -i /tmp/docker-save/snapshot.tar || true
+        if: steps.cache-docker.outputs.cache-hit == 'true'
       - name: Build images
         run: |
           cd docker_environment/
           docker-compose build
+      - name: Cache built Docker images
+        run: mkdir -p /tmp/docker-save && docker save conan_training_env_conan-training:latest jfrog-artifactory-training:latest -o /tmp/docker-save/snapshot.tar && ls -lh /tmp/docker-save || true
+        if: always() && steps.cache-docker.outputs.cache-hit != 'true'
       - name: Start docker container
         run: docker run -d -t -v ${GITHUB_WORKSPACE}:/home/conan/project:z --name training conan_training_env_conan-training:latest
       - name: Install tox
