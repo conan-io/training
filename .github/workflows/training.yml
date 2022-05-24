@@ -11,10 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - id: cache-docker
-      uses: actions/cache@v1
-      with:
-        path: /tmp/docker-save
-        key: docker-save-${{ hashFiles('docker_environment/**') }}
+        uses: actions/cache@v1
+        with:
+          path: /tmp/docker-save
+          key: docker-save-${{ hashFiles('docker_environment/**') }}
       - name: Load cached docker images
         run: docker load -i /tmp/docker-save/snapshot.tar || true
         if: steps.cache-docker.outputs.cache-hit == 'true'
