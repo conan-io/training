@@ -1,6 +1,6 @@
 ARG ARTIFACTORY_VERSION
 
-FROM jfrog-docker-reg2.bintray.io/jfrog/artifactory-cpp-ce:${ARTIFACTORY_VERSION}
+FROM docker.bintray.io/jfrog/artifactory-cpp-ce:${ARTIFACTORY_VERSION}
 
 COPY scripts/* /scripts/
 
